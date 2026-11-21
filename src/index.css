@@ -1,0 +1,155 @@
+@import 'tailwindcss';
+@import '@fontsource/suez-one';
+@import '@fontsource-variable/assistant';
+
+/*
+ * Design tokens — "nest" palette (see docs/ARCHITECTURE.md → Design):
+ *   shell  eggshell background      twig   ink (text)
+ *   robin  primary / done           straw  due soon / highlight
+ *   brick  overdue / urgent         night  labor-mode background
+ * Color encodes status only; keep decoration out of it.
+ */
+@theme {
+  --font-sans: 'Assistant Variable', 'Assistant', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Suez One', 'Assistant Variable', serif;
+
+  --color-shell: #f3f6f2;
+  --color-paper: #ffffff;
+  --color-twig: #3a2f28;
+  --color-twig-soft: #6e625a;
+  --color-line: #e1e7e2;
+  --color-robin: #237a74;
+  --color-robin-deep: #1a5e59;
+  --color-robin-soft: #d3ebe7;
+  --color-straw: #e2b33c;
+  --color-straw-soft: #f8ecc8;
+  --color-brick: #b8483a;
+  --color-brick-soft: #f6ded9;
+  --color-night: #132b29;
+  --color-night-2: #1d3d3a;
+  --color-night-text: #e8f3f0;
+
+  --radius-shelf: 1.25rem;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-shell font-sans text-twig antialiased;
+    font-size: 17px;
+    line-height: 1.5;
+    overscroll-behavior-y: none;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-robin);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  /* iOS zooms into inputs below 16px — keep form text ≥16px. */
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* Reusable building blocks (Tailwind v4 custom utilities — usable with variants and @apply). */
+@utility shelf {
+  border-radius: var(--radius-shelf);
+  background-color: var(--color-paper);
+  box-shadow: 0 1px 0 rgb(58 47 40 / 0.06);
+}
+@utility field {
+  @apply w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-twig placeholder:text-twig-soft/70 focus:border-robin focus:outline-none;
+}
+@utility label {
+  @apply mb-1 block text-sm font-semibold text-twig-soft;
+}
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 font-semibold transition-colors disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-robin text-white hover:bg-robin-deep;
+}
+@utility btn-quiet {
+  @apply btn bg-transparent text-robin hover:bg-robin-soft;
+}
+@utility btn-outline {
+  @apply btn border border-line bg-paper text-twig hover:border-robin;
+}
+@utility btn-danger {
+  @apply btn bg-brick text-white;
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Motion: only feedback for the user's own actions. */
+@keyframes check-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.check-pop {
+  animation: check-pop 220ms ease-out;
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.sheet-up {
+  animation: sheet-up 200ms ease-out;
+}
+@keyframes toast-in {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+.toast-in {
+  animation: toast-in 160ms ease-out;
+}
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+.breathe {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .check-pop,
+  .sheet-up,
+  .toast-in,
+  .breathe {
+    animation: none;
+  }
+}

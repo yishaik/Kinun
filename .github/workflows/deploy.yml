@@ -1,0 +1,31 @@
+name: Deploy to Firebase Hosting
+
+# Runs on every push to main once the repo is configured (see docs/SETUP-FIREBASE.md, step 6):
+#   - repository variable  FIREBASE_PROJECT_ID
+#   - repository secret    FIREBASE_SERVICE_ACCOUNT  (service-account JSON with "Firebase Hosting Admin")
+# Until then the job is skipped.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    if: ${{ vars.FIREBASE_PROJECT_ID != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ vars.FIREBASE_PROJECT_ID }}
+          channelId: live

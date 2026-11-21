@@ -1,0 +1,17 @@
+name: Check content links
+
+# Government and hospital pages move. This checks every URL in src/content weekly.
+on:
+  schedule:
+    - cron: '17 5 * * 0' # Sundays 05:17 UTC
+  workflow_dispatch:
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run check:links
