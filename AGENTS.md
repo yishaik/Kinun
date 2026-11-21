@@ -5,8 +5,8 @@ Read this file first, then the doc that matches your task (see "Where to look").
 
 ## What this is
 
-**Kinun** ("nesting" in Hebrew) is a shared birth-preparation app for one couple in Tel Aviv
-(Yishai and Lisia). Both sign in with Google and see the same lists, synced in real time:
+**Kinun** ("nesting" in Hebrew) is a shared birth-preparation app for a couple in the Tel Aviv area.
+Both partners sign in with Google and see the same lists, synced in real time:
 
 - **Tasks** (משימות) — what to do before the birth, at the hospital and in the first months, timed by pregnancy week / days after birth.
 - **Gear** (ציוד) — baby and postpartum equipment with status (צריך / בדרך / יש / לא צריך).
@@ -94,6 +94,16 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 - Data/rules change ⇒ rules tests updated (they run in CI).
 - Docs updated when behavior, structure or setup changes. Keep this file accurate.
 - Don't deploy or change Firebase/GitHub settings unless the user asked.
+
+## Production
+
+- Firebase project `kinun-ae894` (Spark plan), Firestore `(default)` in `me-west1`, app at <https://kinun-ae894.web.app>.
+  `.firebaserc` points at it. The couple uses this live — **deploy only when the user asks.**
+- Deploy = `npm run build` + `firebase deploy --project kinun-ae894` (hosting + Firestore rules/indexes). The simplest place
+  to run it is Google Cloud Shell, which has Node and the Firebase CLI and is already authenticated — see
+  docs/SETUP-FIREBASE.md, step 6. Rules changes must be deployed too, or the app and the rules drift apart.
+- Google sign-in on `web.app` depends on the OAuth web client listing `https://kinun-ae894.web.app/__/auth/handler`
+  as a redirect URI (docs/SETUP-FIREBASE.md, step 3). A new domain (custom domain, new project) needs the same.
 
 ## Known constraints
 

@@ -24,7 +24,9 @@ Roughly by value for the couple. Each item says where to start.
 - **Roles** — "who is pregnant / partner" to pre-assign tasks like "notify the employer" or "partner days off".
 - **Native apps** — wrap with Capacitor, switch Google sign-in to the native plugin, publish to the stores.
 - **More languages** — all enum labels are already centralized in `lib/labels.ts`; extract page copy next.
-- **Stricter sharing** — only the owner may change `memberEmails` (rules + UI).
+- **Stricter sharing** — only the owner may change `memberEmails` (rules + UI). The repo and the app URL are public, so
+  any Google account can sign in and create its own (empty, isolated) household; an allowlist of who may create
+  households would keep the free quota for the couple.
 
 ## Content to keep fresh
 

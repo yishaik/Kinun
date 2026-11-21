@@ -49,9 +49,9 @@ test('demo: onboarding → tasks → gear → labor timer → links → settings
 
   // Add a custom task
   await page.getByRole('button', { name: 'הוספת משימה' }).click();
-  await page.getByLabel('כותרת').fill('לקנות כרית הנקה לאמא של ליסיה');
+  await page.getByLabel('כותרת').fill('לקנות כרית הנקה לסבתא');
   await page.getByRole('button', { name: 'הוספה' }).click();
-  await expect(page.getByText('לקנות כרית הנקה לאמא של ליסיה')).toBeVisible();
+  await expect(page.getByText('לקנות כרית הנקה לסבתא')).toBeVisible();
 
   // Gear + bag
   await nav(page, 'ציוד').click();

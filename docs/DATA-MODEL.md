@@ -15,7 +15,7 @@ households/{householdId}/contractions/{contractionId}
 
 | Field                    | Type                                           | Notes                                                              |
 | ------------------------ | ---------------------------------------------- | ------------------------------------------------------------------ |
-| `name`                   | string (1–100)                                 | "הבית של ישי"                                                      |
+| `name`                   | string (1–100)                                 | "הבית שלנו"                                                        |
 | `ownerUid`               | string                                         | creator; can't be changed; only the owner can delete the household |
 | `memberEmails`           | string[] (1–10)                                | lower-cased Google emails allowed in — **this is the access list** |
 | `members`                | map uid → `{ name, email, photoURL }`          | display profiles, written by each member on first open             |

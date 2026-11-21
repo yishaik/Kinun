@@ -61,6 +61,8 @@ Backend selection (`data/firebaseConfig.ts → chooseBackend`):
 - Safari/iOS block third-party storage, which breaks redirect sign-in when the auth helper lives on
   `<project>.firebaseapp.com`. When the app is served by Firebase Hosting, `chooseBackend` sets
   `authDomain = location.host`, so the helper (`/__/auth/handler`) is same-origin. This is Firebase's recommended fix.
+  It requires `https://<host>/__/auth/handler` (and the origin) on the Google OAuth web client — Firebase only adds the
+  `firebaseapp.com` ones automatically. See docs/SETUP-FIREBASE.md, step 3.
 - The service worker's navigation fallback explicitly excludes `/__/*` (see `vite.config.ts`) — otherwise the PWA would
   swallow the auth handler.
 - iOS home-screen apps have storage separate from Safari → users sign in once inside the installed app.
