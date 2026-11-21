@@ -1,9 +1,9 @@
-import { Download, ExternalLink, LogOut, Share2, Trash2, UserPlus } from 'lucide-react';
+import { Download, ExternalLink, LogOut, MinusCircle, Share2, UserPlus } from 'lucide-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Avatar, PageTitle } from '../components/ui';
+import { ALLOWED_EMAILS } from '../lib/access';
 import { CONTENT_RESEARCHED_AT, CONTENT_VERSION } from '../content';
 import { useActions, useHousehold, useSession } from '../data/session';
-import { isValidEmail, normalizeEmail } from '../data/store';
 import { useToast } from '../data/toast';
 import { formatIsoDate } from '../lib/format';
 import { isIOS, isStandalone } from '../lib/platform';
@@ -35,12 +35,51 @@ const HOSPITAL_PRESETS: HospitalInfo[] = [
 
 const emptyHospital: HospitalInfo = { name: '', phone: '', address: '', url: '', notes: '' };
 
-function Card({ title, children }: { title: string; children: ReactNode }) {
+function Group({ title, footer, children }: { title: string; footer?: ReactNode; children: ReactNode }) {
   return (
-    <section className="mb-6">
-      <h2 className="mb-2 px-1 font-display text-xl">{title}</h2>
-      <div className="shelf p-4">{children}</div>
+    <section className="mb-7">
+      <h2 className="list-header uppercase">{title}</h2>
+      <div className="shelf ios-list overflow-hidden">{children}</div>
+      {footer && <div className="list-footer">{footer}</div>}
     </section>
+  );
+}
+
+/** iOS form cell: label at the leading edge, the field filling the rest. */
+function FieldRow({ label, children, htmlFor }: { label: string; htmlFor: string; children: ReactNode }) {
+  return (
+    <div className="flex min-h-11 items-center gap-3 ps-4 pe-4">
+      <label htmlFor={htmlFor} className="w-32 shrink-0 text-body">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+const cellInput =
+  'min-h-11 min-w-0 flex-1 bg-transparent py-2 text-twig placeholder:text-twig-faint focus:outline-none';
+
+function ActionRow({
+  children,
+  onClick,
+  tone = 'robin',
+  icon,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  tone?: 'robin' | 'brick';
+  icon?: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`row-tap flex min-h-11 w-full items-center gap-3 px-4 text-start text-body ${tone === 'brick' ? 'text-brick' : 'text-robin'}`}
+    >
+      {icon}
+      <span className="min-w-0 flex-1 truncate">{children}</span>
+    </button>
   );
 }
 
@@ -57,7 +96,6 @@ export function SettingsPage() {
     babyName: household.babyName ?? '',
   });
   const [hospital, setHospital] = useState<HospitalInfo>(household.hospital ?? emptyHospital);
-  const [email, setEmail] = useState('');
   const pending = actions.pendingContent();
 
   const saveDetails = (e: FormEvent) => {
@@ -82,14 +120,11 @@ export function SettingsPage() {
     toast('פרטי בית החולים נשמרו', 'success');
   };
 
-  const addEmail = (e: FormEvent) => {
-    e.preventDefault();
-    if (!isValidEmail(email)) return toast('כתובת אימייל לא תקינה', 'error');
-    const normalized = normalizeEmail(email);
-    if (household.memberEmails.includes(normalized)) return toast('הכתובת כבר ברשימה', 'info');
-    void actions.addMemberEmail(normalized);
-    setEmail('');
-    toast('נוסף. עכשיו שלחו את הקישור לאפליקציה והתחברו עם אותו חשבון Google.', 'success');
+  // The app is private: only allowlisted accounts can be added (firestore.rules enforces the same).
+  const addable = ALLOWED_EMAILS.filter((e) => !household.memberEmails.includes(e));
+  const addEmail = (email: string) => {
+    void actions.addMemberEmail(email);
+    toast('נוסף לבית', 'success');
   };
 
   const shareApp = async () => {
@@ -121,201 +156,170 @@ export function SettingsPage() {
     <>
       <PageTitle>הגדרות</PageTitle>
 
-      <Card title="הבית שלנו">
-        <form className="flex flex-col gap-3" onSubmit={saveDetails}>
-          <div>
-            <label className="label" htmlFor="s-name">
-              שם
-            </label>
+      <form onSubmit={saveDetails}>
+        <Group title="הבית שלנו">
+          <FieldRow label="שם" htmlFor="s-name">
             <input
               id="s-name"
-              className="field"
+              className={cellInput}
               value={details.name}
               onChange={(e) => setDetails({ ...details, name: e.target.value })}
             />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="label" htmlFor="s-due">
-                תאריך משוער
-              </label>
-              <input
-                id="s-due"
-                type="date"
-                className="field"
-                value={details.dueDate}
-                onChange={(e) => setDetails({ ...details, dueDate: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="label" htmlFor="s-birth">
-                תאריך לידה בפועל
-              </label>
-              <input
-                id="s-birth"
-                type="date"
-                className="field"
-                value={details.birthDate}
-                onChange={(e) => setDetails({ ...details, birthDate: e.target.value })}
-              />
-            </div>
-          </div>
-          <div>
-            <label className="label" htmlFor="s-baby">
-              שם התינוק/ת
-            </label>
+          </FieldRow>
+          <FieldRow label="תאריך משוער" htmlFor="s-due">
+            <input
+              id="s-due"
+              type="date"
+              className={cellInput}
+              value={details.dueDate}
+              onChange={(e) => setDetails({ ...details, dueDate: e.target.value })}
+            />
+          </FieldRow>
+          <FieldRow label="תאריך לידה בפועל" htmlFor="s-birth">
+            <input
+              id="s-birth"
+              type="date"
+              className={cellInput}
+              value={details.birthDate}
+              onChange={(e) => setDetails({ ...details, birthDate: e.target.value })}
+            />
+          </FieldRow>
+          <FieldRow label="שם התינוק/ת" htmlFor="s-baby">
             <input
               id="s-baby"
-              className="field"
+              className={cellInput}
+              placeholder="אפשר גם אחר כך"
               value={details.babyName}
               onChange={(e) => setDetails({ ...details, babyName: e.target.value })}
             />
-          </div>
-          <button type="submit" className="btn-primary self-start">
+          </FieldRow>
+          <button
+            type="submit"
+            className="row-tap flex min-h-11 w-full items-center px-4 text-body font-semibold text-robin"
+          >
             שמירה
           </button>
-        </form>
-      </Card>
+        </Group>
+      </form>
 
-      <Card title="בית החולים">
-        <form className="flex flex-col gap-3" onSubmit={saveHospital}>
-          <div className="-mx-1 flex flex-wrap gap-2">
+      <form onSubmit={saveHospital}>
+        <Group title="בית החולים" footer="את טלפון חדר הלידה כדאי לאמת מול אתר בית החולים או בסיור.">
+          <div className="flex gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none]">
             {HOSPITAL_PRESETS.map((h) => (
               <button
                 key={h.name}
                 type="button"
-                className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${hospital.name === h.name ? 'border-robin bg-robin-soft text-robin-deep' : 'border-line'}`}
+                aria-pressed={hospital.name === h.name}
+                className={`press shrink-0 rounded-full px-3.5 py-1.5 text-subhead font-medium transition-colors ${
+                  hospital.name === h.name ? 'bg-robin text-on-robin' : 'bg-fill text-twig'
+                }`}
                 onClick={() => setHospital({ ...h, phone: h.phone || hospital.phone })}
               >
                 {h.name}
               </button>
             ))}
           </div>
-          <div>
-            <label className="label" htmlFor="h-name">
-              שם בית החולים
-            </label>
+          <FieldRow label="שם בית החולים" htmlFor="h-name">
             <input
               id="h-name"
-              className="field"
+              className={cellInput}
               value={hospital.name}
               onChange={(e) => setHospital({ ...hospital, name: e.target.value })}
             />
-          </div>
-          <div>
-            <label className="label" htmlFor="h-phone">
-              טלפון חדר לידה / מיון יולדות
-            </label>
+          </FieldRow>
+          <FieldRow label="טלפון חדר לידה" htmlFor="h-phone">
             <input
               id="h-phone"
-              className="field"
+              className={`${cellInput} text-end`}
               type="tel"
               dir="ltr"
               value={hospital.phone}
               onChange={(e) => setHospital({ ...hospital, phone: e.target.value })}
             />
-          </div>
-          <div>
-            <label className="label" htmlFor="h-address">
-              כתובת (לניווט)
-            </label>
+          </FieldRow>
+          <FieldRow label="כתובת (לניווט)" htmlFor="h-address">
             <input
               id="h-address"
-              className="field"
+              className={cellInput}
               value={hospital.address}
               onChange={(e) => setHospital({ ...hospital, address: e.target.value })}
             />
-          </div>
-          <div>
-            <label className="label" htmlFor="h-url">
-              אתר
-            </label>
+          </FieldRow>
+          <FieldRow label="אתר" htmlFor="h-url">
             <input
               id="h-url"
-              className="field"
+              className={`${cellInput} text-end`}
               type="url"
               dir="ltr"
               value={hospital.url}
               onChange={(e) => setHospital({ ...hospital, url: e.target.value })}
             />
-          </div>
-          <div>
-            <label className="label" htmlFor="h-notes">
-              הערות
-            </label>
+          </FieldRow>
+          <FieldRow label="הערות" htmlFor="h-notes">
             <input
               id="h-notes"
-              className="field"
+              className={cellInput}
               value={hospital.notes}
               onChange={(e) => setHospital({ ...hospital, notes: e.target.value })}
             />
-          </div>
-          <p className="text-sm text-twig-soft">את טלפון חדר הלידה כדאי לאמת מול אתר בית החולים או בסיור.</p>
-          <button type="submit" className="btn-primary self-start">
+          </FieldRow>
+          <button
+            type="submit"
+            className="row-tap flex min-h-11 w-full items-center px-4 text-body font-semibold text-robin"
+          >
             שמירה
           </button>
-        </form>
-      </Card>
+        </Group>
+      </form>
 
-      <Card title="מי משתמש באפליקציה">
-        <ul className="mb-4 flex flex-col gap-3">
-          {household.memberEmails.map((e) => {
-            const profile = Object.values(household.members).find((m) => m.email === e);
-            const isMe = e === user?.email;
-            return (
-              <li key={e} className="flex items-center gap-3">
-                <Avatar name={profile?.name ?? e} photoURL={profile?.photoURL} size={36} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold">{profile?.name ?? 'עוד לא התחבר/ה'}</p>
-                  <p className="truncate text-sm text-twig-soft" dir="ltr">
-                    {e}
-                  </p>
-                </div>
-                {!isMe && (
-                  <button
-                    type="button"
-                    aria-label={`הסרת ${e}`}
-                    className="rounded-full p-2 text-twig-soft hover:bg-line"
-                    onClick={() => {
-                      void actions.removeMemberEmail(e);
-                      toast('הוסר', 'info', { label: 'ביטול', onClick: () => void actions.addMemberEmail(e) });
-                    }}
-                  >
-                    <Trash2 className="size-4" aria-hidden />
-                  </button>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-        <form className="flex gap-2" onSubmit={addEmail}>
-          <input
-            className="field flex-1"
-            type="email"
-            dir="ltr"
-            placeholder="partner@gmail.com"
-            aria-label="כתובת Gmail להוספה"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <button type="submit" className="btn-primary shrink-0" aria-label="הוספה">
-            <UserPlus className="size-5" aria-hidden />
-          </button>
-        </form>
-        <p className="mt-2 text-sm text-twig-soft">
-          מי שהכתובת שלו ברשימה נכנס עם Google ורואה את כל הרשימות, מסונכרן בזמן אמת.
-        </p>
-        <button type="button" className="btn-outline mt-3 w-full" onClick={shareApp}>
-          <Share2 className="size-4" aria-hidden /> שליחת קישור לאפליקציה
-        </button>
+      <Group
+        title="מי משתמש באפליקציה"
+        footer="האפליקציה פרטית: רק החשבונות המורשים יכולים להתחבר ולראות את הרשימות, מסונכרנות בזמן אמת."
+      >
+        {household.memberEmails.map((e) => {
+          const profile = Object.values(household.members).find((m) => m.email === e);
+          const isMe = e === user?.email;
+          return (
+            <div key={e} className="flex min-h-14 items-center gap-3 ps-4 pe-2">
+              <Avatar name={profile?.name ?? e} photoURL={profile?.photoURL} size={36} />
+              <div className="min-w-0 flex-1 py-2">
+                <p className="truncate text-body">
+                  {profile?.name ?? 'עוד לא התחבר/ה'}
+                  {isMe && <span className="text-twig-soft"> (אני)</span>}
+                </p>
+                <p className="truncate text-footnote text-twig-soft" dir="ltr">
+                  {e}
+                </p>
+              </div>
+              {!isMe && (
+                <button
+                  type="button"
+                  aria-label={`הסרת ${e}`}
+                  className="press flex size-11 items-center justify-center rounded-full text-brick"
+                  onClick={() => {
+                    void actions.removeMemberEmail(e);
+                    toast('הוסר', 'info', { label: 'ביטול', onClick: () => void actions.addMemberEmail(e) });
+                  }}
+                >
+                  <MinusCircle className="size-5" aria-hidden />
+                </button>
+              )}
+            </div>
+          );
+        })}
+        {addable.map((e) => (
+          <ActionRow key={e} onClick={() => addEmail(e)} icon={<UserPlus className="size-5 shrink-0" aria-hidden />}>
+            הוספת <span dir="ltr">{e}</span>
+          </ActionRow>
+        ))}
+        <ActionRow onClick={shareApp} icon={<Share2 className="size-5 shrink-0" aria-hidden />}>
+          שליחת קישור לאפליקציה
+        </ActionRow>
         {households.length > 1 && (
-          <div className="mt-4">
-            <label className="label" htmlFor="s-household">
-              מעבר בין משקי בית
-            </label>
+          <FieldRow label="משק בית" htmlFor="s-household">
             <select
               id="s-household"
-              className="field"
+              className={cellInput}
               value={household.id}
               onChange={(e) => selectHousehold(e.target.value)}
             >
@@ -325,75 +329,78 @@ export function SettingsPage() {
                 </option>
               ))}
             </select>
-          </div>
+          </FieldRow>
         )}
-      </Card>
+      </Group>
 
       {!isStandalone() && (
-        <Card title="התקנה בטלפון">
-          {isIOS() ? (
-            <p>
-              באייפון: פתחו את האפליקציה ב-Safari, הקישו על כפתור השיתוף ואז על <strong>הוספה למסך הבית</strong>. אחרי
-              ההתקנה צריך להתחבר פעם אחת גם מתוך האפליקציה.
-            </p>
-          ) : (
-            <p>
-              באנדרואיד: בתפריט של Chrome (שלוש הנקודות) בחרו <strong>התקנת אפליקציה</strong> או{' '}
-              <strong>הוספה למסך הבית</strong>.
-            </p>
-          )}
-        </Card>
+        <Group title="התקנה בטלפון">
+          <p className="px-4 py-3 text-subhead">
+            {isIOS() ? (
+              <>
+                באייפון: פותחים ב-Safari, מקישים על כפתור השיתוף ואז על <strong>הוספה למסך הבית</strong>. אחרי ההתקנה
+                צריך להתחבר פעם אחת גם מתוך האפליקציה.
+              </>
+            ) : (
+              <>
+                באנדרואיד: בתפריט של Chrome (שלוש הנקודות) בוחרים <strong>התקנת אפליקציה</strong> או{' '}
+                <strong>הוספה למסך הבית</strong>.
+              </>
+            )}
+          </p>
+        </Group>
       )}
 
-      <Card title="תוכן ברירת המחדל">
-        <p className="mb-3 text-twig-soft">
-          גרסה {CONTENT_VERSION}, נבדקה מול מקורות רשמיים ב-{formatIsoDate(CONTENT_RESEARCHED_AT)}. סכומים ומועדים
-          משתנים — לפני פעולה כדאי לפתוח את המקור שמופיע בכל פריט.
-        </p>
+      <Group
+        title="תוכן ברירת המחדל"
+        footer={`גרסה ${CONTENT_VERSION}, נבדקה מול מקורות רשמיים ב-${formatIsoDate(CONTENT_RESEARCHED_AT)}. סכומים ומועדים משתנים — לפני פעולה כדאי לפתוח את המקור שמופיע בכל פריט.`}
+      >
         {pending.length > 0 ? (
-          <button
-            type="button"
-            className="btn-primary w-full"
+          <ActionRow
             onClick={async () => {
               const n = await actions.applyPendingContent();
               toast(`נוספו ${n} פריטים`, 'success');
             }}
           >
             הוספת {pending.length} פריטים חדשים מהתוכן המעודכן
-          </button>
+          </ActionRow>
         ) : (
-          <p className="text-sm">כל התוכן העדכני כבר אצלכם.</p>
+          <p className="flex min-h-11 items-center px-4 text-body text-twig-soft">כל התוכן העדכני כבר אצלכם.</p>
         )}
         {household.dismissedSeedIds.length > 0 && (
-          <button
-            type="button"
-            className="btn-quiet mt-2 px-2"
+          <ActionRow
             onClick={async () => {
               const n = await actions.restoreDismissedContent();
               toast(`שוחזרו ${n} פריטים`, 'success');
             }}
           >
             שחזור {household.dismissedSeedIds.length} פריטים שמחקתם
-          </button>
+          </ActionRow>
         )}
-      </Card>
+      </Group>
 
-      <Card title="חשבון וגיבוי">
-        <p className="mb-3">
-          מחובר/ת כ-<span dir="ltr">{user?.email}</span>
-          {store.mode === 'demo' && ' (מצב הדגמה)'}
-        </p>
-        <div className="flex flex-col gap-2">
-          <button type="button" className="btn-outline w-full" onClick={exportJson}>
-            <Download className="size-4" aria-hidden /> הורדת גיבוי (JSON)
-          </button>
-          <button type="button" className="btn-outline w-full" onClick={() => void actions.signOut()}>
-            <LogOut className="size-4" aria-hidden /> התנתקות
-          </button>
-        </div>
-      </Card>
+      <Group
+        title="חשבון וגיבוי"
+        footer={
+          <>
+            מחובר/ת כ-<span dir="ltr">{user?.email}</span>
+            {store.mode === 'demo' && ' (מצב הדגמה)'}
+          </>
+        }
+      >
+        <ActionRow onClick={exportJson} icon={<Download className="size-5 shrink-0" aria-hidden />}>
+          הורדת גיבוי (JSON)
+        </ActionRow>
+        <ActionRow
+          tone="brick"
+          onClick={() => void actions.signOut()}
+          icon={<LogOut className="size-5 shrink-0" aria-hidden />}
+        >
+          התנתקות
+        </ActionRow>
+      </Group>
 
-      <p className="mb-6 text-center text-sm text-twig-soft">
+      <p className="mb-6 text-center text-footnote text-twig-soft">
         הקוד של קינון נמצא ב-{' '}
         <a
           href={REPO_URL}

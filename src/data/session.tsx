@@ -4,6 +4,7 @@
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { CONTENT_VERSION } from '../content';
+import { isAllowedEmail } from '../lib/access';
 import { isGearDone } from '../lib/labels';
 import { safeStorage } from '../lib/platform';
 import { buildSeedItems, missingSeedItems } from '../lib/seed';
@@ -14,7 +15,14 @@ import { useToast } from './toast';
 const SELECTED_KEY = 'kinun:selectedHousehold';
 const EMPTY_ITEMS: Item[] = [];
 
-export type SessionStatus = 'auth-loading' | 'signed-out' | 'households-loading' | 'no-household' | 'ready';
+export type SessionStatus =
+  | 'auth-loading'
+  | 'signed-out'
+  /** Signed in with a Google account that is not on the allowlist (src/lib/access.ts). */
+  | 'not-allowed'
+  | 'households-loading'
+  | 'no-household'
+  | 'ready';
 
 interface SessionValue {
   store: DataStore;
@@ -66,9 +74,13 @@ export function SessionProvider({ store, children }: { store: DataStore; childre
     };
   }, [store, toast]);
 
+  // The app is private: real (Firebase) sign-ins must be on the allowlist. Demo mode is local-only.
+  const allowedUser = user && (store.mode === 'demo' || isAllowedEmail(user.email)) ? user : null;
+
   // Households for this user
   useEffect(() => {
-    if (!user) return;
+    if (!allowedUser) return;
+    const user = allowedUser;
     const email = user.email;
     return store.watchHouseholdsForEmail(
       email,
@@ -78,7 +90,7 @@ export function SessionProvider({ store, children }: { store: DataStore; childre
       },
       (err) => setLoadError(describeError(err)),
     );
-  }, [store, user]);
+  }, [store, allowedUser]);
   const households = user && householdsState?.email === user.email ? householdsState.list : null;
 
   // Pick the active household
@@ -127,11 +139,13 @@ export function SessionProvider({ store, children }: { store: DataStore; childre
     ? 'auth-loading'
     : !user
       ? 'signed-out'
-      : households === null
-        ? 'households-loading'
-        : households.length === 0
-          ? 'no-household'
-          : 'ready';
+      : !allowedUser
+        ? 'not-allowed'
+        : households === null
+          ? 'households-loading'
+          : households.length === 0
+            ? 'no-household'
+            : 'ready';
 
   const value = useMemo<SessionValue>(
     () => ({

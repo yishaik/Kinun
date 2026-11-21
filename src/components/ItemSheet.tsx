@@ -24,7 +24,7 @@ import { nextOrder } from '../lib/seed';
 import type { GearStatus, Item, ItemKind, ItemLink, NewItem, PhaseKey, Priority } from '../lib/types';
 import { AssigneeBadge, dueBadge } from './itemMeta';
 import { Sheet } from './Sheet';
-import { Chip, Segmented } from './ui';
+import { Chip, Chevron, Segmented, Switch } from './ui';
 
 const CUSTOM = '__custom__';
 const POST_BIRTH: PhaseKey[] = ['hospital', 'firstWeeks', 'firstMonths'];
@@ -205,13 +205,13 @@ export function ItemSheet({
             <button type="button" className="btn-outline flex-1" onClick={() => setMode('edit')}>
               <Pencil className="size-4" aria-hidden /> עריכה
             </button>
-            <button type="button" className="btn-quiet text-brick hover:bg-brick-soft" onClick={remove}>
+            <button type="button" className="btn bg-brick-soft text-brick-ink" onClick={remove}>
               <Trash2 className="size-4" aria-hidden /> מחיקה
             </button>
           </div>
         }
       >
-        <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="mb-4 flex flex-wrap items-center gap-2 px-1">
           <Chip>{categoryLabel(item.kind, item.category)}</Chip>
           {item.kind === 'task' && <Chip tone="muted">{PHASE_LABEL[item.phase]}</Chip>}
           {due && <Chip tone={due.tone}>{due.text}</Chip>}
@@ -221,7 +221,9 @@ export function ItemSheet({
           <AssigneeBadge assignee={item.assignee} members={members} />
         </div>
 
-        {item.notes && <p className="mb-5 whitespace-pre-line text-[17px] leading-relaxed">{item.notes}</p>}
+        {item.notes && (
+          <p className="shelf mb-5 px-4 py-3 text-body leading-relaxed whitespace-pre-line">{item.notes}</p>
+        )}
 
         {item.kind === 'gear' && (
           <div className="mb-5">
@@ -258,26 +260,31 @@ export function ItemSheet({
                 <ExternalLink className="size-4" aria-hidden /> פתיחה ב-{hostOf(item.url)}
               </a>
             )}
-            {item.links.map((l) => (
-              <a
-                key={l.url}
-                href={l.url}
-                target="_blank"
-                rel="noreferrer"
-                className="shelf flex items-center gap-3 px-4 py-3"
-              >
-                <ExternalLink className="size-4 shrink-0 text-robin" aria-hidden />
-                <span className="flex-1">
-                  <span className="block font-semibold">{l.label}</span>
-                  <span className="block text-sm text-twig-soft">{hostOf(l.url)}</span>
-                </span>
-              </a>
-            ))}
+            {item.links.length > 0 && (
+              <div className="shelf ios-list overflow-hidden [--sep-inset:3rem]">
+                {item.links.map((l) => (
+                  <a
+                    key={l.url}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="row-tap flex min-h-11 items-center gap-3 px-4 py-2.5"
+                  >
+                    <ExternalLink className="size-5 shrink-0 text-robin" aria-hidden />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-body">{l.label}</span>
+                      <span className="block text-footnote text-twig-soft">{hostOf(l.url)}</span>
+                    </span>
+                    <Chevron />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {item.source && (
-          <p className="text-sm text-twig-soft">
+          <p className="px-1 text-footnote text-twig-soft">
             מקור:{' '}
             <a href={item.source} target="_blank" rel="noreferrer" className="underline underline-offset-4">
               {hostOf(item.source)}
@@ -507,15 +514,12 @@ export function ItemSheet({
         </div>
 
         {kind === 'task' && (
-          <label className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              className="size-5 accent-[var(--color-robin)]"
-              checked={form.optional}
-              onChange={(e) => set('optional', e.target.checked)}
-            />
-            <span>אופציונלי (לא לכולם)</span>
-          </label>
+          <div className="flex min-h-11 items-center gap-3 rounded-[10px] bg-paper ps-3 pe-2">
+            <label htmlFor="f-optional" className="flex-1">
+              אופציונלי (לא לכולם)
+            </label>
+            <Switch id="f-optional" checked={form.optional} onChange={(v) => set('optional', v)} />
+          </div>
         )}
 
         {kind === 'link' && (

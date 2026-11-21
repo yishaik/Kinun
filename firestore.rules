@@ -4,9 +4,11 @@ rules_version = '2';
 // Kinun — Firestore security rules
 //
 // Access model (see docs/DATA-MODEL.md):
-//   A household document lists the Google-account emails allowed in (`memberEmails`,
-//   lower-case). Anyone signed in with a VERIFIED email on that list can read and write
-//   the household and its sub-collections. Everyone else sees nothing.
+//   Kinun is PRIVATE: only the Google accounts in `allowlist()` may use it at all (keep it in
+//   sync with src/lib/access.ts). On top of that, a household document lists the emails allowed
+//   in (`memberEmails`, lower-case, always a subset of the allowlist). A VERIFIED, allowlisted
+//   account on that list can read and write the household and its sub-collections.
+//   Everyone else sees nothing and can create nothing.
 //
 // Tests: firestore-tests/rules.test.ts (`npm run test:rules`, runs in CI with the emulator).
 // ─────────────────────────────────────────────────────────────────────────────
@@ -23,29 +25,54 @@ service cloud.firestore {
       return request.auth.token.email.lower();
     }
 
+    // The only Google accounts that may use Kinun (lower-case). Mirror of src/lib/access.ts.
+    function allowlist() {
+      return ['yishai.k@gmail.com', 'yishaik@gmail.com', 'lisya.abulafya@gmail.com'];
+    }
+
+    function allowed() {
+      return verified() && myEmail() in allowlist();
+    }
+
     function isMember(data) {
-      return verified() && myEmail() in data.memberEmails;
+      return allowed() && myEmail() in data.memberEmails;
     }
 
     function householdIsValid(data) {
-      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+      return data.keys().hasOnly([
+          'name', 'ownerUid', 'memberEmails', 'members', 'dueDate', 'birthDate', 'babyName',
+          'hospital', 'contentVersion', 'dismissedSeedIds', 'createdAt', 'updatedAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
         && data.ownerUid is string
         && data.memberEmails is list
-        && data.memberEmails.size() >= 1 && data.memberEmails.size() <= 10;
+        && data.memberEmails.size() >= 1 && data.memberEmails.size() <= 10
+        && data.memberEmails.hasOnly(allowlist());
     }
 
     function itemIsValid(data) {
-      return data.kind in ['task', 'gear', 'bag', 'link']
+      return data.keys().hasOnly([
+          'kind', 'title', 'notes', 'category', 'phase', 'done', 'order', 'links', 'source', 'seedId',
+          'dueWeek', 'dueDaysAfterBirth', 'assignee', 'gearStatus', 'priority', 'quantity', 'price',
+          'url', 'phone', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'doneAt', 'doneBy'])
+        && data.kind in ['task', 'gear', 'bag', 'link']
         && data.title is string && data.title.size() > 0 && data.title.size() <= 300
         && data.notes is string && data.notes.size() <= 5000
         && data.done is bool;
+    }
+
+    function contractionIsValid(data) {
+      return data.keys().hasOnly(['start', 'end', 'createdBy'])
+        && data.keys().hasAll(['start', 'createdBy'])
+        && data.start is number
+        && (data.get('end', null) == null || data.end is number)
+        && data.createdBy is string && data.createdBy.size() <= 128;
     }
 
     match /households/{householdId} {
       // `list` works for the app's query: where('memberEmails', 'array-contains', <my email>).
       allow get, list: if isMember(resource.data);
 
-      allow create: if verified()
+      allow create: if allowed()
         && request.resource.data.ownerUid == request.auth.uid
         && myEmail() in request.resource.data.memberEmails
         && householdIsValid(request.resource.data);
@@ -56,7 +83,7 @@ service cloud.firestore {
         && request.resource.data.get('createdAt', null) == resource.data.get('createdAt', null)
         && householdIsValid(request.resource.data);
 
-      allow delete: if verified() && resource.data.ownerUid == request.auth.uid;
+      allow delete: if allowed() && resource.data.ownerUid == request.auth.uid;
 
       function memberOfThisHousehold() {
         return isMember(get(/databases/$(database)/documents/households/$(householdId)).data);
@@ -68,7 +95,8 @@ service cloud.firestore {
       }
 
       match /contractions/{contractionId} {
-        allow read, write: if memberOfThisHousehold();
+        allow read, delete: if memberOfThisHousehold();
+        allow create, update: if memberOfThisHousehold() && contractionIsValid(request.resource.data);
       }
     }
   }

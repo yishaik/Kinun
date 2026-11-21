@@ -1,8 +1,7 @@
-import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useItemSheet } from '../components/ItemSheet';
 import { LinkRow } from '../components/rows';
-import { EmptyState, Fab, PageTitle, Section } from '../components/ui';
+import { EmptyState, Fab, PageTitle, SearchField, Section } from '../components/ui';
 import { useSession } from '../data/session';
 import { categoryLabel, orderedCategories } from '../lib/labels';
 
@@ -28,24 +27,13 @@ export function LinksPage() {
 
   return (
     <>
-      <PageTitle>קישורים וטלפונים</PageTitle>
-      <label className="relative mb-5 block">
-        <span className="sr-only">חיפוש</span>
-        <Search
-          className="pointer-events-none absolute start-3 top-1/2 size-5 -translate-y-1/2 text-twig-soft"
-          aria-hidden
-        />
-        <input
-          type="search"
-          className="field ps-10"
-          placeholder="חיפוש: דמי לידה, טיפת חלב, סלקל…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-      </label>
+      <PageTitle>קישורים</PageTitle>
+      <div className="mb-6">
+        <SearchField value={q} onChange={setQ} placeholder="חיפוש: דמי לידה, טיפת חלב, סלקל…" />
+      </div>
 
       {groups.map(({ cat, rows }) => (
-        <Section key={cat} title={categoryLabel('link', cat)}>
+        <Section key={cat} title={categoryLabel('link', cat)} inset="1rem">
           {rows.map((i) => (
             <LinkRow key={i.id} item={i} onOpen={openItem} />
           ))}

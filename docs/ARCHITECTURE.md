@@ -11,13 +11,13 @@
 
 ## Stack
 
-| Concern | Choice                                                                                                                            |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| UI      | React 19, TypeScript (strict), react-router 7 (`HashRouter`)                                                                      |
-| Styling | Tailwind CSS v4 (`@theme` tokens in `src/index.css`), lucide-react icons, fonts Suez One + Assistant (self-hosted via Fontsource) |
-| Build   | Vite 8, vite-plugin-pwa (Workbox `generateSW`, auto-update)                                                                       |
-| Backend | Firebase Auth (Google), Cloud Firestore, Firebase Hosting                                                                         |
-| Tests   | Vitest + Testing Library (unit/integration), Playwright (e2e, demo mode), `@firebase/rules-unit-testing` (emulator)               |
+| Concern | Choice                                                                                                                                |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| UI      | React 19, TypeScript (strict), react-router 7 (`HashRouter`)                                                                          |
+| Styling | Tailwind CSS v4 (`@theme` tokens in `src/index.css`), lucide-react icons, system font (SF on Apple) + Assistant fallback (Fontsource) |
+| Build   | Vite 8, vite-plugin-pwa (Workbox `generateSW`, auto-update)                                                                           |
+| Backend | Firebase Auth (Google), Cloud Firestore, Firebase Hosting                                                                             |
+| Tests   | Vitest + Testing Library (unit/integration), Playwright (e2e, demo mode), `@firebase/rules-unit-testing` (emulator)                   |
 
 ## Layers
 
@@ -69,8 +69,10 @@ Backend selection (`data/firebaseConfig.ts → chooseBackend`):
 
 ## Sharing model
 
-A household document has `memberEmails` (lower-case). Anyone signed in with a verified Google account whose email is in
-the list can read/write the household and its sub-collections — enforced by `firestore.rules`. Inviting = adding an email
+**Kinun is private.** Only the Google accounts in the allowlist (`src/lib/access.ts`, mirrored by `allowlist()` in
+`firestore.rules`; a unit test keeps them equal) can do anything at all. On top of that, a household document has
+`memberEmails` (lower-case, a subset of the allowlist). A verified, allowlisted account whose email is in the list can
+read/write the household and its sub-collections — enforced by `firestore.rules`. Inviting = adding an email
 (Settings, or the onboarding form). The invitee's app finds the household through a live query, so it appears without a
 refresh. Details: [DATA-MODEL.md](DATA-MODEL.md).
 
@@ -88,7 +90,7 @@ refresh. Details: [DATA-MODEL.md](DATA-MODEL.md).
 
 | Route       | File                     | Notes                                                                       |
 | ----------- | ------------------------ | --------------------------------------------------------------------------- |
-| `/`         | `pages/HomePage.tsx`     | Egg progress hero, "מה עכשיו", progress, recent activity, "baby born" sheet |
+| `/`         | `pages/HomePage.tsx`     | Week widget + ring, "מה עכשיו", progress rings, recent activity, born sheet |
 | `/tasks`    | `pages/TasksPage.tsx`    | Phase sections, assignee filter, show-done toggle, FAB                      |
 | `/gear`     | `pages/GearPage.tsx`     | Gear vs. hospital-bag tabs (`?tab=bag`), category sections                  |
 | `/labor`    | `pages/LaborPage.tsx`    | Dark "night" theme; shared contraction timer; call/navigate                 |
@@ -96,25 +98,54 @@ refresh. Details: [DATA-MODEL.md](DATA-MODEL.md).
 | `/settings` | `pages/SettingsPage.tsx` | Household, hospital presets, members, content updates, backup, sign-out     |
 
 Before a household exists: `SignInPage` → `OnboardingPage` (creates the household and copies the default content).
+A Firebase sign-in that is not on the allowlist (`lib/access.ts`) gets `PrivatePage` (session status `not-allowed`)
+instead — no Firestore listener is even started for it. The "demo mode" button is shown only in dev, `--mode demo`
+builds or with `?demo` (`demoEntryAllowed()`); a production build without Firebase config says it isn't configured.
 
 ## Design
 
-Concept: **"the nest"** — calm, practical, for tired people using one hand.
+Concept: **"a native iOS app"** — calm, practical, for tired people using one hand. It should feel like Apple's own apps
+(Reminders, Health, Clock) on an iPhone, in light and dark mode, and still look right on Android.
 
-| Token                | Hex                   | Use                              |
-| -------------------- | --------------------- | -------------------------------- |
-| `shell`              | `#F3F6F2`             | app background (eggshell)        |
-| `paper`              | `#FFFFFF`             | grouped lists ("shelves")        |
-| `twig` / `twig-soft` | `#3A2F28` / `#6E625A` | text / secondary text            |
-| `robin`              | `#237A74`             | primary actions, done, progress  |
-| `straw`              | `#E2B33C`             | due soon, the contraction button |
-| `brick`              | `#B8483A`             | overdue, urgent, stop            |
-| `night`              | `#132B29`             | labor-mode background            |
+**Color tokens** (`@theme` in `src/index.css`). Names are semantic and stable; values follow Apple's system colors and switch
+with `prefers-color-scheme` (`.theme-dark` forces dark on a subtree — labor mode; `.elevated` gives sheets the lighter
+"elevated" grays in dark mode).
 
-- Type: **Suez One** for headings and the big week number; **Assistant** for everything else.
-- One bold element per screen: the egg on Home, the contraction button in labor mode. Everything else is quiet lists.
-- Color encodes status only. Motion only answers the user (check pop, sheet slide, breathing timer) and is disabled under
-  `prefers-reduced-motion`.
+| Token                           | iOS equivalent                    | Light / Dark                   | Use                                |
+| ------------------------------- | --------------------------------- | ------------------------------ | ---------------------------------- |
+| `shell`                         | systemGroupedBackground           | `#F2F2F7` / `#000000`          | app background                     |
+| `paper`                         | secondarySystemGroupedBackground  | `#FFFFFF` / `#1C1C1E`          | list sections, widgets, fields     |
+| `fill` / `fill-strong`          | tertiary / secondary systemFill   | gray @ 12% / 24%               | search field, segmented track      |
+| `twig` / `twig-soft` / `-faint` | label / secondaryLabel / tertiary | black / white, 60%, 30%        | text, secondary text, chevrons     |
+| `line`                          | separator                         | 29% / 65% gray                 | 0.5px hairlines                    |
+| `robin`                         | tint (refined teal)               | `#0A7C8A` / `#3FC1D2`          | primary actions, links, progress   |
+| `leaf`                          | systemGreen                       | `#34C759` / `#30D158`          | done (check circles), call buttons |
+| `straw`                         | systemOrange                      | `#FF9500` / `#FF9F0A`          | due soon                           |
+| `brick`                         | systemRed                         | `#FF3B30` / `#FF453A`          | overdue, destructive, stop         |
+| `night`, `night-2`, `night-3`   | labor mode (always dark)          | `#000` / `#1C1C1E` / `#2C2C2E` | labor background and tiles         |
+
+`*-soft` are tinted fills for chips; `*-ink` are the accessible text versions of a status color on those fills;
+`on-robin` is text on a tint button (white in light, near-black on the brighter dark-mode teal).
+
+**Type:** system font first (`-apple-system`, `SF Pro`), then Assistant (Hebrew-friendly) where there is no SF —
+Android/Windows. iOS Dynamic Type scale as utilities: `text-large-title` 34/41 bold, `text-title1` 28, `text-title2` 22,
+`text-title3` 20, `text-headline` 17 semibold, `text-body` 17, `text-subhead` 15, `text-footnote` 13, `text-caption` 12.
+
+**Building blocks** (`components/ui.tsx`, `Layout.tsx`, `Sheet.tsx`):
+
+- `Layout` — translucent nav bar (`material`: `backdrop-filter: blur(20px) saturate(180%)`, hairline bottom border once
+  scrolled) that shows a compact centered title when the page's `<PageTitle>` large title scrolls under it; frosted tab
+  bar with SF-style line icons, active tint, `safe-area-inset-bottom`.
+- `Section` — inset-grouped list (12px radius, footnote header/footer, 0.5px separators inset from the leading edge via
+  `ios-list` + `--sep-inset`). Rows ≥ 44pt, chevrons where tappable, `row-tap` highlight.
+- `CheckCircle` (round, green fill with a drawn check), `Switch`, `Segmented` (tabs or radio filters), `SearchField`,
+  `Ring` (activity-ring progress), `widget` cards (20px radius, soft shadow in light, elevated gray in dark).
+- `Sheet` — bottom sheet with grabber, 16px top radius, dimmed backdrop, spring-like slide-up.
+- Toasts — one small capsule HUD at the top; a new toast replaces the old one; ~2s (5s with an "undo" action).
+
+**Rules of thumb:** one bold element per screen (the week widget on Home, the stopwatch button in labor mode); everything
+else is quiet grouped lists. Color encodes status only. Motion only answers the user (press scale .97, check, sheet,
+breathing timer) and is turned off under `prefers-reduced-motion`.
 
 ## Decisions (short ADRs)
 

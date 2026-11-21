@@ -30,10 +30,12 @@ interface TestUser {
   verified?: boolean;
 }
 
-const owner: TestUser = { uid: 'owner', email: 'yishai@gmail.com' };
-const partner: TestUser = { uid: 'partner', email: 'lisia@gmail.com' };
+// Allowlisted accounts (see firestore.rules → allowlist() and src/lib/access.ts).
+const owner: TestUser = { uid: 'owner', email: 'yishai.k@gmail.com' };
+const partner: TestUser = { uid: 'partner', email: 'lisya.abulafya@gmail.com' };
+const ownerSecond: TestUser = { uid: 'owner2', email: 'YishaiK@gmail.com' }; // upper-case on purpose
 const stranger: TestUser = { uid: 'stranger', email: 'someone@gmail.com' };
-const unverifiedPartner: TestUser = { uid: 'fake', email: 'lisia@gmail.com', verified: false };
+const unverifiedPartner: TestUser = { uid: 'fake', email: 'lisya.abulafya@gmail.com', verified: false };
 
 let env: RulesTestEnvironment;
 
@@ -97,6 +99,51 @@ describe('households', () => {
     await assertSucceeds(setDoc(doc(dbFor(owner), 'households/new'), householdData));
   });
 
+  it('denies strangers entirely, even for a household of their own', async () => {
+    const own = { ...householdData, ownerUid: stranger.uid, memberEmails: [stranger.email] };
+    await assertFails(setDoc(doc(dbFor(stranger), 'households/s1'), own));
+    await assertFails(setDoc(doc(dbFor(unverifiedPartner), 'households/s2'), { ...householdData, ownerUid: 'fake' }));
+    await seedHousehold();
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore() as unknown as Firestore, 'households/s3'), own);
+    });
+    await assertFails(getDoc(doc(dbFor(stranger), 'households/s3')));
+    await assertFails(
+      getDocs(
+        query(collection(dbFor(stranger), 'households'), where('memberEmails', 'array-contains', stranger.email)),
+      ),
+    );
+  });
+
+  it('lets an allowlisted account (any letter case) create a household', async () => {
+    await assertSucceeds(
+      setDoc(doc(dbFor(ownerSecond), 'households/second'), {
+        ...householdData,
+        ownerUid: ownerSecond.uid,
+        memberEmails: ['yishaik@gmail.com', partner.email],
+      }),
+    );
+  });
+
+  it('rejects memberEmails with anyone outside the allowlist', async () => {
+    await assertFails(
+      setDoc(doc(dbFor(owner), 'households/out'), {
+        ...householdData,
+        memberEmails: [owner.email, 'doula@gmail.com'],
+      }),
+    );
+    await seedHousehold();
+    await assertFails(
+      updateDoc(doc(dbFor(partner), 'households/h1'), {
+        memberEmails: [owner.email, partner.email, 'doula@gmail.com'],
+      }),
+    );
+  });
+
+  it('rejects unknown household fields', async () => {
+    await assertFails(setDoc(doc(dbFor(owner), 'households/extra'), { ...householdData, isAdmin: true }));
+  });
+
   it('rejects creating a household for someone else or without yourself in it', async () => {
     await assertFails(setDoc(doc(dbFor(stranger), 'households/x'), householdData));
     await assertFails(setDoc(doc(dbFor(owner), 'households/y'), { ...householdData, memberEmails: [partner.email] }));
@@ -120,7 +167,7 @@ describe('households', () => {
     const db = dbFor(partner);
     await assertSucceeds(updateDoc(doc(db, 'households/h1'), { dueDate: '2027-01-05' }));
     await assertSucceeds(
-      updateDoc(doc(db, 'households/h1'), { memberEmails: [owner.email, partner.email, 'doula@gmail.com'] }),
+      updateDoc(doc(db, 'households/h1'), { memberEmails: [owner.email, partner.email, 'yishaik@gmail.com'] }),
     );
     await assertFails(updateDoc(doc(db, 'households/h1'), { ownerUid: partner.uid }));
     await assertFails(updateDoc(doc(dbFor(stranger), 'households/h1'), { dueDate: '2027-02-01' }));
@@ -149,6 +196,33 @@ describe('items and contractions', () => {
     await assertFails(setDoc(doc(db, 'households/h1/items/bad'), { ...itemData, kind: 'virus' }));
     await assertFails(setDoc(doc(db, 'households/h1/items/bad2'), { ...itemData, title: '' }));
     await assertFails(updateDoc(doc(db, 'households/h1/items/i1'), { done: 'yes' }));
+    await assertFails(setDoc(doc(db, 'households/h1/items/bad3'), { ...itemData, hack: 1 }));
+    await assertFails(updateDoc(doc(db, 'households/h1/items/i1'), { surprise: 'x' }));
+  });
+
+  it('accepts every field the app writes on an item', async () => {
+    await seedHousehold();
+    const full = {
+      ...itemData,
+      source: 'https://example.org',
+      seedId: 'task.x',
+      dueWeek: 36,
+      dueDaysAfterBirth: null,
+      assignee: 'both',
+      gearStatus: null,
+      priority: 'must',
+      quantity: '2',
+      price: 120,
+      url: null,
+      phone: null,
+      createdAt: 1,
+      createdBy: owner.uid,
+      updatedAt: 1,
+      updatedBy: owner.uid,
+      doneAt: null,
+      doneBy: null,
+    };
+    await assertSucceeds(setDoc(doc(dbFor(owner), 'households/h1/items/full'), full));
   });
 
   it('strangers cannot touch items or contractions', async () => {
@@ -167,5 +241,23 @@ describe('items and contractions', () => {
     );
     await assertSucceeds(updateDoc(doc(db, 'households/h1/contractions/c2'), { end: 70 }));
     await assertSucceeds(getDocs(collection(db, 'households/h1/contractions')));
+  });
+
+  it('rejects invalid contractions', async () => {
+    await seedHousehold();
+    const db = dbFor(partner);
+    const c = (id: string) => doc(db, `households/h1/contractions/${id}`);
+    await assertFails(setDoc(c('x1'), { start: 'now', end: null, createdBy: partner.uid }));
+    await assertFails(setDoc(c('x2'), { start: 10, end: 'later', createdBy: partner.uid }));
+    await assertFails(setDoc(c('x3'), { start: 10, end: null, createdBy: partner.uid, note: 'hi' }));
+    await assertFails(setDoc(c('x4'), { end: null, createdBy: partner.uid }));
+    await assertFails(updateDoc(doc(db, 'households/h1/contractions/c1'), { end: 'x' }));
+  });
+
+  it('strangers cannot write contractions even with a valid shape', async () => {
+    await seedHousehold();
+    await assertFails(
+      setDoc(doc(dbFor(stranger), 'households/h1/contractions/z'), { start: 1, end: null, createdBy: stranger.uid }),
+    );
   });
 });

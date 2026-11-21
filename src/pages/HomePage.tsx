@@ -1,11 +1,10 @@
 import { Baby, ChevronLeft, Timer } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { EggProgress } from '../components/EggProgress';
 import { useItemSheet } from '../components/ItemSheet';
 import { CheckRow } from '../components/rows';
 import { Sheet } from '../components/Sheet';
-import { ProgressBar } from '../components/ui';
+import { Chevron, PageTitle, Ring, Section } from '../components/ui';
 import { useActions, useHousehold, useSession } from '../data/session';
 import { useToast } from '../data/toast';
 import { firstName, formatIsoDate, greeting, timeAgo } from '../lib/format';
@@ -21,6 +20,8 @@ import {
 } from '../lib/pregnancy';
 import { earlierStageTasks, progressOf, recentActivity, upcomingTasks } from '../lib/progress';
 
+const dayFmt = new Intl.DateTimeFormat('he-IL', { weekday: 'long', day: 'numeric', month: 'long' });
+
 function daysText(n: number): string {
   if (n === 1) return 'יום אחד';
   if (n === 2) return 'יומיים';
@@ -35,6 +36,8 @@ function ageText(days: number): string {
   return d ? `${weeks} ו${daysText(d)}` : weeks;
 }
 
+const TRIMESTER_LABEL = { 1: 'שליש ראשון', 2: 'שליש שני', 3: 'שליש שלישי' } as const;
+
 function Hero() {
   const household = useHousehold();
   const now = useNow();
@@ -43,16 +46,24 @@ function Hero() {
   if (household.birthDate) {
     const age = Math.max(0, babyAgeDays(household.birthDate, date));
     return (
-      <div className="py-2">
-        <EggProgress ratio={Math.min(1, age / 42)} label="ששת השבועות הראשונים">
-          <span className="text-sm text-twig-soft">{household.babyName || 'התינוק/ת שלנו'}</span>
-          <span className="font-display text-5xl leading-tight">{age}</span>
-          <span className="text-sm text-twig-soft">{age === 1 ? 'יום' : 'ימים'} בעולם</span>
-        </EggProgress>
-        <p className="mt-3 text-center text-twig-soft">
-          {ageText(age)}, מאז {formatIsoDate(household.birthDate)}
-        </p>
-      </div>
+      <section className="widget mb-6 flex items-center gap-5 p-5" aria-label="התינוק/ת">
+        <div className="min-w-0 flex-1">
+          <p className="text-footnote font-semibold text-robin">{household.babyName || 'התינוק/ת שלנו'}</p>
+          <p className="mt-1 text-[3.25rem] leading-none font-bold tracking-tight tabular">
+            <bdi>{age}</bdi>
+          </p>
+          <p className="mt-2 text-headline">{age === 1 ? 'יום' : 'ימים'} בעולם</p>
+          <p className="mt-0.5 text-footnote text-twig-soft">
+            {ageText(age)}, מאז {formatIsoDate(household.birthDate)}
+          </p>
+        </div>
+        <Ring ratio={Math.min(1, age / 42)} size={112} stroke={12} tone="leaf" label="ששת השבועות הראשונים">
+          <span className="text-title3 tabular">
+            <bdi>{Math.min(6, Math.floor(age / 7))}/6</bdi>
+          </span>
+          <span className="text-caption text-twig-soft">שבועות</span>
+        </Ring>
+      </section>
     );
   }
 
@@ -66,16 +77,22 @@ function Hero() {
         ? 'היום התאריך המשוער'
         : `${daysText(-st.daysToDue)} אחרי התאריך`;
   return (
-    <div className="py-2">
-      <EggProgress ratio={st.progress} label="התקדמות ההריון">
-        <span className="text-sm text-twig-soft">שבוע</span>
-        <span className="font-display text-6xl leading-none tracking-tight" dir="ltr">
-          {formatGestation(st)}
+    <section className="widget mb-6 flex items-center gap-5 p-5" aria-label="ההריון">
+      <div className="min-w-0 flex-1">
+        <p className="text-footnote font-semibold text-robin">שבוע · {TRIMESTER_LABEL[st.trimester]}</p>
+        <p className="mt-1 text-[3.25rem] leading-none font-bold tracking-tight tabular">
+          <bdi dir="ltr">{formatGestation(st)}</bdi>
+        </p>
+        <p className="mt-2 text-headline">{dueLine}</p>
+        <p className="mt-0.5 text-footnote text-twig-soft">תאריך משוער: {formatIsoDate(household.dueDate)}</p>
+      </div>
+      <Ring ratio={st.progress} size={112} stroke={12} label="התקדמות ההריון">
+        <span className="text-title3 tabular">
+          <bdi>{Math.round(st.progress * 100)}%</bdi>
         </span>
-        <span className="mt-1 text-[15px] font-semibold text-robin-deep">{dueLine}</span>
-      </EggProgress>
-      <p className="mt-3 text-center text-twig-soft">תאריך משוער: {formatIsoDate(household.dueDate)}</p>
-    </div>
+        <span className="text-caption text-twig-soft">מ-40 שבועות</span>
+      </Ring>
+    </section>
   );
 }
 
@@ -84,18 +101,18 @@ function DueDatePrompt() {
   const [value, setValue] = useState('');
   return (
     <form
-      className="shelf my-4 p-5"
+      className="widget mb-6 p-5"
       onSubmit={(e) => {
         e.preventDefault();
         if (isValidIsoDate(value)) void actions.updateHousehold({ dueDate: value });
       }}
     >
-      <h2 className="font-display text-xl">מתי התאריך המשוער?</h2>
-      <p className="mt-1 text-twig-soft">כך נדע מה רלוונטי לכל שבוע ונסדר את המשימות לפי זמן.</p>
+      <h2 className="text-title3">מתי התאריך המשוער?</h2>
+      <p className="mt-1 text-subhead text-twig-soft">כך נדע מה רלוונטי לכל שבוע ונסדר את המשימות לפי זמן.</p>
       <div className="mt-4 flex gap-2">
         <input
           type="date"
-          className="field flex-1"
+          className="field flex-1 bg-fill!"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           aria-label="תאריך לידה משוער"
@@ -173,93 +190,107 @@ export function HomePage() {
   const week = household.dueDate ? pregnancyStatus(household.dueDate, date).week : 0;
   const nearBirth = !household.birthDate && week >= 36;
 
+  const stats = [
+    { to: '/tasks', label: 'משימות', p: tasks },
+    { to: '/gear', label: 'ציוד חובה', p: gearMust },
+    { to: '/gear?tab=bag', label: 'תיק לידה', p: bag },
+  ];
+
   return (
     <>
-      <p className="text-lg text-twig-soft">
-        {greeting(date)}, {firstName(user?.name ?? '')}
-      </p>
+      <PageTitle eyebrow={dayFmt.format(date)}>
+        {greeting(date)}
+        {user?.name ? `, ${firstName(user.name)}` : ''}
+      </PageTitle>
       <Hero />
 
       {nearBirth && (
-        <div className="mb-6 grid grid-cols-2 gap-3">
-          <Link to="/labor" className="shelf flex items-center gap-3 p-4 font-semibold">
-            <Timer className="size-6 text-brick" aria-hidden /> מצב לידה
+        <div className="mb-7 grid grid-cols-2 gap-3">
+          <Link to="/labor" className="widget press flex flex-col gap-3 p-4">
+            <span className="flex size-9 items-center justify-center rounded-[10px] bg-brick text-white">
+              <Timer className="size-5" strokeWidth={2.25} aria-hidden />
+            </span>
+            <span className="text-headline">מצב לידה</span>
           </Link>
           <button
             type="button"
             onClick={() => setBornOpen(true)}
-            className="shelf flex items-center gap-3 p-4 text-start font-semibold"
+            className="widget press flex flex-col gap-3 p-4 text-start"
           >
-            <Baby className="size-6 text-robin" aria-hidden /> נולד/ה!
+            <span className="flex size-9 items-center justify-center rounded-[10px] bg-leaf text-white">
+              <Baby className="size-5" strokeWidth={2.25} aria-hidden />
+            </span>
+            <span className="text-headline">נולד/ה!</span>
           </button>
         </div>
       )}
 
-      <section className="mb-6">
-        <div className="mb-2 flex items-baseline px-1">
-          <h2 className="font-display text-xl">מה עכשיו</h2>
-          <Link to="/tasks" className="ms-auto flex items-center text-[15px] font-semibold text-robin">
-            כל המשימות <ChevronLeft className="size-4" aria-hidden />
+      <Section
+        title="מה עכשיו"
+        collapsible={false}
+        aside={
+          <Link to="/tasks" className="flex items-center gap-0.5 text-subhead text-robin">
+            כל המשימות <ChevronLeft className="size-4" strokeWidth={2.5} aria-hidden />
           </Link>
-        </div>
+        }
+        footer={
+          earlier.length > 0 ? (
+            <Link to="/tasks" className="block">
+              {earlier.length === 1 ? 'משימה אחת' : `${earlier.length} משימות`} משלבים מוקדמים יותר עוד לא סומנו. אולי
+              כבר טיפלתם בהן? <span className="font-semibold text-robin">לעבור ולסמן</span>
+            </Link>
+          ) : undefined
+        }
+      >
         {upcoming.length ? (
-          <div className="shelf divide-y divide-line overflow-hidden">
-            {upcoming.map(({ item }) => (
-              <CheckRow key={item.id} item={item} household={household} members={members} onOpen={openItem} />
-            ))}
-          </div>
+          upcoming.map(({ item }) => (
+            <CheckRow key={item.id} item={item} household={household} members={members} onOpen={openItem} />
+          ))
         ) : (
-          <p className="shelf px-4 py-5 text-twig-soft">אין משימות דחופות כרגע. אפשר לנשום.</p>
+          <p className="px-4 py-3 text-twig-soft">אין משימות דחופות כרגע. אפשר לנשום.</p>
         )}
-        {earlier.length > 0 && (
-          <Link to="/tasks" className="mt-3 block px-1 text-[15px] leading-snug text-twig-soft">
-            {earlier.length === 1 ? 'משימה אחת' : `${earlier.length} משימות`} משלבים מוקדמים יותר עוד לא סומנו. אולי כבר
-            טיפלתם בהן? <span className="font-semibold text-robin">לעבור ולסמן</span>
-          </Link>
-        )}
-      </section>
+      </Section>
 
-      <section className="mb-6">
-        <h2 className="mb-2 px-1 font-display text-xl">איפה אנחנו עומדים</h2>
-        <div className="shelf divide-y divide-line">
-          {[
-            { to: '/tasks', label: 'משימות', p: tasks },
-            { to: '/gear', label: 'ציוד חובה', p: gearMust },
-            { to: '/gear?tab=bag', label: 'תיק לידה', p: bag },
-          ].map(({ to, label, p }) => (
-            <Link key={to} to={to} className="block px-4 py-3">
-              <span className="mb-1.5 flex items-baseline">
-                <span className="font-semibold">{label}</span>
-                <span className="ms-auto text-sm text-twig-soft">
-                  {p.done} מתוך {p.total}
-                </span>
+      <section className="mb-7">
+        <h2 className="mb-2 px-4 text-title3">איפה אנחנו עומדים</h2>
+        <div className="grid grid-cols-3 gap-3">
+          {stats.map(({ to, label, p }) => (
+            <Link key={to} to={to} className="widget press flex flex-col items-center gap-2 px-2 py-4 text-center">
+              <Ring ratio={p.ratio} size={56} stroke={7} tone={p.total > 0 && p.done === p.total ? 'leaf' : 'robin'}>
+                <span className="text-footnote font-semibold tabular">{Math.round(p.ratio * 100)}%</span>
+              </Ring>
+              <span className="text-subhead font-semibold">{label}</span>
+              <span className="-mt-1.5 text-footnote text-twig-soft tabular">
+                {p.done} מתוך {p.total}
               </span>
-              <ProgressBar ratio={p.ratio} label={label} />
             </Link>
           ))}
         </div>
       </section>
 
       {activity.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-2 px-1 font-display text-xl">עדכונים אחרונים</h2>
-          <ul className="shelf divide-y divide-line">
-            {activity.map((i) => {
-              const who = i.updatedBy ? household.members[i.updatedBy]?.name : undefined;
-              return (
-                <li key={i.id}>
-                  <button type="button" onClick={() => openItem(i)} className="w-full px-4 py-3 text-start">
-                    <span className={`block ${i.done ? 'text-twig-soft line-through' : ''}`}>{i.title}</span>
-                    <span className="text-sm text-twig-soft">
-                      {who ? `${firstName(who)}, ` : ''}
-                      {timeAgo(i.updatedAt ?? now, now)}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
+        <Section title="עדכונים אחרונים" collapsible={false} inset="1rem">
+          {activity.map((i) => {
+            const who = i.updatedBy ? household.members[i.updatedBy]?.name : undefined;
+            return (
+              <button
+                key={i.id}
+                type="button"
+                onClick={() => openItem(i)}
+                className="row-tap flex min-h-11 w-full items-center gap-2 ps-4 pe-3 text-start"
+              >
+                <span className="min-w-0 flex-1 py-[11px]">
+                  <span className={`block ${i.done ? 'text-twig-soft' : ''}`}>{i.title}</span>
+                  <span className="text-footnote text-twig-soft">
+                    {who ? `${firstName(who)} · ` : ''}
+                    {timeAgo(i.updatedAt ?? now, now)}
+                  </span>
+                </span>
+                <Chevron />
+              </button>
+            );
+          })}
+        </Section>
       )}
 
       {!household.birthDate && !nearBirth && week >= 24 && (

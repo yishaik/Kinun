@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useSession } from '../data/session';
 import { useToast } from '../data/toast';
+import { demoEntryAllowed } from '../lib/access';
 
 function GoogleMark() {
   return (
-    <svg viewBox="0 0 48 48" className="size-5" aria-hidden>
+    <svg viewBox="0 0 48 48" className="size-4" aria-hidden>
       <path
         fill="#FFC107"
         d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"
@@ -25,11 +26,30 @@ function GoogleMark() {
   );
 }
 
+/** The app icon (rounded-square "egg in a nest" mark), drawn in tokens so it adapts to dark mode. */
+export function AppMark({ size = 88 }: { size?: number }) {
+  return (
+    <span
+      className="flex items-center justify-center rounded-[22%] bg-gradient-to-b from-robin to-robin-deep shadow-[0_10px_30px_-10px_var(--color-robin)]"
+      style={{ width: size, height: size }}
+      aria-hidden
+    >
+      <svg viewBox="0 0 120 150" style={{ width: size * 0.42 }}>
+        <path
+          d="M60 6 C 30 6, 10 52, 10 88 C 10 122, 33 144, 60 144 C 87 144, 110 122, 110 88 C 110 52, 90 6, 60 6 Z"
+          fill="white"
+        />
+      </svg>
+    </span>
+  );
+}
+
 export function SignInPage() {
   const { store } = useSession();
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const demo = store.mode === 'demo';
+  const offerDemo = demo && demoEntryAllowed();
 
   const signIn = async () => {
     setBusy(true);
@@ -43,39 +63,49 @@ export function SignInPage() {
   };
 
   return (
-    <main className="pt-safe mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-10">
-      <div className="flex flex-1 flex-col justify-center">
-        <svg viewBox="0 0 120 150" className="mb-6 w-24" aria-hidden>
-          <path
-            d="M60 6 C 30 6, 10 52, 10 88 C 10 122, 33 144, 60 144 C 87 144, 110 122, 110 88 C 110 52, 90 6, 60 6 Z"
-            fill="var(--color-robin-soft)"
-            stroke="var(--color-robin)"
-            strokeWidth="5"
-          />
-        </svg>
-        <h1 className="font-display text-6xl leading-none">קינון</h1>
-        <p className="mt-4 text-xl leading-snug">
+    <main className="pt-safe pb-safe mx-auto flex min-h-dvh max-w-md flex-col px-6">
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
+        <AppMark />
+        <h1 className="mt-6 text-[2.75rem] leading-none font-bold tracking-tight">קינון</h1>
+        <p className="mt-4 text-title3 font-normal text-balance">
           כל מה שצריך לעשות, לקנות ולארוז לקראת הלידה ואחריה — ברשימה אחת משותפת לשניכם.
         </p>
-        <p className="mt-3 text-twig-soft">
+        <p className="mt-3 text-subhead text-twig-soft text-balance">
           כל שינוי של אחד מכם מופיע מיד גם אצל השני. הרשימות מבוססות על מקורות רשמיים, ואפשר לערוך בהן הכול.
         </p>
       </div>
 
-      <div>
-        <button
-          type="button"
-          onClick={signIn}
-          disabled={busy}
-          className="btn w-full border border-line bg-paper text-lg text-twig shadow-sm"
-        >
-          {demo ? null : <GoogleMark />}
-          {demo ? 'כניסה למצב הדגמה' : busy ? 'מתחברים…' : 'כניסה עם Google'}
-        </button>
-        {demo && (
-          <p className="mt-3 text-center text-sm text-twig-soft">
-            Firebase לא מחובר עדיין, אז הנתונים יישמרו רק במכשיר הזה. הוראות החיבור נמצאות ב-README.
-          </p>
+      <div className="pb-8">
+        {demo ? (
+          offerDemo ? (
+            <>
+              <button type="button" onClick={signIn} disabled={busy} className="btn-primary w-full min-h-[50px]">
+                כניסה למצב הדגמה
+              </button>
+              <p className="mt-3 text-center text-footnote text-twig-soft">מצב הדגמה: הנתונים יישמרו רק במכשיר הזה.</p>
+            </>
+          ) : (
+            <p role="alert" className="rounded-2xl bg-paper px-4 py-3 text-center text-subhead text-twig-soft">
+              האפליקציה עוד לא מחוברת לשרת. הוראות החיבור נמצאות ב-README.
+            </p>
+          )
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={signIn}
+              disabled={busy}
+              className="btn min-h-[50px] w-full bg-twig text-shell"
+            >
+              <span className="flex size-6 items-center justify-center rounded-full bg-white">
+                <GoogleMark />
+              </span>
+              {busy ? 'מתחברים…' : 'כניסה עם Google'}
+            </button>
+            <p className="mt-3 text-center text-footnote text-twig-soft">
+              קינון היא אפליקציה פרטית — רק החשבונות המורשים יכולים להיכנס.
+            </p>
+          </>
         )}
       </div>
     </main>

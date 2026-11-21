@@ -22,4 +22,16 @@ describe('App (demo backend)', () => {
     // All default tasks were created.
     await waitFor(() => expect(screen.getByText(`0 מתוך ${SEED_TASKS.length}`)).toBeInTheDocument());
   });
+
+  it('shows the private screen to a real (non-demo) sign-in that is not on the allowlist', async () => {
+    const store = new LocalStore('app-test-private');
+    // Pretend to be the Firebase backend: the demo user (demo@kinun.local) is not allowlisted.
+    Object.defineProperty(store, 'mode', { value: 'firebase' });
+    render(<App store={store as unknown as LocalStore} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'כניסה עם Google' }));
+    expect(await screen.findByRole('heading', { name: 'האפליקציה הזו פרטית' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'בואו נכין את הקן' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /התנתקות/ }));
+    expect(await screen.findByRole('button', { name: 'כניסה עם Google' })).toBeInTheDocument();
+  });
 });

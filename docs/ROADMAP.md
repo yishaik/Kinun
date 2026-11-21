@@ -24,9 +24,10 @@ Roughly by value for the couple. Each item says where to start.
 - **Roles** — "who is pregnant / partner" to pre-assign tasks like "notify the employer" or "partner days off".
 - **Native apps** — wrap with Capacitor, switch Google sign-in to the native plugin, publish to the stores.
 - **More languages** — all enum labels are already centralized in `lib/labels.ts`; extract page copy next.
-- **Stricter sharing** — only the owner may change `memberEmails` (rules + UI). The repo and the app URL are public, so
-  any Google account can sign in and create its own (empty, isolated) household; an allowlist of who may create
-  households would keep the free quota for the couple.
+- **Stricter sharing** — ✅ done: the app is private to an allowlist (`src/lib/access.ts` ↔ `allowlist()` in
+  `firestore.rules`); nobody else can read, create or be added to a household. Still open: only the owner may change
+  `memberEmails`, and an allowlist that lives in Firestore (an admin doc) instead of code, so adding a person doesn't
+  need a redeploy.
 
 ## Content to keep fresh
 

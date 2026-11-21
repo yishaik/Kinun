@@ -55,7 +55,7 @@ export function AssigneeBadge({ assignee, members }: { assignee?: string | null;
   const m = members.find((x) => x.uid === assignee);
   if (!m) return null;
   return (
-    <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-twig-soft">
+    <span className="inline-flex items-center gap-1 text-footnote text-twig-soft">
       <Avatar name={m.name} photoURL={m.photoURL} size={20} />
       {m.name.split(' ')[0]}
     </span>
@@ -117,14 +117,14 @@ export function ItemMetaLine({
   }
   if (item.quantity && item.quantity !== '1') {
     parts.push(
-      <span key="q" className="text-[13px] text-twig-soft">
+      <span key="q" className="text-footnote text-twig-soft">
         כמות: {item.quantity}
       </span>,
     );
   }
   if (item.links.length > 0 || item.url) {
-    parts.push(<Link2 key="ln" className="size-4 text-twig-soft" aria-label="יש קישורים" />);
+    parts.push(<Link2 key="ln" className="size-3.5 text-twig-soft" aria-label="יש קישורים" />);
   }
   parts.push(<AssigneeBadge key="as" assignee={item.assignee} members={members} />);
-  return <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">{parts}</div>;
+  return <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 empty:hidden">{parts}</div>;
 }
