@@ -43,7 +43,7 @@ import {
   type QueryDocumentSnapshot,
   type DocumentSnapshot,
 } from 'firebase/firestore';
-import { isMobile, isStandalone } from '../lib/platform';
+import { isIOS, isStandalone } from '../lib/platform';
 import type {
   AppUser,
   Contraction,
@@ -183,8 +183,10 @@ export class FirebaseStore implements DataStore {
   async signInWithGoogle(): Promise<void> {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-    // Popups are unreliable in installed (standalone) PWAs and on many phones — use a redirect there.
-    if (isStandalone() || isMobile()) {
+    // Popup everywhere (Android Chrome and installed Android PWAs handle it well, and the redirect
+    // flow there could silently land back on the sign-in screen). Only iOS home-screen apps, where
+    // popups don't work, use the redirect flow.
+    if (isStandalone() && isIOS()) {
       await signInWithRedirect(this.auth, provider);
       return;
     }
