@@ -3,8 +3,9 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-const THEME = '#237A74';
-const BACKGROUND = '#F3F6F2';
+// iOS systemGroupedBackground (light). index.html sets per-scheme theme-color metas.
+const THEME = '#F2F2F7';
+const BACKGROUND = '#F2F2F7';
 
 export default defineConfig({
   plugins: [

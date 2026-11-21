@@ -74,11 +74,16 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 5. **Default content is data, not code.** Edit files in `src/content/`. Every health / rights / work fact needs a `source`.
    Never rename a `seedId`. Bump `CONTENT_VERSION` when adding seed entries. `src/content/content.test.ts` enforces this.
 6. **Security rules are part of the feature.** Changing what is stored or who can see it ⇒ update `firestore.rules`
-   and `firestore-tests/rules.test.ts`.
+   and `firestore-tests/rules.test.ts`. **The app is private:** only the accounts in `src/lib/access.ts` (mirrored by
+   `allowlist()` in `firestore.rules` — a unit test keeps them equal) may sign in or be added. Never widen it unasked.
 7. **RTL first.** Use logical Tailwind utilities (`ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`, `text-start`) —
    not `left`/`right`. Phone numbers, emails and URLs get `dir="ltr"`.
-8. **Design tokens only.** Colors come from `@theme` in `src/index.css` (`shell`, `paper`, `twig`, `robin`, `straw`,
-   `brick`, `night`…). Color encodes status (robin = done/primary, straw = soon, brick = overdue/urgent). No raw hex in components.
+8. **Design tokens only (iOS look).** Colors come from `@theme` in `src/index.css` — semantic names mapped to Apple's
+   system colors, with light **and** dark values (`shell` = grouped background, `paper` = cell/card, `twig`/`twig-soft` =
+   label/secondary label, `line` = separator, `fill`, `robin` = tint, `leaf` = done, `straw` = due soon, `brick` =
+   overdue/destructive, `night` = labor mode). Type uses the iOS scale utilities (`text-large-title`, `text-title3`,
+   `text-headline`, `text-body`, `text-subhead`, `text-footnote`, `text-caption`…). Lists are inset-grouped
+   (`<Section>` / `shelf ios-list`), big titles use `<PageTitle>`. No raw hex in components; check both color schemes.
 9. **Accessibility.** Touch targets ≥ 44px, every input has a label, icons are `aria-hidden` with text or `aria-label`,
    respect `prefers-reduced-motion`.
 10. **Hebrew copy.** Plain verbs, sentence case, short. Gender-inclusive with slashes where needed (`נולד/ה`, `בן/בת הזוג`).
@@ -90,7 +95,7 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 
 - `npm run check` passes; `npm run build` passes.
 - UI change ⇒ `npm run test:e2e` passes; update `e2e/smoke.spec.ts` if a flow changed. Take a look at the screen at phone width
-  (`SCREENSHOTS=1 npm run test:e2e` writes PNGs to `test-results/screens/`).
+  (`SCREENSHOTS=1 npm run test:e2e` writes PNGs to `test-results/screens/`) — in light and dark mode.
 - Data/rules change ⇒ rules tests updated (they run in CI).
 - Docs updated when behavior, structure or setup changes. Keep this file accurate.
 - Don't deploy or change Firebase/GitHub settings unless the user asked.

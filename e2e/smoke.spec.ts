@@ -24,7 +24,7 @@ test('demo: onboarding → tasks → gear → labor timer → links → settings
   await page.getByRole('button', { name: 'כניסה למצב הדגמה' }).click();
   await expect(page.getByRole('heading', { name: 'בואו נכין את הקן' })).toBeVisible();
   await page.getByLabel('תאריך לידה משוער').fill(isoInDays(30)); // ~week 35–36
-  await page.getByLabel('ה-Gmail של בן/בת הזוג').fill('partner@gmail.com');
+  await page.getByLabel('ה-Gmail של בן/בת הזוג').fill('lisya.abulafya@gmail.com');
   await snap(page, '02-onboarding');
   await page.getByRole('button', { name: 'יצירת הרשימות שלנו' }).click();
 

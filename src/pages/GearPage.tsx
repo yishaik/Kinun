@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useItemSheet } from '../components/ItemSheet';
 import { CheckRow } from '../components/rows';
-import { EmptyState, Fab, FilterChips, PageTitle, ProgressBar, Section, Segmented } from '../components/ui';
+import { EmptyState, Fab, FilterChips, PageTitle, Ring, Section, Segmented } from '../components/ui';
 import { useHousehold, useSession } from '../data/session';
 import { useMembers } from '../lib/hooks';
 import { categoryLabel, orderedCategories } from '../lib/labels';
@@ -59,20 +59,28 @@ export function GearPage() {
         />
       </div>
 
-      <div className="shelf mb-5 px-4 py-3">
-        <div className="mb-1.5 flex items-baseline">
-          <span className="font-semibold">{tab === 'gear' ? 'פריטי חובה שיש לנו' : 'ארוז בתיק'}</span>
-          <span className="ms-auto text-sm text-twig-soft">
-            {progress.done} מתוך {progress.total}
-          </span>
+      <div className="widget mb-5 flex items-center gap-4 p-4">
+        <Ring
+          ratio={progress.ratio}
+          size={52}
+          stroke={6}
+          tone={progress.total > 0 && progress.done === progress.total ? 'leaf' : 'robin'}
+          label={tab === 'gear' ? 'פריטי חובה' : 'תיק לידה'}
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-2">
+            <span className="text-headline">{tab === 'gear' ? 'פריטי חובה שיש לנו' : 'ארוז בתיק'}</span>
+            <span className="ms-auto text-subhead text-twig-soft tabular">
+              {progress.done} מתוך {progress.total}
+            </span>
+          </div>
+          {tab === 'gear' && remainingCost > 0 && (
+            <p className="mt-0.5 text-footnote text-twig-soft">
+              עלות משוערת של מה שעוד חסר: ₪{remainingCost.toLocaleString('he-IL')}
+            </p>
+          )}
+          {tab === 'bag' && <p className="mt-0.5 text-footnote text-twig-soft">מומלץ שהתיק יהיה מוכן סביב שבוע 36.</p>}
         </div>
-        <ProgressBar ratio={progress.ratio} label={tab === 'gear' ? 'פריטי חובה' : 'תיק לידה'} />
-        {tab === 'gear' && remainingCost > 0 && (
-          <p className="mt-2 text-sm text-twig-soft">
-            עלות משוערת של מה שעוד חסר: ₪{remainingCost.toLocaleString('he-IL')}
-          </p>
-        )}
-        {tab === 'bag' && <p className="mt-2 text-sm text-twig-soft">מומלץ שהתיק יהיה מוכן סביב שבוע 36.</p>}
       </div>
 
       {tab === 'gear' && (

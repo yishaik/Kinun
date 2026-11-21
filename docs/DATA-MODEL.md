@@ -68,12 +68,17 @@ Invariant: for gear, `done === (gearStatus === 'have' || gearStatus === 'skip')`
 
 ## Security rules (summary)
 
-- Signed-in users with a **verified** email (Google accounts always are).
+- **Private app:** every rule requires `allowed()` = a **verified** email (Google accounts always are) that is in
+  `allowlist()` — the couple's Google accounts. Mirror: `src/lib/access.ts` (a unit test checks they match).
+  Strangers can't read anything or create a household, even an empty one of their own.
 - A household is readable/writable by users whose email is in `memberEmails`; the app's query
   `where('memberEmails', 'array-contains', email)` is allowed for exactly those docs.
 - Create: you must be the `ownerUid` and be in `memberEmails`. Update: anything except `ownerUid` / `createdAt`.
-  Delete: owner only.
-- `items` / `contractions`: members only; items are validated (`kind`, `title`, `notes`, `done`).
+  Delete: owner only. `memberEmails` must be a subset of the allowlist (`hasOnly(allowlist())`), and only known
+  household fields are accepted.
+- `items` / `contractions`: members only. Items accept only the fields the app writes (`keys().hasOnly([...])` — add new
+  fields there too) and are validated (`kind`, `title`, `notes`, `done`). Contractions accept only `start` (number),
+  `end` (number | null) and `createdBy` (string).
 
 ## Changing the model — checklist
 

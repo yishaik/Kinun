@@ -1,11 +1,11 @@
-/** List rows for each item kind. Rows are buttons that open the item sheet. */
-import { ExternalLink, Phone } from 'lucide-react';
+/** List rows for each item kind (iOS inset-grouped cells). Rows are buttons that open the item sheet. */
+import { ArrowUpLeft, Phone } from 'lucide-react';
 import { useActions } from '../data/session';
 import { hostOf, telHref } from '../lib/format';
 import type { MemberEntry } from '../lib/hooks';
 import type { Household, Item } from '../lib/types';
 import { ItemMetaLine } from './itemMeta';
-import { CheckCircle } from './ui';
+import { CheckCircle, Chevron } from './ui';
 
 interface RowProps {
   item: Item;
@@ -14,7 +14,7 @@ interface RowProps {
   onOpen: (item: Item) => void;
 }
 
-/** Task, gear and bag rows share a layout: check circle + title + meta line. */
+/** Task, gear and bag rows share a layout: check circle + title + meta line + chevron. */
 export function CheckRow({ item, household, members, onOpen }: RowProps) {
   const actions = useActions();
   const checkLabel =
@@ -24,17 +24,24 @@ export function CheckRow({ item, household, members, onOpen }: RowProps) {
     else void actions.toggleDone(item);
   };
   return (
-    <div className="flex items-start gap-3 px-4 py-3">
-      <div className="pt-0.5">
+    <div className="row-tap flex min-h-11 items-start gap-3 ps-4 pe-3">
+      <div className="pt-[11px]">
         <CheckCircle checked={item.done} onToggle={toggle} label={`${checkLabel}: ${item.title}`} />
       </div>
-      <button type="button" onClick={() => onOpen(item)} className="min-w-0 flex-1 text-start">
-        <span
-          className={`block text-[17px] leading-snug ${item.done ? 'text-twig-soft line-through decoration-1' : ''}`}
-        >
-          {item.title}
+      <button
+        type="button"
+        onClick={() => onOpen(item)}
+        className="flex min-w-0 flex-1 items-center gap-2 py-[11px] text-start"
+      >
+        <span className="min-w-0 flex-1">
+          <span
+            className={`block text-body leading-snug transition-colors ${item.done ? 'text-twig-soft' : 'text-twig'}`}
+          >
+            {item.title}
+          </span>
+          <ItemMetaLine item={item} household={household} members={members} />
         </span>
-        <ItemMetaLine item={item} household={household} members={members} />
+        <Chevron />
       </button>
     </div>
   );
@@ -42,30 +49,32 @@ export function CheckRow({ item, household, members, onOpen }: RowProps) {
 
 export function LinkRow({ item, onOpen }: { item: Item; onOpen: (item: Item) => void }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3">
-      <button type="button" onClick={() => onOpen(item)} className="min-w-0 flex-1 text-start">
-        <span className="block text-[17px] leading-snug font-semibold">{item.title}</span>
-        {item.notes && <span className="mt-0.5 block text-[15px] leading-snug text-twig-soft">{item.notes}</span>}
-        {item.url && !item.phone && <span className="mt-0.5 block text-sm text-robin">{hostOf(item.url)}</span>}
+    <div className="row-tap flex min-h-11 items-center gap-3 ps-4 pe-3">
+      <button type="button" onClick={() => onOpen(item)} className="min-w-0 flex-1 py-[11px] text-start">
+        <span className="block text-body leading-snug text-twig">{item.title}</span>
+        {item.notes && <span className="mt-0.5 line-clamp-2 block text-subhead text-twig-soft">{item.notes}</span>}
+        {item.url && !item.phone && <span className="mt-0.5 block text-footnote text-robin">{hostOf(item.url)}</span>}
       </button>
       {item.phone ? (
         <a
           href={telHref(item.phone)}
-          className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-full bg-robin px-3.5 font-semibold text-white"
+          className="press flex min-h-8 shrink-0 items-center gap-1.5 rounded-full bg-leaf-soft px-3 py-1 text-subhead font-semibold text-leaf-ink"
           aria-label={`חיוג ל${item.title}: ${item.phone}`}
         >
-          <Phone className="size-4" aria-hidden />
-          <span dir="ltr">{item.phone}</span>
+          <Phone className="size-4" fill="currentColor" strokeWidth={0} aria-hidden />
+          <span dir="ltr" className="tabular">
+            {item.phone}
+          </span>
         </a>
       ) : item.url ? (
         <a
           href={item.url}
           target="_blank"
           rel="noreferrer"
-          className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line text-robin"
+          className="press -me-1 flex size-11 shrink-0 items-center justify-center rounded-full"
           aria-label={`פתיחת ${item.title}`}
         >
-          <ExternalLink className="size-5" aria-hidden />
+          <ArrowUpLeft className="size-5 text-robin" strokeWidth={2} aria-hidden />
         </a>
       ) : null}
     </div>

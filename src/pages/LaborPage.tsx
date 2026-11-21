@@ -6,7 +6,7 @@
 import { Baby, Car, Navigation, Phone, Siren, Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { CheckCircle } from '../components/ui';
+import { CheckCircle, Chevron, PageTitle } from '../components/ui';
 import { SRC } from '../content';
 import { useActions, useHousehold, useSession } from '../data/session';
 import {
@@ -30,10 +30,10 @@ const FALLBACK_GUIDANCE =
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-night-2 px-3 py-3 text-center">
-      <div className="font-display text-2xl leading-tight" dir="ltr">
+      <div className="text-title2 font-semibold tabular" dir="ltr">
         {value}
       </div>
-      <div className="text-[13px] text-night-text/70">{label}</div>
+      <div className="mt-0.5 text-caption leading-tight text-night-soft">{label}</div>
     </div>
   );
 }
@@ -74,83 +74,44 @@ export function LaborPage() {
     else void actions.startContraction();
   };
 
+  const elapsed = active ? (now - active.start) / 1000 : last ? (now - last.start) / 1000 : 0;
+
   return (
     <div className="text-night-text">
-      <h1 className="mb-4 font-display text-3xl">לידה</h1>
+      <PageTitle>לידה</PageTitle>
 
-      {/* Hospital shortcuts */}
-      <section className="mb-6 rounded-[var(--radius-shelf)] bg-night-2 p-4">
-        {hospital?.name ? (
-          <>
-            <p className="font-display text-xl">{hospital.name}</p>
-            {hospital.address && <p className="text-sm text-night-text/70">{hospital.address}</p>}
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              {hospital.phone ? (
-                <a href={telHref(hospital.phone)} className="btn col-span-2 bg-straw text-twig">
-                  <Phone className="size-5" aria-hidden /> חיוג לחדר הלידה
-                </a>
-              ) : (
-                <Link to="/settings" className="btn col-span-2 border border-night-text/30">
-                  הוספת טלפון חדר לידה
-                </Link>
-              )}
-              {nav && (
-                <>
-                  <a href={nav.waze} target="_blank" rel="noreferrer" className="btn border border-night-text/30">
-                    <Navigation className="size-4" aria-hidden /> Waze
-                  </a>
-                  <a href={nav.google} target="_blank" rel="noreferrer" className="btn border border-night-text/30">
-                    <Car className="size-4" aria-hidden /> Google Maps
-                  </a>
-                </>
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center gap-3">
-            <p className="flex-1 text-night-text/80">
-              עוד לא בחרתם בית חולים. הוסיפו אותו כדי לקבל כאן כפתורי חיוג וניווט.
-            </p>
-            <Link to="/settings" className="btn shrink-0 bg-straw text-twig">
-              הגדרה
-            </Link>
-          </div>
-        )}
-        <a
-          href="tel:101"
-          className="mt-3 flex items-center justify-center gap-2 text-[15px] font-semibold text-night-text/80"
-        >
-          <Siren className="size-4" aria-hidden /> חירום: מד״א 101
-        </a>
-      </section>
-
-      {/* Contraction timer */}
+      {/* Contraction timer — iOS stopwatch look: big digits, one big round button */}
       <section className="mb-6 text-center" aria-label="טיימר צירים">
+        <p className="text-subhead text-night-soft">
+          {active ? 'משך הציר' : last ? 'מאז תחילת הציר האחרון' : 'טיימר צירים'}
+        </p>
+        <p
+          className={`text-[4.5rem] leading-[1.1] font-extralight tracking-tight tabular ${active ? 'text-brick' : ''}`}
+          dir="ltr"
+          aria-hidden
+        >
+          {formatClock(elapsed)}
+        </p>
         <button
           type="button"
           onClick={onTimer}
           aria-live="polite"
-          className={`mx-auto flex size-56 flex-col items-center justify-center rounded-full text-center shadow-xl transition-colors ${
-            active ? 'breathe bg-brick text-white' : 'bg-straw text-twig'
+          className={`press mx-auto mt-4 flex size-52 flex-col items-center justify-center rounded-full p-[5px] ring-[3px] ring-offset-4 ring-offset-night transition-colors ${
+            active ? 'breathe bg-brick/25 text-brick ring-brick/25' : 'bg-leaf/20 text-leaf ring-leaf/20'
           }`}
         >
-          <span className="font-display text-2xl">{active ? 'הציר נגמר' : 'ציר התחיל'}</span>
+          <span className="text-title1">{active ? 'הציר נגמר' : 'ציר התחיל'}</span>
           {active ? (
-            <span className="mt-1 font-display text-4xl" dir="ltr">
+            <span className="mt-1 text-subhead tabular" dir="ltr">
               {formatClock((now - active.start) / 1000)}
             </span>
-          ) : last ? (
-            <span className="mt-1 text-[15px]">
-              מאז הציר האחרון{' '}
-              <span dir="ltr" className="font-semibold">
-                {formatClock((now - last.start) / 1000)}
-              </span>
-            </span>
           ) : (
-            <span className="mt-1 text-[15px]">לחצו בתחילת כל ציר</span>
+            <span className="mt-1 text-subhead text-night-soft">
+              {last ? 'לחצו בתחילת הציר הבא' : 'לחצו בתחילת כל ציר'}
+            </span>
           )}
         </button>
-        <p className="mt-3 text-sm text-night-text/60">הטיימר משותף — שניכם רואים אותו בזמן אמת.</p>
+        <p className="mt-5 text-footnote text-night-soft">הטיימר משותף — שניכם רואים אותו בזמן אמת.</p>
       </section>
 
       <section className="mb-4 grid grid-cols-3 gap-2" aria-label="סיכום השעה האחרונה">
@@ -160,19 +121,65 @@ export function LaborPage() {
       </section>
 
       {hint && (
-        <p role="status" className="mb-4 rounded-2xl bg-straw-soft px-4 py-3 text-twig">
+        <p role="status" className="mb-4 rounded-2xl bg-straw/20 px-4 py-3 text-subhead text-straw-ink">
           בשעה האחרונה הצירים תכופים, בערך כל {Math.round((hour.avgIntervalSec ?? 0) / 60)} דקות. זה זמן טוב להתקשר לחדר
           הלידה ולהתייעץ.
         </p>
       )}
 
+      {/* Hospital shortcuts */}
+      <section className="mb-7 rounded-[var(--radius-widget)] bg-night-2 p-4">
+        {hospital?.name ? (
+          <>
+            <p className="text-headline">{hospital.name}</p>
+            {hospital.address && <p className="text-footnote text-night-soft">{hospital.address}</p>}
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {hospital.phone ? (
+                <a href={telHref(hospital.phone)} className="btn col-span-2 bg-leaf text-white">
+                  <Phone className="size-5" fill="currentColor" strokeWidth={0} aria-hidden /> חיוג לחדר הלידה
+                </a>
+              ) : (
+                <Link to="/settings" className="btn col-span-2 bg-night-3 text-robin">
+                  הוספת טלפון חדר לידה
+                </Link>
+              )}
+              {nav && (
+                <>
+                  <a href={nav.waze} target="_blank" rel="noreferrer" className="btn bg-night-3 text-night-text">
+                    <Navigation className="size-4" aria-hidden /> Waze
+                  </a>
+                  <a href={nav.google} target="_blank" rel="noreferrer" className="btn bg-night-3 text-night-text">
+                    <Car className="size-4" aria-hidden /> Google Maps
+                  </a>
+                </>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center gap-3">
+            <p className="flex-1 text-subhead text-night-soft">
+              עוד לא בחרתם בית חולים. הוסיפו אותו כדי לקבל כאן כפתורי חיוג וניווט.
+            </p>
+            <Link to="/settings" className="btn shrink-0 bg-night-3 text-robin">
+              הגדרה
+            </Link>
+          </div>
+        )}
+        <a
+          href="tel:101"
+          className="mt-3 flex min-h-11 items-center justify-center gap-2 text-subhead font-semibold text-brick-ink"
+        >
+          <Siren className="size-4" aria-hidden /> חירום: מד״א 101
+        </a>
+      </section>
+
       {sorted.length > 0 && (
-        <section className="mb-6">
-          <div className="mb-2 flex items-center">
-            <h2 className="font-display text-xl">צירים אחרונים</h2>
+        <section className="mb-7">
+          <div className="mb-2 flex items-center px-4">
+            <h2 className="text-title3">צירים אחרונים</h2>
             <button
               type="button"
-              className="ms-auto flex items-center gap-1 rounded-full px-3 py-2 text-sm text-night-text/80 hover:bg-night-2"
+              className="press ms-auto -me-2 flex min-h-9 items-center gap-1 rounded-full px-2 text-subhead text-brick-ink"
               onClick={() => {
                 if (confirmClear) {
                   void actions.clearContractions();
@@ -183,54 +190,56 @@ export function LaborPage() {
               <Trash2 className="size-4" aria-hidden /> {confirmClear ? 'ללחוץ שוב למחיקת הכול' : 'ניקוי'}
             </button>
           </div>
-          <table className="w-full text-[15px]">
-            <thead className="text-night-text/60">
-              <tr>
-                <th className="py-1 text-start font-normal">התחלה</th>
-                <th className="py-1 text-start font-normal">משך</th>
-                <th className="py-1 text-start font-normal">מרווח</th>
-                <th className="w-8">
-                  <span className="sr-only">מחיקה</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted
-                .map((c, i) => ({ c, interval: intervals[i] }))
-                .reverse()
-                .slice(0, 15)
-                .map(({ c, interval }) => (
-                  <tr key={c.id} className="border-t border-night-2">
-                    <td className="py-2" dir="ltr">
-                      {formatTime(c.start)}
-                    </td>
-                    <td className="py-2" dir="ltr">
-                      {c.end == null ? '…' : formatClock(durationSec(c) ?? 0)}
-                    </td>
-                    <td className="py-2" dir="ltr">
-                      {interval != null ? formatClock(interval) : '—'}
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        aria-label="מחיקת הציר"
-                        className="rounded-full p-1.5 text-night-text/50 hover:bg-night-2"
-                        onClick={() => void actions.deleteContraction(c.id)}
-                      >
-                        <X className="size-4" aria-hidden />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+          <div className="overflow-hidden rounded-[var(--radius-shelf)] bg-night-2">
+            <table className="w-full text-subhead tabular">
+              <thead className="text-footnote text-night-soft">
+                <tr>
+                  <th className="py-2 ps-4 text-start font-normal">התחלה</th>
+                  <th className="py-2 text-start font-normal">משך</th>
+                  <th className="py-2 text-start font-normal">מרווח</th>
+                  <th className="w-11">
+                    <span className="sr-only">מחיקה</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {sorted
+                  .map((c, i) => ({ c, interval: intervals[i] }))
+                  .reverse()
+                  .slice(0, 15)
+                  .map(({ c, interval }) => (
+                    <tr key={c.id} className="border-t-[0.5px] border-night-3">
+                      <td className="py-2.5 ps-4 text-start" dir="ltr">
+                        {formatTime(c.start)}
+                      </td>
+                      <td className="py-2.5 text-start" dir="ltr">
+                        {c.end == null ? '…' : formatClock(durationSec(c) ?? 0)}
+                      </td>
+                      <td className="py-2.5 text-start" dir="ltr">
+                        {interval != null ? formatClock(interval) : '—'}
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          aria-label="מחיקת הציר"
+                          className="flex size-11 items-center justify-center rounded-full text-night-soft"
+                          onClick={() => void actions.deleteContraction(c.id)}
+                        >
+                          <X className="size-4" aria-hidden />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
 
-      <section className="mb-6 rounded-[var(--radius-shelf)] bg-night-2 p-4">
-        <h2 className="mb-2 font-display text-xl">מתי נוסעים?</h2>
-        <p className="leading-relaxed">{guidanceItem?.notes || FALLBACK_GUIDANCE}</p>
-        <p className="mt-2 text-sm text-night-text/60">
+      <section className="mb-7 rounded-[var(--radius-widget)] bg-night-2 p-4">
+        <h2 className="mb-1.5 text-headline">מתי נוסעים?</h2>
+        <p className="text-subhead leading-relaxed text-night-text/90">{guidanceItem?.notes || FALLBACK_GUIDANCE}</p>
+        <p className="mt-2 text-footnote text-night-soft">
           מקור:{' '}
           <a
             href={guidanceItem?.source || SRC.maccabiPregnancyEr}
@@ -245,12 +254,12 @@ export function LaborPage() {
       </section>
 
       {laborTasks.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-2 font-display text-xl">לפני שיוצאים</h2>
-          <ul className="divide-y divide-night rounded-[var(--radius-shelf)] bg-night-2">
+        <section className="mb-7">
+          <h2 className="mb-2 px-4 text-title3">לפני שיוצאים</h2>
+          <ul className="overflow-hidden rounded-[var(--radius-shelf)] bg-night-2 [--color-line:var(--color-night-3)] [--sep-inset:3.25rem] ios-list">
             {laborTasks.map((t) => (
-              <li key={t.id} className="flex items-start gap-3 px-4 py-3">
-                <div className="pt-0.5">
+              <li key={t.id} className="flex items-start gap-3 ps-4 pe-3">
+                <div className="pt-[11px]">
                   <CheckCircle
                     tone="night"
                     checked={t.done}
@@ -258,9 +267,9 @@ export function LaborPage() {
                     label={`בוצע: ${t.title}`}
                   />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className={t.done ? 'text-night-text/50 line-through' : ''}>{t.title}</p>
-                  {t.notes && !t.done && <p className="mt-0.5 text-sm text-night-text/70">{t.notes}</p>}
+                <div className="min-w-0 flex-1 py-[11px]">
+                  <p className={t.done ? 'text-night-soft' : ''}>{t.title}</p>
+                  {t.notes && !t.done && <p className="mt-0.5 text-footnote text-night-soft">{t.notes}</p>}
                 </div>
               </li>
             ))}
@@ -268,15 +277,19 @@ export function LaborPage() {
         </section>
       )}
 
-      <Link to="/gear?tab=bag" className="mb-4 flex items-center rounded-[var(--radius-shelf)] bg-night-2 px-4 py-3">
-        <span className="font-semibold">תיק לידה</span>
-        <span className="ms-auto text-night-text/70">
+      <Link
+        to="/gear?tab=bag"
+        className="press mb-4 flex min-h-11 items-center gap-2 rounded-[var(--radius-shelf)] bg-night-2 px-4 py-3"
+      >
+        <span className="text-body">תיק לידה</span>
+        <span className="ms-auto text-subhead text-night-soft tabular">
           {bag.done} מתוך {bag.total} ארוזים
         </span>
+        <Chevron />
       </Link>
 
       {!household.birthDate && (
-        <button type="button" className="btn mb-2 w-full border border-night-text/30" onClick={() => setBornOpen(true)}>
+        <button type="button" className="btn mb-2 w-full bg-night-2 text-leaf" onClick={() => setBornOpen(true)}>
           <Baby className="size-5" aria-hidden /> התינוק/ת נולד/ה!
         </button>
       )}

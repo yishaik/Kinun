@@ -48,7 +48,7 @@ export function TasksPage() {
         aside={
           <button
             type="button"
-            className="btn-quiet px-3 text-[15px]"
+            className="press min-h-9 rounded-full px-1 text-subhead text-robin"
             aria-pressed={showDone}
             onClick={() => setShowDone((v) => !v)}
           >

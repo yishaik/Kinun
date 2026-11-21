@@ -11,13 +11,14 @@ import { LaborPage } from './pages/LaborPage';
 import { LinksPage } from './pages/LinksPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { SignInPage } from './pages/SignInPage';
+import { PrivatePage } from './pages/PrivatePage';
+import { AppMark, SignInPage } from './pages/SignInPage';
 import { TasksPage } from './pages/TasksPage';
 
 function Splash() {
   return (
     <div className="flex min-h-dvh items-center justify-center" aria-busy="true" aria-label="טוען">
-      <span className="font-display text-5xl text-robin">קינון</span>
+      <AppMark size={72} />
     </div>
   );
 }
@@ -26,6 +27,7 @@ function Gate() {
   const { status, household } = useSession();
   if (status === 'auth-loading' || status === 'households-loading') return <Splash />;
   if (status === 'signed-out') return <SignInPage />;
+  if (status === 'not-allowed') return <PrivatePage />;
   if (status === 'no-household') return <OnboardingPage />;
   if (!household) return <Splash />;
   return (
