@@ -6,8 +6,9 @@
 /*
  * Design tokens — jungle-nursery palette inspired by the family's mural (see docs/ARCHITECTURE.md → Design).
  * Token names are semantic and stable so components keep using shell / paper / twig / robin / leaf / straw / brick.
- * Values switch with `prefers-color-scheme` (dark values live in the media block below). Labor mode (`.theme-dark`)
- * stays a dark room, with the same tint tokens as dark appearance.
+ * Soft night is a jungle-green dark appearance (`data-theme="dark"`), following the system
+ * or a manual Settings toggle. Labor mode (`.theme-dark`) stays a dark room (warm black),
+ * and does not use the jungle night tokens.
  *
  *   shell      app background (cream wall / warm night)   paper     cards and fields
  *   paper-2    recessed fill                              fill      tracks, search, chips
@@ -107,47 +108,88 @@
   :root {
     color-scheme: light dark;
   }
+  /* Jungle night: system dark (unless the user forced light) or a manual "dark" choice. */
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+    --color-shell: #10281c;
+    --color-paper: #1b3a2a;
+    --color-paper-2: #244a36;
+    --color-fill: rgb(246 241 230 / 0.12);
+    --color-fill-strong: rgb(246 241 230 / 0.2);
+    --color-thumb: #3d6a50;
+    --color-twig: #f6f1e6;
+    --color-twig-soft: #d5e0d4;
+    --color-twig-faint: rgb(213 224 212 / 0.55);
+    --color-line: rgb(246 241 230 / 0.16);
+    --color-robin: #8fdb6a;
+    --color-robin-deep: #a6e585;
+    --color-robin-soft: rgb(143 219 106 / 0.2);
+    --color-on-robin: #10281c;
+    --color-lagoon: #4ecdbf;
+    --color-lagoon-soft: rgb(78 205 191 / 0.2);
+    --color-sun: #f5c93b;
+    --color-sun-soft: rgb(245 201 59 / 0.22);
+    --color-leaf: #8fdb6a;
+    --color-leaf-ink: #b5f08f;
+    --color-leaf-soft: rgb(143 219 106 / 0.2);
+    --color-on-leaf: #10281c;
+    --color-straw: #f5c93b;
+    --color-straw-ink: #e8c56a;
+    --color-straw-soft: rgb(245 201 59 / 0.22);
+    --color-brick: #f0a090;
+    --color-brick-ink: #f0a090;
+    --color-brick-soft: rgb(240 160 144 / 0.2);
+    --color-on-danger: #10281c;
+    --color-bar: rgb(16 40 28 / 0.86);
+    --shadow-widget: none;
+  }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --color-shell: #1a1410;
-      --color-paper: #2a211c;
-      --color-paper-2: #3a2e28;
+    :root:not([data-theme='light']) {
+      color-scheme: dark;
+      --color-shell: #10281c;
+      --color-paper: #1b3a2a;
+      --color-paper-2: #244a36;
       --color-fill: rgb(246 241 230 / 0.12);
       --color-fill-strong: rgb(246 241 230 / 0.2);
-      --color-thumb: #6b5346;
+      --color-thumb: #3d6a50;
       --color-twig: #f6f1e6;
-      --color-twig-soft: #c4b1a3;
-      --color-twig-faint: rgb(246 241 230 / 0.42);
+      --color-twig-soft: #d5e0d4;
+      --color-twig-faint: rgb(213 224 212 / 0.55);
       --color-line: rgb(246 241 230 / 0.16);
-      --color-robin: #6baf4e;
-      --color-robin-deep: #7bc46a;
-      --color-robin-soft: rgb(107 175 78 / 0.2);
-      --color-on-robin: #1a1410;
+      --color-robin: #8fdb6a;
+      --color-robin-deep: #a6e585;
+      --color-robin-soft: rgb(143 219 106 / 0.2);
+      --color-on-robin: #10281c;
       --color-lagoon: #4ecdbf;
       --color-lagoon-soft: rgb(78 205 191 / 0.2);
       --color-sun: #f5c93b;
       --color-sun-soft: rgb(245 201 59 / 0.22);
-      --color-leaf: #6baf4e;
-      --color-leaf-ink: #8fcf7a;
-      --color-leaf-soft: rgb(107 175 78 / 0.2);
-      --color-on-leaf: #1a1410;
+      --color-leaf: #8fdb6a;
+      --color-leaf-ink: #b5f08f;
+      --color-leaf-soft: rgb(143 219 106 / 0.2);
+      --color-on-leaf: #10281c;
       --color-straw: #f5c93b;
       --color-straw-ink: #e8c56a;
       --color-straw-soft: rgb(245 201 59 / 0.22);
-      --color-brick: #e07060;
-      --color-brick-ink: #f07a6c;
-      --color-brick-soft: rgb(224 112 96 / 0.2);
-      --color-on-danger: #1a1410;
-      --color-bar: rgb(26 20 16 / 0.86);
+      --color-brick: #f0a090;
+      --color-brick-ink: #f0a090;
+      --color-brick-soft: rgb(240 160 144 / 0.2);
+      --color-on-danger: #10281c;
+      --color-bar: rgb(16 40 28 / 0.86);
       --shadow-widget: none;
     }
   }
-  /* Elevated surfaces (sheets) use a slightly lighter warm gray in dark mode. */
+  /* Elevated surfaces (sheets) use a slightly lighter jungle green in night mode. */
+  :root[data-theme='dark'] .elevated {
+    --color-shell: #1b3a2a;
+    --color-paper: #244a36;
+    --color-paper-2: #2c5a42;
+  }
   @media (prefers-color-scheme: dark) {
-    .elevated {
-      --color-shell: #2a211c;
-      --color-paper: #3a2e28;
-      --color-paper-2: #4a3c34;
+    :root:not([data-theme='light']) .elevated {
+      --color-shell: #1b3a2a;
+      --color-paper: #244a36;
+      --color-paper-2: #2c5a42;
     }
   }
   .theme-dark .elevated {
@@ -156,7 +198,7 @@
     --color-paper-2: #4a3c34;
   }
 
-  /* Force the dark appearance on a subtree (labor mode). Same tint values as above; night stays black. */
+  /* Labor mode: a dark room (warm black). Not the jungle-green night used elsewhere. */
   .theme-dark {
     color-scheme: dark;
     --color-shell: #1a1410;
