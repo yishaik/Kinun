@@ -396,13 +396,251 @@
   animation: breathe 2.4s ease-in-out infinite;
 }
 
+/* Leaf burst when a row is checked. */
+.leaf-burst {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+.leaf-burst-petal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 11px;
+  border-radius: 0 80% 0 80%;
+  background: var(--color-leaf);
+  opacity: 0;
+  animation: leaf-burst 520ms var(--ease-ios) both;
+}
+.leaf-burst-petal:nth-child(1) {
+  --dx: -14px;
+  --dy: -12px;
+  --rot: -40deg;
+}
+.leaf-burst-petal:nth-child(2) {
+  --dx: 13px;
+  --dy: -14px;
+  --rot: 30deg;
+  animation-delay: 40ms;
+}
+.leaf-burst-petal:nth-child(3) {
+  --dx: 2px;
+  --dy: -18px;
+  --rot: 8deg;
+  animation-delay: 80ms;
+  background: var(--color-sun);
+}
+@keyframes leaf-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4) rotate(var(--rot));
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1) rotate(var(--rot));
+  }
+}
+
+/* Primary button: a short wiggle on press, on top of the existing scale. */
+@keyframes btn-wiggle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0);
+  }
+  30% {
+    transform: scale(0.97) rotate(-1.6deg);
+  }
+  65% {
+    transform: scale(0.97) rotate(1.6deg);
+  }
+}
+.btn-primary:active:not(:disabled) {
+  animation: btn-wiggle 280ms var(--ease-ios);
+}
+
+/* Loading giraffe nods from the neck. */
+@keyframes giraffe-nod {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(10deg);
+  }
+  70% {
+    transform: rotate(-4deg);
+  }
+}
+.giraffe-nod {
+  transform-origin: 50% 85%;
+  animation: giraffe-nod 1.15s ease-in-out infinite;
+}
+
+/* Peeking animals: sit in the header–card gap; tucked under the card; never intercept taps. */
+.peek-decor {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+.peek-giraffe {
+  inset-inline-start: 0.75rem;
+  bottom: -0.85rem;
+  width: 3.5rem;
+  z-index: 0;
+}
+.peek-owl {
+  inset-inline-start: 1.15rem;
+  bottom: -0.65rem;
+  width: 2.75rem;
+}
+.peek-elephant {
+  inset-inline-start: 0.35rem;
+  bottom: -1.1rem;
+  width: 4rem;
+}
+.peek-monkey {
+  inset-inline-end: -0.85rem;
+  top: -2.35rem;
+  width: 2.65rem;
+  z-index: 15;
+}
+
+/* Category-complete celebration. */
+.celebrate-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: color-mix(in srgb, var(--color-twig) 45%, transparent);
+}
+.celebrate-card {
+  width: min(22rem, 100%);
+}
+.celebrate-badge {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  margin-inline: auto;
+  border-radius: 999px;
+  background: var(--color-sun);
+  color: var(--color-straw-ink);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-sun) 35%, transparent);
+}
+.celebrate-confetti {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.celebrate-bit {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 9px;
+  height: 13px;
+  border-radius: 0 80% 0 80%;
+  background: var(--color-leaf);
+  animation: celebrate-fly 900ms var(--ease-ios) both;
+}
+.celebrate-bit-1 {
+  background: var(--color-sun);
+  --fx: -72px;
+  --fy: -90px;
+  --rot: -50deg;
+}
+.celebrate-bit-2 {
+  background: var(--color-robin);
+  --fx: 80px;
+  --fy: -86px;
+  --rot: 40deg;
+  animation-delay: 40ms;
+}
+.celebrate-bit-3 {
+  background: var(--color-lagoon);
+  --fx: -20px;
+  --fy: -110px;
+  --rot: 10deg;
+  animation-delay: 70ms;
+}
+.celebrate-bit-4 {
+  background: var(--color-straw, var(--color-sun));
+  --fx: 40px;
+  --fy: -70px;
+  --rot: 20deg;
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  animation-delay: 30ms;
+}
+.celebrate-bit-5 {
+  background: var(--color-leaf);
+  --fx: -90px;
+  --fy: -40px;
+  --rot: -20deg;
+  animation-delay: 90ms;
+}
+.celebrate-bit-6 {
+  background: var(--color-sun);
+  --fx: 95px;
+  --fy: -36px;
+  --rot: 55deg;
+  animation-delay: 110ms;
+}
+.celebrate-bit-7 {
+  background: var(--color-robin);
+  --fx: 10px;
+  --fy: -60px;
+  --rot: -8deg;
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+  animation-delay: 50ms;
+}
+.celebrate-bit-0 {
+  background: var(--color-leaf);
+  --fx: -50px;
+  --fy: -100px;
+  --rot: -30deg;
+}
+@keyframes celebrate-fly {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.85;
+    transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy))) scale(1) rotate(var(--rot));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .check-pop,
   .check-draw,
   .sheet-up,
   .fade-in,
   .hud-in,
-  .breathe {
+  .breathe,
+  .leaf-burst-petal,
+  .giraffe-nod,
+  .celebrate-bit,
+  .btn-primary:active:not(:disabled) {
     animation: none;
   }
   .press:active:not(:disabled),

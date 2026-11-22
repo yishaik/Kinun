@@ -1,11 +1,15 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { CategoryMark } from '../components/CategoryMark';
+import { Celebration } from '../components/Celebration';
 import { useItemSheet } from '../components/ItemSheet';
+import { BAG_PEEKS, GEAR_PEEKS, PeekDecor } from '../components/PeekDecor';
 import { CheckRow } from '../components/rows';
 import { EmptyState, Fab, FilterChips, PageTitle, Ring, Section, Segmented } from '../components/ui';
 import { useHousehold, useSession } from '../data/session';
 import { useMembers } from '../lib/hooks';
 import { categoryLabel, orderedCategories } from '../lib/labels';
+import { celebrationStorageKey } from '../lib/celebration';
 import { progressOf, sortItems } from '../lib/progress';
 import type { ItemKind } from '../lib/types';
 
@@ -40,6 +44,7 @@ export function GearPage() {
   }));
 
   const progress = tab === 'gear' ? progressOf(items, 'gear', (i) => i.priority === 'must') : progressOf(items, 'bag');
+  const bagProgress = progressOf(items, 'bag');
   const remainingCost = list
     .filter((i) => !i.done && typeof i.price === 'number')
     .reduce((sum, i) => sum + (i.price ?? 0), 0);
@@ -98,17 +103,22 @@ export function GearPage() {
         </div>
       )}
 
-      {groups.map(({ cat, items: rows, all }) => (
-        <Section
-          key={cat}
-          title={categoryLabel(kind, cat)}
-          count={{ done: all.filter((i) => i.done).length, total: all.length }}
-        >
-          {rows.map((i) => (
-            <CheckRow key={i.id} item={i} household={household} members={members} onOpen={openItem} />
-          ))}
-        </Section>
-      ))}
+      {groups.map(({ cat, items: rows, all }) => {
+        const peek = (tab === 'bag' ? BAG_PEEKS : GEAR_PEEKS)[cat];
+        return (
+          <Section
+            key={cat}
+            title={categoryLabel(kind, cat)}
+            mark={<CategoryMark kind={kind} category={cat} />}
+            peek={peek ? <PeekDecor kind={peek} /> : undefined}
+            count={{ done: all.filter((i) => i.done).length, total: all.length }}
+          >
+            {rows.map((i) => (
+              <CheckRow key={i.id} item={i} household={household} members={members} onOpen={openItem} />
+            ))}
+          </Section>
+        );
+      })}
 
       {groups.length === 0 && (
         <EmptyState
@@ -123,6 +133,12 @@ export function GearPage() {
 
       <Fab label={tab === 'gear' ? 'הוספת ציוד' : 'הוספת פריט לתיק'} onClick={() => openNew({ kind })} />
       {sheet}
+      <Celebration
+        storageKey={celebrationStorageKey(household.id, 'bag')}
+        ready={tab === 'bag' && bagProgress.total > 0 && bagProgress.done === bagProgress.total}
+        title="התיק מוכן!"
+        body="כל מה שרשמתם לתיק הלידה מסומן. סיכה קטנה לחגיגה."
+      />
     </>
   );
 }
