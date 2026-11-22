@@ -155,6 +155,24 @@ test('demo: onboarding → week → tasks → gear → labor → warnings → mo
   await expect(page.getByText('החזקה', { exact: true })).toBeVisible({ timeout: 10_000 });
   await snap(page, '23-breathing');
   await page.getByRole('button', { name: 'עצירה' }).click();
+
+  // Journal
+  await nav(page, 'עוד').click();
+  await page.getByRole('link', { name: /יומן רגעים/ }).click();
+  await page.getByLabel('כותרת').fill('הבעיטה הראשונה');
+  await page.getByLabel('מה קרה').fill('בערב, על הספה. שנינו הרגשנו!');
+  await page.getByRole('button', { name: 'שמירת הרגע' }).click();
+  await expect(page.getByRole('heading', { name: 'הבעיטה הראשונה' })).toBeVisible();
+  await snap(page, '24-journal');
+  await page.getByRole('tab', { name: 'מכתב לתינוק' }).click();
+  await page.getByLabel('המכתב שלי לתינוק').fill('תינוק/ת יקר/ה,\nכבר מחכים לך.');
+  await page.getByRole('tab', { name: 'בייבימון' }).click();
+  await page.getByRole('button', { name: 'הוספה: סופ״ש רגוע בצימר' }).click();
+  await expect(page.getByRole('checkbox', { name: 'סימון כנעשה: סופ״ש רגוע בצימר' })).toBeVisible();
+  await snap(page, '25-babymoon');
+  await page.getByRole('tab', { name: 'מכתב לתינוק' }).click();
+  await expect(page.getByLabel('המכתב שלי לתינוק')).toHaveValue('תינוק/ת יקר/ה,\nכבר מחכים לך.');
+  await snap(page, '26-letter');
   await page.emulateMedia({ media: 'print' });
   await expect(page.getByRole('navigation', { name: 'ניווט ראשי' })).toBeHidden();
   await page.emulateMedia({ media: 'screen' });

@@ -103,6 +103,22 @@ describe('App (demo backend)', () => {
     expect(await screen.findByText('שאיפה')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'עצירה' }));
     expect(screen.getByText('מוכנים?')).toBeInTheDocument();
+
+    // Journal: a moment, my letter, a babymoon idea.
+    fireEvent.click(within(nav).getByRole('link', { name: 'עוד' }));
+    fireEvent.click(await screen.findByRole('link', { name: /יומן רגעים/ }));
+    fireEvent.change(await screen.findByLabelText('כותרת'), { target: { value: 'הבעיטה הראשונה' } });
+    fireEvent.click(screen.getByRole('button', { name: 'שמירת הרגע' }));
+    expect(await screen.findByRole('heading', { name: 'הבעיטה הראשונה' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'מכתב לתינוק' }));
+    const letter = await screen.findByLabelText('המכתב שלי לתינוק');
+    fireEvent.change(letter, { target: { value: 'מחכים לך' } });
+    fireEvent.blur(letter);
+    fireEvent.click(screen.getByRole('tab', { name: 'בייבימון' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'הוספה: צילומי הריון' }));
+    expect(await screen.findByRole('checkbox', { name: 'סימון כנעשה: צילומי הריון' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'מכתב לתינוק' }));
+    expect(await screen.findByLabelText('המכתב שלי לתינוק')).toHaveValue('מחכים לך');
   });
 
   it('shows the private screen to a real (non-demo) sign-in that is not on the allowlist', async () => {

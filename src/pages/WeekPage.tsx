@@ -8,6 +8,7 @@ import { EmptyState, PageTitle, Section } from '../components/ui';
 import { useHousehold, useSession } from '../data/session';
 import { useMembers, useNow } from '../lib/hooks';
 import { pregnancyStatus } from '../lib/pregnancy';
+import { WEEK_SIZES } from '../content/weeks';
 import { FIRST_WEEK, LAST_WEEK, weekInfo, weekTasks } from '../lib/week';
 
 export function WeekPage() {
@@ -71,6 +72,11 @@ export function WeekPage() {
             <h2 id="wk-baby" className="mb-1.5 flex items-center gap-2 text-headline text-leaf-ink">
               <Baby className="size-5" aria-hidden /> התינוק/ת
             </h2>
+            {WEEK_SIZES[info.week] && (
+              <p className="mb-2 inline-block rounded-lg bg-straw-soft px-2 py-1 text-subhead text-twig">
+                בגודל של {WEEK_SIZES[info.week]}
+              </p>
+            )}
             <p className="text-body leading-relaxed">{info.baby}</p>
           </section>
           <section className="widget mb-2 p-4" aria-labelledby="wk-mom">

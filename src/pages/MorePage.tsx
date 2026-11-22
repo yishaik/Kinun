@@ -4,6 +4,7 @@ import {
   BookOpen,
   CalendarHeart,
   ClipboardPen,
+  NotebookPen,
   Footprints,
   Hand,
   HeartHandshake,
@@ -74,6 +75,13 @@ export const HUB_SECTIONS: { title: string; entries: HubEntry[] }[] = [
         tone: 'lagoon',
         title: 'תרגילי נשימה',
         subtitle: 'טיימר נשימה: שאיפה, החזקה, נשיפה ארוכה',
+      },
+      {
+        to: '/journal',
+        icon: NotebookPen,
+        tone: 'leaf',
+        title: 'יומן רגעים',
+        subtitle: 'רגעים, מכתב לתינוק ורעיונות לבייבימון',
       },
       {
         to: '/questions',

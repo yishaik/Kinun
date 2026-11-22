@@ -42,8 +42,11 @@ src/
   main.tsx, App.tsx          boot, backend choice, auth/household gate, routes (HashRouter)
   index.css                  Tailwind v4 + design tokens (@theme) + building-block utilities
   content/                   DEFAULT CONTENT (seed): tasks.ts, gear.ts, bag.ts, links.ts, sources.ts, schema.ts
+                             + reference content: weeks.ts (+ WEEK_SIZES), warnings.ts, glossary.ts, laborStages.ts,
+                             birthPlan.ts, questions.ts, partnerGuide.ts — every fact has a `source` from SRC
   lib/                       pure logic — types.ts, labels.ts (Hebrew names of every enum/category),
-                             pregnancy.ts (date math), progress.ts (selectors), seed.ts, contractions.ts, format.ts
+                             pregnancy.ts (date math), progress.ts (selectors), seed.ts, contractions.ts, format.ts,
+                             week.ts, kicks.ts, birthPlan.ts, names.ts, breathing.ts, journal.ts, glossary.ts, tools.ts
   data/                      DataStore interface (store.ts), FirebaseStore, LocalStore, session.tsx (context + useActions), toast.tsx
   components/                UI building blocks (ui.tsx, ItemSheet, rows, Layout, EggProgress, Sheet)
   pages/                     one file per screen
@@ -109,6 +112,16 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 - Docs updated when behavior, structure or setup changes. Keep this file and `docs/HANDOFF.md` accurate.
 - Don't deploy or change Firebase/GitHub settings unless the user asked.
 
+## Features and data (since November 2026)
+
+- Hub `/more` ("עוד"): מידע (`/stages`, `/glossary`, `/warnings`, `/partner`), כלים (`/kicks`, `/birth-plan`,
+  `/birth-plan/print`, `/breathing`, `/questions`, `/names`), לפני הלידה (`/journal`, `/week`, `/links`).
+- The couple's own content lives in `households/{id}/records` (kinds `kick`, `birthPlan`, `question`, `name`,
+  `journal`) — see docs/DATA-MODEL.md. Use `useRecords(kind)` + `useActions()`; never write Firestore directly.
+- Medical/safety content only from official Israeli sources (MoH, Kupot Holim, hospitals, MDA, Kol Zchut), each item
+  with a `source` from `SRC` (`src/content/sources.ts`). Leave out what you cannot source. Tests enforce SRC membership.
+- No Cloud Storage (Spark plan): journal is text only.
+
 ## Production
 
 - Firebase project `kinun-ae894` (Spark plan), Firestore `(default)` in `me-west1`, app at <https://kinun-ae894.web.app>.
@@ -116,6 +129,9 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 - Auto-deploy to Firebase Hosting is **active** on push to `main` (workflow `.github/workflows/deploy.yml`), via repo
   variable `FIREBASE_PROJECT_ID` and repo secret `FIREBASE_SERVICE_ACCOUNT` (names only). Doc-only changes
   (`**.md`, `docs/**`, `.github/ISSUE_TEMPLATE/**`) are ignored. The workflow uploads Hosting only.
+- **Rules deploy pending (23 November 2026):** `firestore.rules` on `main` adds `records`; the CI service account
+  lacks Firebase Rules permission (403 on `firebaserules…:test`), so the live rules are older and the records-based
+  screens get permission-denied in production until someone runs the deploy below with an owner account.
 - Firestore rules/indexes still need a manual deploy when they change: `firebase deploy --project kinun-ae894 --only firestore`.
   A full manual Hosting+rules deploy is `npm run build` + `firebase deploy --project kinun-ae894`. The simplest place
   to run that is Google Cloud Shell — see docs/SETUP-FIREBASE.md. Rules changes must be deployed too, or the app and

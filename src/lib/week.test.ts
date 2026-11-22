@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from './types';
-import { FIRST_WEEK, LAST_WEEK, weekInfo, weekTasks } from './week';
+import { FIRST_WEEK, LAST_WEEK, weekInfo, weekTasks, weekSize } from './week';
 
 const task = (over: Partial<Item>): Item =>
   ({
@@ -46,5 +46,15 @@ describe('weekTasks', () => {
   it('respects the limit', () => {
     const items = Array.from({ length: 6 }, (_, i) => task({ dueWeek: 20, order: i }));
     expect(weekTasks(items, 20, 4)).toHaveLength(4);
+  });
+});
+
+describe('weekSize', () => {
+  it('uses this week, or the closest of the last 3 weeks that has a comparison', () => {
+    expect(weekSize(12)).toEqual({ week: 12, size: 'שזיף' });
+    expect(weekSize(13)).toEqual({ week: 12, size: 'שזיף' });
+    expect(weekSize(19)).toEqual({ week: 16, size: 'אבוקדו' });
+    expect(weekSize(35)).toBeNull();
+    expect(weekSize(2)).toBeNull();
   });
 });
