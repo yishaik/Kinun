@@ -112,10 +112,14 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 ## Production
 
 - Firebase project `kinun-ae894` (Spark plan), Firestore `(default)` in `me-west1`, app at <https://kinun-ae894.web.app>.
-  `.firebaserc` points at it. The couple uses this live — **deploy only when the user asks.**
-- Deploy = `npm run build` + `firebase deploy --project kinun-ae894` (hosting + Firestore rules/indexes). The simplest place
-  to run it is Google Cloud Shell, which has Node and the Firebase CLI and is already authenticated — see
-  docs/SETUP-FIREBASE.md, step 6. Rules changes must be deployed too, or the app and the rules drift apart.
+  `.firebaserc` points at it. The couple uses this live — **do not trigger extra deploys unless the user asks.**
+- Auto-deploy to Firebase Hosting is **active** on push to `main` (workflow `.github/workflows/deploy.yml`), via repo
+  variable `FIREBASE_PROJECT_ID` and repo secret `FIREBASE_SERVICE_ACCOUNT` (names only). Doc-only changes
+  (`**.md`, `docs/**`, `.github/ISSUE_TEMPLATE/**`) are ignored. The workflow uploads Hosting only.
+- Firestore rules/indexes still need a manual deploy when they change: `firebase deploy --project kinun-ae894 --only firestore`.
+  A full manual Hosting+rules deploy is `npm run build` + `firebase deploy --project kinun-ae894`. The simplest place
+  to run that is Google Cloud Shell — see docs/SETUP-FIREBASE.md. Rules changes must be deployed too, or the app and
+  the rules drift apart.
 - Google sign-in on `web.app` depends on the OAuth web client listing `https://kinun-ae894.web.app/__/auth/handler`
   as a redirect URI (docs/SETUP-FIREBASE.md, step 3). A new domain (custom domain, new project) needs the same.
 

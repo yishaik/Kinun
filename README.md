@@ -39,6 +39,7 @@ npm run dev:demo
 **<https://kinun-ae894.web.app>** — פותחים בטלפון, מוסיפים למסך הבית ונכנסים עם Google.
 
 ההקמה ב-Firebase (בחינם), העלאת גרסה חדשה והקמה מחדש בפרויקט אחר: [docs/SETUP-FIREBASE.md](docs/SETUP-FIREBASE.md).
+פריסה ל-Firebase Hosting רצה אוטומטית אחרי push ל-`main` (משתנה `FIREBASE_PROJECT_ID` וסוד `FIREBASE_SERVICE_ACCOUNT`). שינוי ב-`firestore.rules` עדיין דורש העלאה ידנית.
 
 ### התקנה בטלפון
 

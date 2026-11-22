@@ -84,6 +84,8 @@ cd ~/Kinun && git pull && npm ci && npm run build && firebase deploy --project k
 
 ## 8. (רשות) העלאה אוטומטית מ-GitHub
 
+בפרויקט הזה (`yishaik/Kinun`) זה **כבר מופעל**: משתנה הריפו `FIREBASE_PROJECT_ID` וסוד הריפו `FIREBASE_SERVICE_ACCOUNT` מוגדרים (שמות בלבד). כל push ל-`main` שאינו שינוי תיעוד בלבד יעלה גרסה חדשה (`.github/workflows/deploy.yml`). השלבים למטה הם להקמה מחדש או לפרויקט אחר.
+
 כל push ל-`main` יעלה גרסה חדשה (`.github/workflows/deploy.yml`):
 
 1. [Google Cloud Console](https://console.cloud.google.com) ← **IAM & Admin ← Service Accounts ← Create**:

@@ -1,14 +1,23 @@
 name: Deploy to Firebase Hosting
 
-# Runs on every push to main once the repo is configured (see docs/SETUP-FIREBASE.md, step 6):
-#   - repository variable  FIREBASE_PROJECT_ID
+# Auto-deploys the PWA to Firebase Hosting on push to main (see docs/SETUP-FIREBASE.md, step 8):
+#   - repository variable  FIREBASE_PROJECT_ID  (kinun-ae894)
 #   - repository secret    FIREBASE_SERVICE_ACCOUNT  (service-account JSON with "Firebase Hosting Admin")
-# Until then the job is skipped.
+# The job is skipped if FIREBASE_PROJECT_ID is empty. Doc-only changes are ignored.
+# This workflow uploads Hosting only; Firestore rules still need a manual deploy.
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
   workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -21,7 +30,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm test
       - run: npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
