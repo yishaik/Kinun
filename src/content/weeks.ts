@@ -246,3 +246,23 @@ export const WEEKS: WeekInfo[] = [
     source: 'https://www.maccabi4u.co.il/maccabi_circles/pregnancy-and-birth/pregnancy_weeks/week_41/',
   },
 ];
+
+/**
+ * "השוואת גודל": what the baby is about the size of, for the weeks where the Maccabi weekly page
+ * (same `source` as WEEKS) says so. Weeks without a comparison on that page are left out on purpose.
+ */
+export const WEEK_SIZES: Record<number, string> = {
+  4: 'גרגיר פרג',
+  5: 'זרע של תפוח',
+  8: 'גרגיר פטל',
+  9: 'זית',
+  10: 'תפוז סיני',
+  11: 'תות',
+  12: 'שזיף',
+  14: 'קיווי',
+  15: 'עגבנייה',
+  16: 'אבוקדו',
+  20: 'תפוז',
+  23: 'בטטה',
+  30: 'דלורית',
+};

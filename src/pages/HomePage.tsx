@@ -21,7 +21,7 @@ import {
 } from '../lib/pregnancy';
 import { combinedChecklistProgress } from '../lib/giraffe';
 import { earlierStageTasks, progressOf, recentActivity, upcomingTasks } from '../lib/progress';
-import { weekInfo, weekTasks } from '../lib/week';
+import { weekInfo, weekSize, weekTasks } from '../lib/week';
 import type { Item } from '../lib/types';
 
 const dayFmt = new Intl.DateTimeFormat('he-IL', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -133,11 +133,16 @@ function DueDatePrompt() {
   );
 }
 
-/** "השבוע שלכם" teaser: the baby excerpt for this week + how many tasks are due. Links to /week. */
+/**
+ * "השבוע שלכם": a week 1→40 timeline, this week's size comparison (when the source has one),
+ * the baby excerpt and how many tasks are due. Links to /week.
+ */
 function WeekCard({ week, items }: { week: number; items: Item[] }) {
   const info = weekInfo(week);
   if (!info) return null;
   const due = weekTasks(items, week, 99).length;
+  const size = weekSize(week);
+  const pct = Math.round((Math.min(Math.max(week, 1), 40) / 40) * 100);
   return (
     <Link to="/week" className="widget press mb-3 block p-4" aria-label={`השבוע שלכם, שבוע ${week}`}>
       <span className="flex items-center gap-2">
@@ -146,10 +151,40 @@ function WeekCard({ week, items }: { week: number; items: Item[] }) {
         </span>
         <span className="text-headline">השבוע שלכם</span>
         <span className="ms-auto flex items-center gap-0.5 text-subhead text-robin">
-          שבוע {week} <ChevronLeft className="size-4" strokeWidth={2.5} aria-hidden />
+          פרטים <ChevronLeft className="size-4" strokeWidth={2.5} aria-hidden />
         </span>
       </span>
-      <span className="mt-2 line-clamp-3 block text-subhead leading-relaxed text-twig">{info.baby}</span>
+      <span className="mt-3 block text-title2">
+        שבוע {week} <span className="text-twig-soft">מתוך 40</span>
+      </span>
+      <span
+        className="mt-2 block h-2.5 overflow-hidden rounded-full bg-fill"
+        role="progressbar"
+        aria-label="התקדמות ההריון"
+        aria-valuemin={1}
+        aria-valuemax={40}
+        aria-valuenow={Math.min(week, 40)}
+        aria-valuetext={`שבוע ${week} מתוך 40`}
+      >
+        <span
+          className="block h-full rounded-full bg-[linear-gradient(to_right,var(--color-straw),var(--color-leaf))]"
+          style={{ width: `${pct}%` }}
+        />
+      </span>
+      <span className="tabular mt-1 flex justify-between text-caption text-twig-soft" aria-hidden>
+        <span>שבוע 1</span>
+        <span>{pct}%</span>
+        <span>שבוע 40</span>
+      </span>
+      {size && (
+        <span className="mt-3 flex items-center gap-3 rounded-xl bg-straw-soft px-3 py-2">
+          <span className="text-footnote font-semibold text-straw-ink">השוואת גודל</span>
+          <span className="text-subhead text-twig">
+            {size.week === week ? 'התינוק/ת' : `בשבוע ${size.week}`} בגודל של {size.size}
+          </span>
+        </span>
+      )}
+      <span className="mt-3 line-clamp-3 block text-subhead leading-relaxed text-twig">{info.baby}</span>
       <span className="mt-2 block text-footnote text-twig-soft">
         {due ? `${due === 1 ? 'משימה אחת' : `${due} משימות`} לשבוע הזה` : 'גם מה קורה אצל היולדת ומה לעשות השבוע'}
       </span>

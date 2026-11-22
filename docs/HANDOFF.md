@@ -14,7 +14,24 @@ Stack: React 19 + Vite + TypeScript + Tailwind v4, Firebase Auth (Google) + Fire
 
 A remote MCP server (`mcp-worker/`) lets an AI agent read, add, edit, and mark items done (no delete; no access to labor contractions, household settings, or members). Settings in the PWA has a **סוכני AI** card for the worker URL and token (stored in that device's `localStorage` only). See [MCP.md](MCP.md).
 
-## Current status (verified 22 November 2026, 23:23)
+## Content bundles (23 November 2026)
+
+Six bundles merged (Linear YIS-243 … YIS-248, related to YIS-237):
+
+1. [YIS-243](https://linear.app/yishaik/issue/YIS-243) — "השבוע שלכם" (`/week`), סימני אזהרה (`/warnings`), hub `/more`, more official links; fixed the YIS-231 404.
+2. [YIS-244](https://linear.app/yishaik/issue/YIS-244) — שלבי הלידה ושיכוך כאב (`/stages`), מילון מונחים (`/glossary`). [PR #6](https://github.com/yishaik/Kinun/pull/6)
+3. [YIS-245](https://linear.app/yishaik/issue/YIS-245) — `records` sub-collection + rules + tests; ספירת תנועות (`/kicks`), תוכנית לידה (`/birth-plan`, `/birth-plan/print`). [PR #7](https://github.com/yishaik/Kinun/pull/7)
+4. [YIS-246](https://linear.app/yishaik/issue/YIS-246) — שאלות לרופא/ה (`/questions`), שמות עם הצבעה (`/names`). [PR #8](https://github.com/yishaik/Kinun/pull/8)
+5. [YIS-247](https://linear.app/yishaik/issue/YIS-247) — מדריך לבן/בת הזוג (`/partner`), תרגול נשימות (`/breathing`). [PR #9](https://github.com/yishaik/Kinun/pull/9)
+6. [YIS-248](https://linear.app/yishaik/issue/YIS-248) — יומן רגעים (`/journal`: moments, letter to the baby, babymoon; text only), week timeline + size comparison on the home week card, these docs.
+
+**Blocker — Firestore rules not deployed.** `firestore.rules` on `main` includes `records`, but the deploy with the
+`FIREBASE_SERVICE_ACCOUNT` service account failed with 403 (`firebaserules.googleapis.com …:test` — caller does not have
+permission). Until an owner runs `firebase deploy --project kinun-ae894 --only firestore:rules` (or grants the service
+account `roles/firebaserules.admin` + `roles/serviceusage.serviceUsageConsumer`), kicks, birth plan, questions, names
+and journal show an error toast and an empty list on the live app (demo mode works).
+
+## Status before the content bundles (verified 22 November 2026, 23:23)
 
 - App code on `main` at the Hosting deploy: [`b7f5b90`](https://github.com/yishaik/Kinun/commit/b7f5b90b573e3a72c27c425bec86e0684952dda5) (22 November 2026, 22:51 Asia/Jerusalem) — docs after the jungle-nursery redesign with the baby-giraffe mark ([PR #4](https://github.com/yishaik/Kinun/pull/4), squash [`ff9681b`](https://github.com/yishaik/Kinun/commit/ff9681bb4ba177f0ae3b555975292f320abe6b4b)).
 - Immediately before the redesign: [`b33a648`](https://github.com/yishaik/Kinun/commit/b33a64887ed828f5608aad06853179a2fb044f96) — docs handoff ([PR #3](https://github.com/yishaik/Kinun/pull/3)).

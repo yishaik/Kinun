@@ -9,6 +9,7 @@ Security: `firestore.rules` (tests: `firestore-tests/rules.test.ts`).
 households/{householdId}
 households/{householdId}/items/{itemId}
 households/{householdId}/contractions/{contractionId}
+households/{householdId}/records/{recordId}
 ```
 
 ### `households/{householdId}`
@@ -66,7 +67,31 @@ Invariant: for gear, `done === (gearStatus === 'have' || gearStatus === 'skip')`
 | `end`       | number \| null (null while in progress) |
 | `createdBy` | uid                                     |
 
+### `records/{recordId}` — the couple's own content (kicks, birth plan, questions, names, journal)
+
+One generic sub-collection, shared by both partners like `items`. Type `HouseholdRecord` in `src/lib/types.ts`
+(defaults: `recordDefaults()`); hook `useRecords(kind)`; actions `addRecord` / `updateRecord` / `vote` / `deleteRecord`.
+
+| Field                          | Type                                                         | Notes                                                                                          |
+| ------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `kind`                         | `'kick' \| 'birthPlan' \| 'question' \| 'name' \| 'journal'` | cannot change after create                                                                     |
+| `text`                         | string ≤ 10000                                               | main text (question, name, moment text, letter, babymoon idea)                                 |
+| `note`                         | string ≤ 2000                                                | secondary text (answer, moment title)                                                          |
+| `done`                         | bool                                                         | asked / done                                                                                   |
+| `tag`                          | string ≤ 40                                                  | sub-type: `MET_30` (kicks), `girl`/`boy`/`any` (names), `moment`/`letter`/`babymoon` (journal) |
+| `date`                         | `YYYY-MM-DD` or `''`                                         | moment date                                                                                    |
+| `start`, `end`                 | ms epoch                                                     | kick session                                                                                   |
+| `count`                        | int 0–999                                                    | kicks counted                                                                                  |
+| `votes`                        | map uid → `'love' \| 'no'` (≤ 10)                            | each partner may only write their own key                                                      |
+| `answers`                      | map (≤ 60 keys)                                              | birth-plan answers; the plan is one record with fixed id `birth-plan`                          |
+| `createdAt/By`, `updatedAt/By` |                                                              | as in `items`                                                                                  |
+
+Journal photos are **not** stored (Spark plan has no Cloud Storage) — text only.
+
 ## Security rules (summary)
+
+- `records`: members only; `recordIsValid()` (key allowlist, kinds, sizes above); `votesOk()` — an update may only
+  touch the caller's own `votes.<uid>` with `love`/`no`; on create `votes` may hold only the caller's uid.
 
 - **Private app:** every rule requires `allowed()` = a **verified** email (Google accounts always are) that is in
   `allowlist()` — the couple's Google accounts. Mirror: `src/lib/access.ts` (a unit test checks they match).
