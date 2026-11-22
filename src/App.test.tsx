@@ -43,6 +43,32 @@ describe('App (demo backend)', () => {
     fireEvent.change(await screen.findByPlaceholderText(/חיפוש/), { target: { value: 'פקק' } });
     expect(screen.getByText('פקק רירי')).toBeInTheDocument();
     expect(screen.queryByText('אפידורל בהליכה')).toBeNull();
+
+    // Kick counter: count, finish, see it in the history.
+    fireEvent.click(within(nav).getByRole('link', { name: 'עוד' }));
+    fireEvent.click(await screen.findByRole('link', { name: /מונה תנועות/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'התחלת ספירה' }));
+    for (let i = 0; i < 3; i++) fireEvent.click(await screen.findByRole('button', { name: /^תנועה/ }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'תנועה. נספרו 3' })).toBeInTheDocument());
+    expect(screen.getByRole('status')).toHaveTextContent('3 תנועות ומעלה');
+    fireEvent.click(screen.getByRole('button', { name: 'סיום הספירה' }));
+    expect(await screen.findByText(/3 תנועות ב-/)).toBeInTheDocument();
+
+    // Birth plan: fill, then the print view shows only what was filled.
+    fireEvent.click(within(nav).getByRole('link', { name: 'עוד' }));
+    fireEvent.click(await screen.findByRole('link', { name: /תוכנית לידה/ }));
+    const nameField = await screen.findByLabelText('שם מלא');
+    fireEvent.change(nameField, { target: { value: 'נועה כהן' } });
+    fireEvent.blur(nameField);
+    const music = screen.getByRole('group', { name: 'מוזיקה' });
+    fireEvent.click(within(music).getByRole('button', { name: 'כן' }));
+    await waitFor(() =>
+      expect(within(music).getByRole('button', { name: 'כן' })).toHaveAttribute('aria-pressed', 'true'),
+    );
+    fireEvent.click(screen.getByRole('link', { name: /תצוגה להדפסה/ }));
+    expect(await screen.findByRole('heading', { name: 'תוכנית לידה — נועה כהן' })).toBeInTheDocument();
+    expect(screen.getByText('מוזיקה')).toBeInTheDocument();
+    expect(screen.queryByText('חוקן')).toBeNull();
   });
 
   it('shows the private screen to a real (non-demo) sign-in that is not on the allowlist', async () => {

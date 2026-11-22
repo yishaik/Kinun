@@ -13,6 +13,9 @@ import { MorePage } from './pages/MorePage';
 import { WarningsPage } from './pages/WarningsPage';
 import { LaborStagesPage } from './pages/LaborStagesPage';
 import { GlossaryPage } from './pages/GlossaryPage';
+import { KicksPage } from './pages/KicksPage';
+import { BirthPlanPage } from './pages/BirthPlanPage';
+import { BirthPlanPrintPage } from './pages/BirthPlanPrintPage';
 import { WeekPage } from './pages/WeekPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -50,6 +53,9 @@ function Gate() {
           <Route path="/warnings" element={<WarningsPage />} />
           <Route path="/stages" element={<LaborStagesPage />} />
           <Route path="/glossary" element={<GlossaryPage />} />
+          <Route path="/kicks" element={<KicksPage />} />
+          <Route path="/birth-plan" element={<BirthPlanPage />} />
+          <Route path="/birth-plan/print" element={<BirthPlanPrintPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -318,9 +318,10 @@
 @utility pt-safe {
   padding-top: env(safe-area-inset-top);
 }
+/* Side padding that also clears the notch in landscape (at least 1rem — the page gutter). */
 @utility px-safe {
-  padding-inline-start: max(env(safe-area-inset-left), 0px);
-  padding-inline-end: max(env(safe-area-inset-right), 0px);
+  padding-inline-start: max(env(safe-area-inset-left), 1rem);
+  padding-inline-end: max(env(safe-area-inset-right), 1rem);
 }
 @utility tabular {
   font-variant-numeric: tabular-nums;
@@ -412,5 +413,20 @@
   *::before,
   *::after {
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Printing (the birth plan): only the page content, black on white. */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .print-sheet section {
+    break-inside: avoid;
   }
 }

@@ -8,12 +8,26 @@ import { isAllowedEmail } from '../lib/access';
 import { isGearDone } from '../lib/labels';
 import { safeStorage } from '../lib/platform';
 import { buildSeedItems, missingSeedItems } from '../lib/seed';
-import type { AppUser, GearStatus, Household, HouseholdPatch, Item, ItemPatch, NewItem } from '../lib/types';
+import type {
+  AppUser,
+  GearStatus,
+  Household,
+  HouseholdPatch,
+  HouseholdRecord,
+  Item,
+  ItemPatch,
+  NameVote,
+  NewItem,
+  NewRecord,
+  RecordKind,
+  RecordPatch,
+} from '../lib/types';
 import { normalizeEmail, type DataStore } from './store';
 import { useToast } from './toast';
 
 const SELECTED_KEY = 'kinun:selectedHousehold';
 const EMPTY_ITEMS: Item[] = [];
+const EMPTY_RECORDS: HouseholdRecord[] = [];
 
 export type SessionStatus =
   | 'auth-loading'
@@ -178,6 +192,21 @@ export function useHousehold(): Household {
   return household;
 }
 
+/** Live list of one kind of shared record (kicks, questions, names…) for the active household. */
+export function useRecords(kind: RecordKind): { records: HouseholdRecord[]; loaded: boolean } {
+  const { store, household } = useSession();
+  const hid = household?.id ?? null;
+  const [state, setState] = useState<{ key: string; records: HouseholdRecord[] } | null>(null);
+  const key = `${hid}:${kind}`;
+  useEffect(() => {
+    if (!hid) return;
+    const k = `${hid}:${kind}`;
+    return store.watchRecords(hid, kind, (records) => setState({ key: k, records }));
+  }, [store, hid, kind]);
+  const loaded = state?.key === key;
+  return { records: loaded ? state.records : EMPTY_RECORDS, loaded };
+}
+
 /**
  * All data-changing operations, bound to the current user and household.
  * Writes are fire-and-forget for snappy UI (listeners update optimistically);
@@ -307,6 +336,21 @@ export function useActions() {
       },
       clearContractions() {
         return run(store.clearContractions(hid));
+      },
+
+      addRecord(record: NewRecord, id?: string) {
+        return run(store.addRecord(hid, record, requireUser(), id));
+      },
+      updateRecord(id: string, patch: RecordPatch) {
+        return run(store.updateRecord(hid, id, patch, requireUser()));
+      },
+      deleteRecord(id: string) {
+        return run(store.deleteRecord(hid, id));
+      },
+      /** My vote on a name; the same vote again clears it. */
+      vote(record: HouseholdRecord, vote: NameVote) {
+        const u = requireUser();
+        return run(store.setVote(hid, record.id, u.uid, record.votes[u.uid] === vote ? null : vote));
       },
 
       signOut() {

@@ -261,3 +261,79 @@ describe('items and contractions', () => {
     );
   });
 });
+
+describe('records (kicks, birth plan, questions, names, journal)', () => {
+  const rec = (over: Record<string, unknown> = {}) => ({
+    kind: 'question',
+    text: 'מתי להפסיק לעבוד?',
+    note: '',
+    done: false,
+    tag: null,
+    date: null,
+    start: null,
+    end: null,
+    count: null,
+    votes: {},
+    answers: {},
+    createdBy: partner.uid,
+    ...over,
+  });
+  const r = (db: Firestore, id: string) => doc(db, `households/h1/records/${id}`);
+
+  it('members share records and can query them by kind', async () => {
+    await seedHousehold();
+    const p = dbFor(partner);
+    const o = dbFor(owner);
+    await assertSucceeds(setDoc(r(p, 'q1'), rec()));
+    await assertSucceeds(updateDoc(r(o, 'q1'), { done: true, note: 'עד שבוע 38' }));
+    await assertSucceeds(
+      setDoc(r(o, 'k1'), rec({ kind: 'kick', text: '', start: 1000, end: null, count: 0, createdBy: owner.uid })),
+    );
+    await assertSucceeds(updateDoc(r(o, 'k1'), { count: 10, end: 2000 }));
+    await assertSucceeds(
+      setDoc(r(o, 'birth-plan'), rec({ kind: 'birthPlan', text: '', answers: { music: 'כן' }, createdBy: owner.uid })),
+    );
+    await assertSucceeds(
+      setDoc(r(p, 'j1'), rec({ kind: 'journal', tag: 'letter', date: '2026-11-23', text: 'שלום קטנטן' })),
+    );
+    await assertSucceeds(getDocs(query(collection(p, 'households/h1/records'), where('kind', '==', 'question'))));
+    await assertSucceeds(deleteDoc(r(o, 'q1')));
+  });
+
+  it('rejects invalid records', async () => {
+    await seedHousehold();
+    const p = dbFor(partner);
+    await assertFails(setDoc(r(p, 'x1'), rec({ kind: 'photo' })));
+    await assertFails(setDoc(r(p, 'x2'), rec({ photoUrl: 'https://x' })));
+    await assertFails(setDoc(r(p, 'x3'), rec({ count: -1 })));
+    await assertFails(setDoc(r(p, 'x4'), rec({ count: 1.5 })));
+    await assertFails(setDoc(r(p, 'x5'), rec({ date: 'tomorrow' })));
+    await assertFails(setDoc(r(p, 'x6'), rec({ text: 'א'.repeat(10001) })));
+    const { done: _d, ...noDone } = rec();
+    void _d;
+    await assertFails(setDoc(r(p, 'x7'), noDone));
+    await assertSucceeds(setDoc(r(p, 'ok'), rec()));
+    await assertFails(updateDoc(r(p, 'ok'), { kind: 'name' }));
+  });
+
+  it('each partner sets only their own vote on a name', async () => {
+    await seedHousehold();
+    const p = dbFor(partner);
+    const o = dbFor(owner);
+    await assertSucceeds(setDoc(r(p, 'n1'), rec({ kind: 'name', text: 'נועם', votes: { [partner.uid]: 'love' } })));
+    await assertFails(setDoc(r(p, 'n2'), rec({ kind: 'name', text: 'יובל', votes: { [owner.uid]: 'love' } })));
+    await assertSucceeds(updateDoc(r(o, 'n1'), { [`votes.${owner.uid}`]: 'love' }));
+    await assertFails(updateDoc(r(o, 'n1'), { [`votes.${partner.uid}`]: 'no' }));
+    await assertFails(updateDoc(r(o, 'n1'), { [`votes.${owner.uid}`]: 'maybe' }));
+    await assertSucceeds(updateDoc(r(o, 'n1'), { text: 'נועם' }));
+  });
+
+  it('strangers cannot read or write records', async () => {
+    await seedHousehold();
+    await assertSucceeds(setDoc(r(dbFor(partner), 'q1'), rec()));
+    const s = dbFor(stranger);
+    await assertFails(getDoc(r(s, 'q1')));
+    await assertFails(getDocs(collection(s, 'households/h1/records')));
+    await assertFails(setDoc(r(s, 'z'), rec({ createdBy: stranger.uid })));
+  });
+});

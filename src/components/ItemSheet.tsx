@@ -3,7 +3,8 @@
  * Existing items open in "view" mode (notes, links, source, quick actions);
  * new items open straight in "edit" mode.
  */
-import { ExternalLink, Pencil, Phone, Plus, Trash2, X } from 'lucide-react';
+import { ExternalLink, Pencil, Phone, Plus, Trash2, Wrench, X } from 'lucide-react';
+import { Link } from 'react-router';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { useActions, useSession } from '../data/session';
 import { useToast } from '../data/toast';
@@ -21,6 +22,7 @@ import {
   isGearDone,
 } from '../lib/labels';
 import { nextOrder } from '../lib/seed';
+import { TASK_TOOLS } from '../lib/tools';
 import type { GearStatus, Item, ItemKind, ItemLink, NewItem, PhaseKey, Priority } from '../lib/types';
 import { AssigneeBadge, dueBadge } from './itemMeta';
 import { Sheet } from './Sheet';
@@ -234,6 +236,11 @@ export function ItemSheet({
               onChange={(s) => void actions.setGearStatus(item, s)}
             />
           </div>
+        )}
+        {item.seedId && TASK_TOOLS[item.seedId] && (
+          <Link to={TASK_TOOLS[item.seedId].to} onClick={onClose} className="btn-outline mb-3 w-full">
+            <Wrench className="size-4" aria-hidden /> {TASK_TOOLS[item.seedId].label}
+          </Link>
         )}
         {(item.kind === 'task' || item.kind === 'bag') && (
           <button

@@ -68,6 +68,35 @@ service cloud.firestore {
         && data.createdBy is string && data.createdBy.size() <= 128;
     }
 
+    // Kick sessions, the birth plan, doctor questions, names and the journal (src/lib/types.ts →
+    // HouseholdRecord). Text only — the Spark plan has no Storage, so no photos.
+    function recordIsValid(data) {
+      return data.keys().hasOnly([
+          'kind', 'text', 'note', 'done', 'tag', 'date', 'start', 'end', 'count', 'votes', 'answers',
+          'createdAt', 'createdBy', 'updatedAt', 'updatedBy'])
+        && data.keys().hasAll(['kind', 'text', 'note', 'done', 'votes', 'answers', 'createdBy'])
+        && data.kind in ['kick', 'birthPlan', 'question', 'name', 'journal']
+        && data.text is string && data.text.size() <= 10000
+        && data.note is string && data.note.size() <= 2000
+        && data.done is bool
+        && (data.get('tag', null) == null || (data.tag is string && data.tag.size() <= 40))
+        && (data.get('date', null) == null || (data.date is string && data.date.size() == 10))
+        && (data.get('start', null) == null || data.start is number)
+        && (data.get('end', null) == null || data.end is number)
+        && (data.get('count', null) == null || (data.count is int && data.count >= 0 && data.count <= 999))
+        && data.votes is map && data.votes.size() <= 10
+        && data.answers is map && data.answers.size() <= 60
+        && data.createdBy is string && data.createdBy.size() <= 128;
+    }
+
+    // Each member may only set or clear their OWN vote on a name, and only to 'love' / 'no'.
+    function votesOk(before, after) {
+      let changed = after.votes.diff(before.votes).affectedKeys();
+      return changed.size() == 0
+        || (changed.hasOnly([request.auth.uid])
+          && (!(request.auth.uid in after.votes) || after.votes[request.auth.uid] in ['love', 'no']));
+    }
+
     match /households/{householdId} {
       // `list` works for the app's query: where('memberEmails', 'array-contains', <my email>).
       allow get, list: if isMember(resource.data);
@@ -97,6 +126,17 @@ service cloud.firestore {
       match /contractions/{contractionId} {
         allow read, delete: if memberOfThisHousehold();
         allow create, update: if memberOfThisHousehold() && contractionIsValid(request.resource.data);
+      }
+
+      match /records/{recordId} {
+        allow read, delete: if memberOfThisHousehold();
+        allow create: if memberOfThisHousehold()
+          && recordIsValid(request.resource.data)
+          && request.resource.data.votes.keys().hasOnly([request.auth.uid]);
+        allow update: if memberOfThisHousehold()
+          && recordIsValid(request.resource.data)
+          && request.resource.data.kind == resource.data.kind
+          && votesOk(resource.data, request.resource.data);
       }
     }
   }

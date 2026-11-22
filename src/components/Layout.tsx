@@ -88,7 +88,7 @@ export function Layout({ children }: { children: ReactNode }) {
     <div className={`min-h-dvh ${night ? 'theme-dark bg-night text-night-text' : ''}`}>
       <header
         data-nav-bar
-        className={`pt-safe sticky top-0 z-20 transition-[background-color,border-color] duration-200 ${
+        className={`pt-safe sticky print:hidden top-0 z-20 transition-[background-color,border-color] duration-200 ${
           barSolid
             ? `${night ? 'bg-night/75 backdrop-blur-xl backdrop-saturate-150' : 'material'} border-b-[0.5px] ${night ? 'border-night-3' : 'border-line'}`
             : `border-b-[0.5px] border-transparent ${night ? 'bg-night' : 'bg-shell'}`
@@ -138,13 +138,13 @@ export function Layout({ children }: { children: ReactNode }) {
         )}
       </header>
 
-      <main className="px-safe mx-auto max-w-xl px-4 pt-1 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+      <main className="px-safe mx-auto max-w-xl pt-1 pb-[calc(6.5rem+env(safe-area-inset-bottom))] print:max-w-none print:p-0">
         {children}
       </main>
 
       <nav
         aria-label="ניווט ראשי"
-        className={`pb-safe fixed inset-x-0 bottom-0 z-30 border-t-[0.5px] ${
+        className={`pb-safe fixed print:hidden inset-x-0 bottom-0 z-30 border-t-[0.5px] ${
           night ? 'border-night-3 bg-night-2/80 backdrop-blur-xl backdrop-saturate-150' : 'material border-line'
         }`}
       >

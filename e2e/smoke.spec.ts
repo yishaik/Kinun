@@ -96,6 +96,34 @@ test('demo: onboarding → week → tasks → gear → labor → warnings → mo
   await page.getByPlaceholder(/חיפוש/).fill('אפידורל');
   await expect(page.getByText('אפידורל בהליכה')).toBeVisible();
   await snap(page, '16-glossary');
+
+  // Kick counter
+  await nav(page, 'עוד').click();
+  await page.getByRole('link', { name: /מונה תנועות/ }).click();
+  await page.getByRole('button', { name: 'התחלת ספירה' }).click();
+  for (let i = 0; i < 4; i++) await page.getByRole('button', { name: /^תנועה/ }).click();
+  await expect(page.getByRole('button', { name: 'תנועה. נספרו 4' })).toBeVisible();
+  await snap(page, '17-kicks');
+  await page.getByRole('button', { name: 'סיום הספירה' }).click();
+  await expect(page.getByText(/4 תנועות ב-/)).toBeVisible();
+
+  // Birth plan, opened from its task → print view
+  await nav(page, 'משימות').click();
+  await page.getByText('לכתוב תוכנית לידה').click();
+  await page.getByRole('link', { name: 'לבונה תוכנית הלידה' }).click();
+  await page.getByLabel('שם מלא').fill('נועה כהן');
+  await page.getByLabel('מי מלווה אותי בלידה').fill('בן הזוג');
+  await page.getByRole('group', { name: 'עור לעור מיד אחרי הלידה' }).getByRole('button', { name: 'כן' }).click();
+  await page.getByRole('group', { name: 'הקלה על כאב' }).getByRole('button', { name: 'מקלחת' }).click();
+  await page.getByRole('group', { name: 'הקלה על כאב' }).getByRole('button', { name: 'אפידורל' }).click();
+  await snap(page, '18-birth-plan');
+  await page.getByRole('link', { name: /תצוגה להדפסה/ }).click();
+  await expect(page.getByRole('heading', { name: 'תוכנית לידה — נועה כהן' })).toBeVisible();
+  await expect(page.getByText('מקלחת · אפידורל')).toBeVisible();
+  await snap(page, '19-birth-plan-print');
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.getByRole('navigation', { name: 'ניווט ראשי' })).toBeHidden();
+  await page.emulateMedia({ media: 'screen' });
   await nav(page, 'עוד').click();
   await page.getByRole('link', { name: /קישורים וטלפונים/ }).click();
   await page.getByPlaceholder(/חיפוש/).fill('טיפת חלב');

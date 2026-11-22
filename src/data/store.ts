@@ -14,11 +14,16 @@ import type {
   AppUser,
   Contraction,
   Household,
+  HouseholdRecord,
   HouseholdPatch,
   Item,
   ItemPatch,
   MemberProfile,
   NewItem,
+  NameVote,
+  NewRecord,
+  RecordKind,
+  RecordPatch,
 } from '../lib/types';
 
 export type Unsubscribe = () => void;
@@ -65,6 +70,20 @@ export interface DataStore {
   endContraction(householdId: string, contractionId: string, at?: number): Promise<void>;
   deleteContraction(householdId: string, contractionId: string): Promise<void>;
   clearContractions(householdId: string): Promise<void>;
+
+  // ── records: kicks, birth plan, doctor questions, names, journal (shared) ──
+  watchRecords(
+    householdId: string,
+    kind: RecordKind,
+    cb: (list: HouseholdRecord[]) => void,
+    onError?: ErrorHandler,
+  ): Unsubscribe;
+  /** Create a record. With `id`, creates or replaces the record with that id (e.g. the one birth plan). */
+  addRecord(householdId: string, record: NewRecord, user: AppUser, id?: string): Promise<string>;
+  updateRecord(householdId: string, recordId: string, patch: RecordPatch, user: AppUser): Promise<void>;
+  /** Set (or clear, with null) one member's vote on a name, without touching the partner's vote. */
+  setVote(householdId: string, recordId: string, uid: string, vote: NameVote | null): Promise<void>;
+  deleteRecord(householdId: string, recordId: string): Promise<void>;
 }
 
 /** Normalize an email for comparisons and storage. */

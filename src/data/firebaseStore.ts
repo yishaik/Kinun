@@ -7,6 +7,7 @@
  *   households/{householdId}
  *   households/{householdId}/items/{itemId}
  *   households/{householdId}/contractions/{contractionId}
+ *   households/{householdId}/records/{recordId}   (kicks, birth plan, questions, names, journal)
  */
 import { initializeApp, type FirebaseApp, type FirebaseOptions } from 'firebase/app';
 import {
@@ -25,6 +26,7 @@ import {
   arrayUnion,
   collection,
   deleteDoc,
+  deleteField,
   doc,
   getDocs,
   initializeFirestore,
@@ -48,12 +50,18 @@ import type {
   AppUser,
   Contraction,
   Household,
+  HouseholdRecord,
   HouseholdPatch,
   Item,
   ItemPatch,
   MemberProfile,
   NewItem,
+  NameVote,
+  NewRecord,
+  RecordKind,
+  RecordPatch,
 } from '../lib/types';
+import { recordDefaults } from '../lib/types';
 import {
   normalizeEmail,
   type CreateHouseholdInput,
@@ -135,6 +143,29 @@ function toContraction(snap: QueryDocumentSnapshot<DocumentData>): Contraction {
     start: Number(d.start),
     end: d.end == null ? null : Number(d.end),
     createdBy: d.createdBy ?? null,
+  };
+}
+
+function toRecord(snap: QueryDocumentSnapshot<DocumentData>): HouseholdRecord {
+  const d = snap.data({ serverTimestamps: 'estimate' });
+  const num = (v: unknown) => (typeof v === 'number' ? v : null);
+  return {
+    id: snap.id,
+    kind: d.kind,
+    text: d.text ?? '',
+    note: d.note ?? '',
+    done: d.done === true,
+    tag: d.tag ?? null,
+    date: d.date ?? null,
+    start: num(d.start),
+    end: num(d.end),
+    count: num(d.count),
+    votes: d.votes ?? {},
+    answers: d.answers ?? {},
+    createdAt: millis(d.createdAt),
+    createdBy: d.createdBy ?? null,
+    updatedAt: millis(d.updatedAt),
+    updatedBy: d.updatedBy ?? null,
   };
 }
 
@@ -364,5 +395,56 @@ export class FirebaseStore implements DataStore {
       snap.docs.slice(i, i + BATCH_LIMIT).forEach((d) => batch.delete(d.ref));
       await batch.commit();
     }
+  }
+
+  // ───────── records ─────────
+
+  private recordsCol(householdId: string) {
+    return collection(this.db, 'households', householdId, 'records');
+  }
+
+  watchRecords(
+    householdId: string,
+    kind: RecordKind,
+    cb: (list: HouseholdRecord[]) => void,
+    onError?: ErrorHandler,
+  ): Unsubscribe {
+    return onSnapshot(
+      query(this.recordsCol(householdId), where('kind', '==', kind)),
+      (snap) => cb(snap.docs.map(toRecord)),
+      (err) => onError?.(err),
+    );
+  }
+
+  async addRecord(householdId: string, record: NewRecord, user: AppUser, id?: string): Promise<string> {
+    const ref = id ? doc(this.recordsCol(householdId), id) : doc(this.recordsCol(householdId));
+    await setDoc(ref, {
+      ...recordDefaults(record),
+      createdAt: serverTimestamp(),
+      createdBy: user.uid,
+      updatedAt: serverTimestamp(),
+      updatedBy: user.uid,
+    });
+    return ref.id;
+  }
+
+  async updateRecord(householdId: string, recordId: string, patch: RecordPatch, user: AppUser): Promise<void> {
+    await updateDoc(doc(this.recordsCol(householdId), recordId), {
+      ...patch,
+      updatedAt: serverTimestamp(),
+      updatedBy: user.uid,
+    });
+  }
+
+  async setVote(householdId: string, recordId: string, uid: string, vote: NameVote | null): Promise<void> {
+    await updateDoc(doc(this.recordsCol(householdId), recordId), {
+      [`votes.${uid}`]: vote ?? deleteField(),
+      updatedAt: serverTimestamp(),
+      updatedBy: uid,
+    });
+  }
+
+  async deleteRecord(householdId: string, recordId: string): Promise<void> {
+    await deleteDoc(doc(this.recordsCol(householdId), recordId));
   }
 }
