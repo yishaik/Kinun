@@ -3,6 +3,7 @@ import { useSession } from '../data/session';
 import { useToast } from '../data/toast';
 import { AppMark, Wordmark } from '../components/AppMark';
 import { JungleDecor } from '../components/JungleDecor';
+import { LocalPortrait } from '../components/LocalPortrait';
 import { demoEntryAllowed } from '../lib/access';
 
 function GoogleMark() {
@@ -54,12 +55,11 @@ export function SignInPage() {
         <h1 className="mt-6 text-[2.75rem] leading-none tracking-tight">
           <Wordmark />
         </h1>
-        <p className="mt-4 text-title3 font-normal text-balance">
+        <p className="mt-5 text-title2 font-normal text-balance">שלום ישי ולישה</p>
+        <p className="mt-2 text-subhead text-twig-soft text-balance">
           כל מה שצריך לעשות, לקנות ולארוז לקראת הלידה ואחריה — ברשימה אחת משותפת לשניכם.
         </p>
-        <p className="mt-3 text-subhead text-twig-soft text-balance">
-          כל שינוי של אחד מכם מופיע מיד גם אצל השני. הרשימות מבוססות על מקורות רשמיים, ואפשר לערוך בהן הכול.
-        </p>
+        <LocalPortrait />
       </div>
 
       <div className="pb-8">

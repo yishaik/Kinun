@@ -88,43 +88,60 @@ refresh. Details: [DATA-MODEL.md](DATA-MODEL.md).
 
 ## Screens
 
-| Route       | File                     | Notes                                                                       |
-| ----------- | ------------------------ | --------------------------------------------------------------------------- |
-| `/`         | `pages/HomePage.tsx`     | Week widget + ring, "מה עכשיו", progress rings, recent activity, born sheet |
-| `/tasks`    | `pages/TasksPage.tsx`    | Phase sections, assignee filter, show-done toggle, FAB                      |
-| `/gear`     | `pages/GearPage.tsx`     | Gear vs. hospital-bag tabs (`?tab=bag`), category sections                  |
-| `/labor`    | `pages/LaborPage.tsx`    | Dark "night" theme; shared contraction timer; call/navigate                 |
-| `/links`    | `pages/LinksPage.tsx`    | Search, tap-to-call                                                         |
-| `/settings` | `pages/SettingsPage.tsx` | Household, hospital presets, members, content updates, backup, sign-out     |
+| Route         | File                         | Notes                                                                                            |
+| ------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| `/`           | `pages/HomePage.tsx`         | Gestation/age ring, reactive giraffe, "השבוע שלכם" teaser, "מה עכשיו", progress, recent activity |
+| `/tasks`      | `pages/TasksPage.tsx`        | Group by category (default) or phase, animal marks, assignee filter, FAB                         |
+| `/gear`       | `pages/GearPage.tsx`         | Gear vs. hospital-bag tabs (`?tab=bag`), category animals, bag 100% celebration                  |
+| `/labor`      | `pages/LaborPage.tsx`        | Dark-room theme (not jungle night); shared contraction timer; call/navigate                      |
+| `/links`      | `pages/LinksPage.tsx`        | Search, tap-to-call                                                                              |
+| `/week`       | `pages/WeekPage.tsx`         | "השבוע שלכם" excerpts (baby / mom)                                                               |
+| `/warnings`   | `pages/WarningsPage.tsx`     | Warning signs                                                                                    |
+| `/more`       | `pages/MorePage.tsx`         | Hub to the tools below                                                                           |
+| `/stages`     | `pages/LaborStagesPage.tsx`  | Labor stages and pain relief                                                                     |
+| `/glossary`   | `pages/GlossaryPage.tsx`     | Glossary                                                                                         |
+| `/kicks`      | `pages/KicksPage.tsx`        | Shared kick counter                                                                              |
+| `/birth-plan` | `pages/BirthPlanPage.tsx`    | Birth-plan builder (`/birth-plan/print` for a printable sheet)                                   |
+| `/questions`  | `pages/QuestionsPage.tsx`    | Questions for the doctor                                                                         |
+| `/names`      | `pages/NamesPage.tsx`        | Baby-name list with partner votes                                                                |
+| `/partner`    | `pages/PartnerGuidePage.tsx` | Birth-partner guide                                                                              |
+| `/breathing`  | `pages/BreathingPage.tsx`    | Breathing pacer                                                                                  |
+| `/settings`   | `pages/SettingsPage.tsx`     | Appearance, household, hospital, members, content updates, backup, sign-out                      |
 
 Before a household exists: `SignInPage` → `OnboardingPage` (creates the household and copies the default content).
-A Firebase sign-in that is not on the allowlist (`lib/access.ts`) gets `PrivatePage` (session status `not-allowed`)
-instead — no Firestore listener is even started for it. The "demo mode" button is shown only in dev, `--mode demo`
-builds or with `?demo` (`demoEntryAllowed()`); a production build without Firebase config says it isn't configured.
+The sign-in screen greets «שלום ישי ולישה» and offers an optional nursery or ultrasound photo, or a placeholder
+illustration. That photo is stored **only in IndexedDB on the device** (`src/lib/localPhoto.ts`) — the Spark plan
+has no Firebase Storage, and the image is never uploaded. A Firebase sign-in that is not on the allowlist
+(`lib/access.ts`) gets `PrivatePage` (session status `not-allowed`) instead — no Firestore listener is even started
+for it. The "demo mode" button is shown only in dev, `--mode demo` builds or with `?demo` (`demoEntryAllowed()`);
+a production build without Firebase config says it isn't configured.
 
 ## Design
 
 Concept: **"a shared nest"** — still a one-handed, practical phone app (iOS layout, large type, grouped lists), but the
 color, type, and mark come from the family's jungle nursery mural: cream wall, trunk-brown text, jungle green, a yellow
-sun, and a painted baby giraffe as the PWA icon. Light and dark appearances, and labor mode stays a dark room.
+sun, and a painted baby giraffe as the PWA icon. Light appearance, a soft jungle-green night, and labor mode that stays
+a dark room (warm black — not the jungle night).
 
 **Color tokens** (`@theme` in `src/index.css`). Names are semantic and stable so components do not need raw hex; values
-are the mural palette, tuned for WCAG 2.1 AA, and switch with `prefers-color-scheme` (`.theme-dark` forces dark on a
-subtree — labor mode; `.elevated` gives sheets a slightly lighter surface in dark mode).
+are the mural palette, tuned for WCAG 2.1 AA. Soft night (`data-theme="dark"`, shell `#10281C`, paper `#1B3A2A`, ink
+`#F6F1E6`, robin `#8FDB6A`) follows the system `prefers-color-scheme` unless the user picks בהיר / לילה in Settings
+(`kinun.appearance` in `localStorage`, see `src/lib/appearance.ts`). `.theme-dark` still forces the **labor dark room**
+on that subtree and does not use the jungle-green night tokens. `.elevated` gives sheets a slightly lighter surface.
 
-| Token                           | Light / Dark                           | Use                                             |
-| ------------------------------- | -------------------------------------- | ----------------------------------------------- |
-| `shell`                         | `#F6F1E6` / `#1A1410`                  | app background                                  |
-| `paper` / `paper-2`             | `#FFFDF8` / `#EFE8D6` · warm night     | cards, fields, recessed fill                    |
-| `fill` / `fill-strong`          | trunk brown @ 8% / 14% (inverted dark) | search field, segmented track                   |
-| `twig` / `twig-soft` / `-faint` | `#3C2A22` / `#6B5346` · cream in dark  | text, secondary text, chevrons                  |
-| `line`                          | trunk / cream @ ~16%                   | 0.5px hairlines                                 |
-| `robin`                         | `#287033` / `#6BAF4E`                  | primary actions, links, progress                |
-| `lagoon`                        | `#1E6F68` / `#4ECDBF`                  | secondary teal (decor, supporting accents)      |
-| `sun` / `straw`                 | `#F5C93B` (decorative; ink `#8F6418`)  | sun accent, due soon. Do not use `sun` for text |
-| `leaf`                          | `#2A7335` / `#6BAF4E`                  | done (check circles), success                   |
-| `brick`                         | `#B53824` / `#E07060`                  | overdue, destructive, stop                      |
-| `night`, `night-2`, `night-3`   | `#000` / `#1C1C1E` / `#2C2C2E`         | labor background and tiles                      |
+| Token                           | Light / Dark                                       | Use                                                    |
+| ------------------------------- | -------------------------------------------------- | ------------------------------------------------------ |
+| `shell`                         | `#F6F1E6` / `#10281C`                              | app background (cream / jungle night)                  |
+| `paper` / `paper-2`             | `#FFFDF8` / `#EFE8D6` · `#1B3A2A` night            | cards, fields, recessed fill                           |
+| `fill` / `fill-strong`          | trunk brown @ 8% / 14% (inverted dark)             | search field, segmented track                          |
+| `twig` / `twig-soft` / `-faint` | `#3C2A22` / `#6B5346` · cream / `#D5E0D4` in night | text, secondary text, chevrons                         |
+| `line`                          | trunk / cream @ ~16%                               | 0.5px hairlines                                        |
+| `robin`                         | `#287033` / `#8FDB6A`                              | primary actions, links, progress                       |
+| `lagoon`                        | `#1E6F68` / `#4ECDBF`                              | secondary teal (decor, supporting accents)             |
+| `sun` / `straw`                 | `#F5C93B` (decorative; ink `#8F6418`)              | sun / moon accent, due soon. Do not use `sun` for text |
+| `leaf`                          | `#2A7335` / `#8FDB6A`                              | done (check circles), success                          |
+| `brick`                         | `#B53824` / `#F0A090`                              | overdue, destructive, stop                             |
+| `night`, `night-2`, `night-3`   | `#000` / `#1C1C1E` / `#2C2C2E`                     | labor-room background and tiles (not jungle night)     |
 
 `*-soft` are tinted fills for chips; `*-ink` are the accessible text versions of a status color on those fills;
 `on-robin`, `on-leaf`, and `on-danger` are text on solid fills (white in light, near-black on the lighter dark tints).
@@ -141,14 +158,19 @@ large page titles (`PageTitle`). iOS Dynamic Type scale as utilities: `text-larg
   bar with SF-style line icons, active tint, `safe-area-inset-bottom`.
 - `Section` — inset-grouped list (12px radius, footnote header/footer, 0.5px separators inset from the leading edge via
   `ios-list` + `--sep-inset`). Rows ≥ 44pt, chevrons where tappable, `row-tap` highlight.
-- `CheckCircle` (round, green fill with a drawn check), `Switch`, `Segmented` (tabs or radio filters), `SearchField`,
-  `Ring` (activity-ring progress), `widget` cards (20px radius, soft shadow in light, elevated gray in dark).
+- `CheckCircle` (round, green fill with a drawn check and a short leaf burst), `Switch`, `Segmented` (tabs or radio
+  filters), `SearchField`, `Ring` (activity-ring progress), `widget` cards (20px radius, soft shadow in light).
+- `ReactiveGiraffe` — home companion; sleepy / smile / celebrate from combined checklist progress (`lib/giraffe.ts`).
+- `CategoryMark` — animal portrait per list category; `PeekDecor` — a few `aria-hidden` animals peeking between
+  sections (subtle, they must not cover titles).
+- `Celebration` — one-time confetti + 100% badge when the hospital bag is complete (`kinun.celebrate.*` in `localStorage`).
 - `Sheet` — bottom sheet with grabber, 16px top radius, dimmed backdrop, spring-like slide-up.
 - Toasts — one small capsule HUD at the top; a new toast replaces the old one; ~2s (5s with an "undo" action).
 
-**Rules of thumb:** one bold element per screen (the week widget on Home, the stopwatch button in labor mode); everything
-else is quiet grouped lists. Color encodes status only. Motion only answers the user (press scale .97, check, sheet,
-breathing timer) and is turned off under `prefers-reduced-motion`.
+**Rules of thumb:** one bold element per screen (the week widget and giraffe on Home, the stopwatch button in labor
+mode); everything else is quiet grouped lists. Color encodes status only. Motion only answers the user (press scale
+.97, leaf-burst check, button wiggle, sheet, nodding splash giraffe, bag celebration, breathing timer) and is turned
+off or minimized under `prefers-reduced-motion`. Peeking animals are decorative only.
 
 ## Decisions (short ADRs)
 
