@@ -11,13 +11,13 @@
 
 ## Stack
 
-| Concern | Choice                                                                                                                                |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| UI      | React 19, TypeScript (strict), react-router 7 (`HashRouter`)                                                                          |
-| Styling | Tailwind CSS v4 (`@theme` tokens in `src/index.css`), lucide-react icons, system font (SF on Apple) + Assistant fallback (Fontsource) |
-| Build   | Vite 8, vite-plugin-pwa (Workbox `generateSW`, auto-update)                                                                           |
-| Backend | Firebase Auth (Google), Cloud Firestore, Firebase Hosting                                                                             |
-| Tests   | Vitest + Testing Library (unit/integration), Playwright (e2e, demo mode), `@firebase/rules-unit-testing` (emulator)                   |
+| Concern | Choice                                                                                                                                                   |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI      | React 19, TypeScript (strict), react-router 7 (`HashRouter`)                                                                                             |
+| Styling | Tailwind CSS v4 (`@theme` tokens in `src/index.css`), lucide-react icons, Varela Round (wordmark and large titles) + Assistant Variable (UI, Fontsource) |
+| Build   | Vite 8, vite-plugin-pwa (Workbox `generateSW`, auto-update)                                                                                              |
+| Backend | Firebase Auth (Google), Cloud Firestore, Firebase Hosting                                                                                                |
+| Tests   | Vitest + Testing Library (unit/integration), Playwright (e2e, demo mode), `@firebase/rules-unit-testing` (emulator)                                      |
 
 ## Layers
 
@@ -104,32 +104,35 @@ builds or with `?demo` (`demoEntryAllowed()`); a production build without Fireba
 
 ## Design
 
-Concept: **"a native iOS app"** — calm, practical, for tired people using one hand. It should feel like Apple's own apps
-(Reminders, Health, Clock) on an iPhone, in light and dark mode, and still look right on Android.
+Concept: **"a shared nest"** — still a one-handed, practical phone app (iOS layout, large type, grouped lists), but the
+color, type, and mark come from the family's jungle nursery mural: cream wall, trunk-brown text, jungle green, a yellow
+sun, and a painted baby giraffe as the PWA icon. Light and dark appearances, and labor mode stays a dark room.
 
-**Color tokens** (`@theme` in `src/index.css`). Names are semantic and stable; values follow Apple's system colors and switch
-with `prefers-color-scheme` (`.theme-dark` forces dark on a subtree — labor mode; `.elevated` gives sheets the lighter
-"elevated" grays in dark mode).
+**Color tokens** (`@theme` in `src/index.css`). Names are semantic and stable so components do not need raw hex; values
+are the mural palette, tuned for WCAG 2.1 AA, and switch with `prefers-color-scheme` (`.theme-dark` forces dark on a
+subtree — labor mode; `.elevated` gives sheets a slightly lighter surface in dark mode).
 
-| Token                           | iOS equivalent                    | Light / Dark                   | Use                                |
-| ------------------------------- | --------------------------------- | ------------------------------ | ---------------------------------- |
-| `shell`                         | systemGroupedBackground           | `#F2F2F7` / `#000000`          | app background                     |
-| `paper`                         | secondarySystemGroupedBackground  | `#FFFFFF` / `#1C1C1E`          | list sections, widgets, fields     |
-| `fill` / `fill-strong`          | tertiary / secondary systemFill   | gray @ 12% / 24%               | search field, segmented track      |
-| `twig` / `twig-soft` / `-faint` | label / secondaryLabel / tertiary | black / white, 60%, 30%        | text, secondary text, chevrons     |
-| `line`                          | separator                         | 29% / 65% gray                 | 0.5px hairlines                    |
-| `robin`                         | tint (refined teal)               | `#0A7C8A` / `#3FC1D2`          | primary actions, links, progress   |
-| `leaf`                          | systemGreen                       | `#34C759` / `#30D158`          | done (check circles), call buttons |
-| `straw`                         | systemOrange                      | `#FF9500` / `#FF9F0A`          | due soon                           |
-| `brick`                         | systemRed                         | `#FF3B30` / `#FF453A`          | overdue, destructive, stop         |
-| `night`, `night-2`, `night-3`   | labor mode (always dark)          | `#000` / `#1C1C1E` / `#2C2C2E` | labor background and tiles         |
+| Token                           | Light / Dark                           | Use                                             |
+| ------------------------------- | -------------------------------------- | ----------------------------------------------- |
+| `shell`                         | `#F6F1E6` / `#1A1410`                  | app background                                  |
+| `paper` / `paper-2`             | `#FFFDF8` / `#EFE8D6` · warm night     | cards, fields, recessed fill                    |
+| `fill` / `fill-strong`          | trunk brown @ 8% / 14% (inverted dark) | search field, segmented track                   |
+| `twig` / `twig-soft` / `-faint` | `#3C2A22` / `#6B5346` · cream in dark  | text, secondary text, chevrons                  |
+| `line`                          | trunk / cream @ ~16%                   | 0.5px hairlines                                 |
+| `robin`                         | `#287033` / `#6BAF4E`                  | primary actions, links, progress                |
+| `lagoon`                        | `#1E6F68` / `#4ECDBF`                  | secondary teal (decor, supporting accents)      |
+| `sun` / `straw`                 | `#F5C93B` (decorative; ink `#8F6418`)  | sun accent, due soon. Do not use `sun` for text |
+| `leaf`                          | `#2A7335` / `#6BAF4E`                  | done (check circles), success                   |
+| `brick`                         | `#B53824` / `#E07060`                  | overdue, destructive, stop                      |
+| `night`, `night-2`, `night-3`   | `#000` / `#1C1C1E` / `#2C2C2E`         | labor background and tiles                      |
 
 `*-soft` are tinted fills for chips; `*-ink` are the accessible text versions of a status color on those fills;
-`on-robin` is text on a tint button (white in light, near-black on the brighter dark-mode teal).
+`on-robin`, `on-leaf`, and `on-danger` are text on solid fills (white in light, near-black on the lighter dark tints).
 
-**Type:** system font first (`-apple-system`, `SF Pro`), then Assistant (Hebrew-friendly) where there is no SF —
-Android/Windows. iOS Dynamic Type scale as utilities: `text-large-title` 34/41 bold, `text-title1` 28, `text-title2` 22,
-`text-title3` 20, `text-headline` 17 semibold, `text-body` 17, `text-subhead` 15, `text-footnote` 13, `text-caption` 12.
+**Type:** Assistant Variable for UI (body, chrome, buttons). Varela Round (`font-display`) for the wordmark «קינון» and
+large page titles (`PageTitle`). iOS Dynamic Type scale as utilities: `text-large-title` 34/41, `text-title1` 28,
+`text-title2` 22, `text-title3` 20, `text-headline` 17 semibold, `text-body` 17, `text-subhead` 15, `text-footnote` 13,
+`text-caption` 12. Large titles are rendered at weight 400 so Varela Round is not faux-bolded.
 
 **Building blocks** (`components/ui.tsx`, `Layout.tsx`, `Sheet.tsx`):
 

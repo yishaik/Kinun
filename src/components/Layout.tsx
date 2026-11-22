@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router';
 import { useSession } from '../data/session';
 import { useOnline } from '../lib/hooks';
+import { AppMark, Wordmark } from './AppMark';
 import { Avatar } from './ui';
 
 const NAV = [
@@ -100,7 +101,12 @@ export function Layout({ children }: { children: ReactNode }) {
               חזרה
             </button>
           ) : (
-            <span />
+            <NavLink to="/" className="press -ms-1 flex min-h-11 items-center gap-2 pe-2" aria-label="קינון, מסך הבית">
+              <AppMark size={28} />
+              <Wordmark
+                className={`text-headline transition-opacity duration-200 ${compact ? 'opacity-0' : 'opacity-100'}`}
+              />
+            </NavLink>
           )}
           <span
             aria-hidden

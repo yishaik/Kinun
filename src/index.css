@@ -1,25 +1,29 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/assistant';
+@import '@fontsource/varela-round/hebrew-400.css';
+@import '@fontsource/varela-round/latin-400.css';
 
 /*
- * Design tokens — iOS-style system palette (see docs/ARCHITECTURE.md → Design).
- * Token names are semantic and stable; their values follow Apple's system colors and switch
- * automatically with `prefers-color-scheme` (dark values live in the media block below).
+ * Design tokens — jungle-nursery palette inspired by the family's mural (see docs/ARCHITECTURE.md → Design).
+ * Token names are semantic and stable so components keep using shell / paper / twig / robin / leaf / straw / brick.
+ * Values switch with `prefers-color-scheme` (dark values live in the media block below). Labor mode (`.theme-dark`)
+ * stays a dark room, with the same tint tokens as dark appearance.
  *
- *   shell      systemGroupedBackground          paper     secondarySystemGroupedBackground
- *   paper-2    tertiarySystemGroupedBackground  fill      tertiarySystemFill (search, segmented track)
- *   twig       label                            twig-soft secondaryLabel   twig-faint tertiaryLabel
- *   line       separator                        robin     tint (primary actions, links, progress)
- *   leaf       systemGreen (done)               straw     systemOrange (due soon)
- *   brick      systemRed (overdue, destructive) night     labor-mode background
- * `*-ink` variants are the accessible text versions of a status color (for text on a `*-soft` fill).
- * Color encodes status only; keep decoration out of it. No raw hex in components.
+ *   shell      app background (cream wall / warm night)   paper     cards and fields
+ *   paper-2    recessed fill                              fill      tracks, search, chips
+ *   twig       body text (trunk brown / cream)            twig-soft secondary text
+ *   line       hairline separators                        robin     primary tint (jungle green)
+ *   leaf       success / done                             straw     warning / due soon (sun)
+ *   brick      danger / overdue                           night     labor-mode background
+ *   lagoon     secondary teal                             sun       decorative accent (not for text)
+ * `*-ink` is the accessible text color on a `*-soft` fill; `on-robin` / `on-leaf` / `on-danger` are text on solid fills.
+ * No raw hex in components. Decorative marks use these tokens.
  */
 @theme {
   --font-sans:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Assistant Variable', system-ui, 'Segoe UI',
+    'Assistant Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, 'Segoe UI',
     sans-serif;
-  --font-display: var(--font-sans);
+  --font-display: 'Varela Round', 'Assistant Variable', system-ui, sans-serif;
 
   /* iOS Dynamic Type (default "Large" size). */
   --text-large-title: 2.125rem;
@@ -51,31 +55,37 @@
   --text-caption2: 0.6875rem;
   --text-caption2--line-height: 0.8125rem;
 
-  /* Light appearance */
-  --color-shell: #f2f2f7;
-  --color-paper: #ffffff;
-  --color-paper-2: #f2f2f7;
-  --color-fill: rgb(118 118 128 / 0.12);
-  --color-fill-strong: rgb(118 118 128 / 0.2);
-  --color-thumb: #ffffff;
-  --color-twig: #000000;
-  --color-twig-soft: rgb(60 60 67 / 0.64);
-  --color-twig-faint: rgb(60 60 67 / 0.3);
-  --color-line: rgb(60 60 67 / 0.29);
-  --color-robin: #0a7c8a;
-  --color-robin-deep: #075e69;
-  --color-robin-soft: rgb(10 124 138 / 0.12);
+  /* Light appearance — mural cream, trunk brown, jungle green, sun, ladybug */
+  --color-shell: #f6f1e6;
+  --color-paper: #fffdf8;
+  --color-paper-2: #efe8d6;
+  --color-fill: rgb(60 42 34 / 0.08);
+  --color-fill-strong: rgb(60 42 34 / 0.14);
+  --color-thumb: #fffdf8;
+  --color-twig: #3c2a22;
+  --color-twig-soft: #6b5346;
+  --color-twig-faint: rgb(60 42 34 / 0.38);
+  --color-line: rgb(60 42 34 / 0.16);
+  --color-robin: #287033;
+  --color-robin-deep: #22662f;
+  --color-robin-soft: rgb(40 112 51 / 0.14);
   --color-on-robin: #ffffff;
-  --color-leaf: #34c759;
-  --color-leaf-ink: #248a3d;
-  --color-leaf-soft: rgb(52 199 89 / 0.15);
-  --color-straw: #ff9500;
-  --color-straw-ink: #b25000;
-  --color-straw-soft: rgb(255 149 0 / 0.15);
-  --color-brick: #ff3b30;
-  --color-brick-ink: #d70015;
-  --color-brick-soft: rgb(255 59 48 / 0.12);
-  --color-bar: rgb(249 249 249 / 0.78);
+  --color-lagoon: #1e6f68;
+  --color-lagoon-soft: rgb(30 111 104 / 0.14);
+  --color-sun: #f5c93b;
+  --color-sun-soft: rgb(245 201 59 / 0.28);
+  --color-leaf: #2a7335;
+  --color-leaf-ink: #22662f;
+  --color-leaf-soft: rgb(42 115 53 / 0.16);
+  --color-on-leaf: #ffffff;
+  --color-straw: #f5c93b;
+  --color-straw-ink: #8f6418;
+  --color-straw-soft: rgb(245 201 59 / 0.28);
+  --color-brick: #b53824;
+  --color-brick-ink: #9f2f1e;
+  --color-brick-soft: rgb(181 56 36 / 0.14);
+  --color-on-danger: #ffffff;
+  --color-bar: rgb(246 241 230 / 0.86);
 
   /* Labor mode is always dark. */
   --color-night: #000000;
@@ -88,7 +98,7 @@
   --radius-widget: 1.25rem; /* widget-style cards */
   --radius-sheet: 1rem;
 
-  --shadow-widget: 0 1px 2px rgb(0 0 0 / 0.04), 0 6px 20px rgb(0 0 0 / 0.06);
+  --shadow-widget: 0 1px 2px rgb(60 42 34 / 0.05), 0 8px 24px rgb(60 42 34 / 0.07);
 
   --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
 }
@@ -99,74 +109,86 @@
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --color-shell: #000000;
-      --color-paper: #1c1c1e;
-      --color-paper-2: #2c2c2e;
-      --color-fill: rgb(118 118 128 / 0.24);
-      --color-fill-strong: rgb(118 118 128 / 0.36);
-      --color-thumb: #636366;
-      --color-twig: #ffffff;
-      --color-twig-soft: rgb(235 235 245 / 0.62);
-      --color-twig-faint: rgb(235 235 245 / 0.3);
-      --color-line: rgb(84 84 88 / 0.65);
-      --color-robin: #3fc1d2;
-      --color-robin-deep: #6fd3e0;
-      --color-robin-soft: rgb(63 193 210 / 0.18);
-      --color-on-robin: #001a1e;
-      --color-leaf: #30d158;
-      --color-leaf-ink: #30d158;
-      --color-leaf-soft: rgb(48 209 88 / 0.2);
-      --color-straw: #ff9f0a;
-      --color-straw-ink: #ffb340;
-      --color-straw-soft: rgb(255 159 10 / 0.2);
-      --color-brick: #ff453a;
-      --color-brick-ink: #ff6961;
-      --color-brick-soft: rgb(255 69 58 / 0.2);
-      --color-bar: rgb(22 22 23 / 0.8);
+      --color-shell: #1a1410;
+      --color-paper: #2a211c;
+      --color-paper-2: #3a2e28;
+      --color-fill: rgb(246 241 230 / 0.12);
+      --color-fill-strong: rgb(246 241 230 / 0.2);
+      --color-thumb: #6b5346;
+      --color-twig: #f6f1e6;
+      --color-twig-soft: #c4b1a3;
+      --color-twig-faint: rgb(246 241 230 / 0.42);
+      --color-line: rgb(246 241 230 / 0.16);
+      --color-robin: #6baf4e;
+      --color-robin-deep: #7bc46a;
+      --color-robin-soft: rgb(107 175 78 / 0.2);
+      --color-on-robin: #1a1410;
+      --color-lagoon: #4ecdbf;
+      --color-lagoon-soft: rgb(78 205 191 / 0.2);
+      --color-sun: #f5c93b;
+      --color-sun-soft: rgb(245 201 59 / 0.22);
+      --color-leaf: #6baf4e;
+      --color-leaf-ink: #8fcf7a;
+      --color-leaf-soft: rgb(107 175 78 / 0.2);
+      --color-on-leaf: #1a1410;
+      --color-straw: #f5c93b;
+      --color-straw-ink: #e8c56a;
+      --color-straw-soft: rgb(245 201 59 / 0.22);
+      --color-brick: #e07060;
+      --color-brick-ink: #f07a6c;
+      --color-brick-soft: rgb(224 112 96 / 0.2);
+      --color-on-danger: #1a1410;
+      --color-bar: rgb(26 20 16 / 0.86);
       --shadow-widget: none;
     }
   }
-  /* Elevated surfaces (sheets) use the lighter "elevated" grays in dark mode, like iOS. */
+  /* Elevated surfaces (sheets) use a slightly lighter warm gray in dark mode. */
   @media (prefers-color-scheme: dark) {
     .elevated {
-      --color-shell: #1c1c1e;
-      --color-paper: #2c2c2e;
-      --color-paper-2: #3a3a3c;
+      --color-shell: #2a211c;
+      --color-paper: #3a2e28;
+      --color-paper-2: #4a3c34;
     }
   }
   .theme-dark .elevated {
-    --color-shell: #1c1c1e;
-    --color-paper: #2c2c2e;
-    --color-paper-2: #3a3a3c;
+    --color-shell: #2a211c;
+    --color-paper: #3a2e28;
+    --color-paper-2: #4a3c34;
   }
 
-  /* Force the dark appearance on a subtree (labor mode). Same values as above. */
+  /* Force the dark appearance on a subtree (labor mode). Same tint values as above; night stays black. */
   .theme-dark {
     color-scheme: dark;
-    --color-shell: #000000;
-    --color-paper: #1c1c1e;
-    --color-paper-2: #2c2c2e;
-    --color-fill: rgb(118 118 128 / 0.24);
-    --color-fill-strong: rgb(118 118 128 / 0.36);
-    --color-thumb: #636366;
-    --color-twig: #ffffff;
-    --color-twig-soft: rgb(235 235 245 / 0.62);
-    --color-twig-faint: rgb(235 235 245 / 0.3);
-    --color-line: rgb(84 84 88 / 0.65);
-    --color-robin: #3fc1d2;
-    --color-robin-deep: #6fd3e0;
-    --color-robin-soft: rgb(63 193 210 / 0.18);
-    --color-on-robin: #001a1e;
-    --color-leaf: #30d158;
-    --color-leaf-ink: #30d158;
-    --color-leaf-soft: rgb(48 209 88 / 0.2);
-    --color-straw: #ff9f0a;
-    --color-straw-ink: #ffb340;
-    --color-straw-soft: rgb(255 159 10 / 0.2);
-    --color-brick: #ff453a;
-    --color-brick-ink: #ff6961;
-    --color-brick-soft: rgb(255 69 58 / 0.2);
-    --color-bar: rgb(22 22 23 / 0.8);
+    --color-shell: #1a1410;
+    --color-paper: #2a211c;
+    --color-paper-2: #3a2e28;
+    --color-fill: rgb(246 241 230 / 0.12);
+    --color-fill-strong: rgb(246 241 230 / 0.2);
+    --color-thumb: #6b5346;
+    --color-twig: #f6f1e6;
+    --color-twig-soft: #c4b1a3;
+    --color-twig-faint: rgb(246 241 230 / 0.42);
+    --color-line: rgb(246 241 230 / 0.16);
+    --color-robin: #6baf4e;
+    --color-robin-deep: #7bc46a;
+    --color-robin-soft: rgb(107 175 78 / 0.2);
+    --color-on-robin: #1a1410;
+    --color-lagoon: #4ecdbf;
+    --color-lagoon-soft: rgb(78 205 191 / 0.2);
+    --color-sun: #f5c93b;
+    --color-sun-soft: rgb(245 201 59 / 0.22);
+    --color-leaf: #6baf4e;
+    --color-leaf-ink: #8fcf7a;
+    --color-leaf-soft: rgb(107 175 78 / 0.2);
+    --color-on-leaf: #1a1410;
+    --color-straw: #f5c93b;
+    --color-straw-ink: #e8c56a;
+    --color-straw-soft: rgb(245 201 59 / 0.22);
+    --color-brick: #e07060;
+    --color-brick-ink: #f07a6c;
+    --color-brick-soft: rgb(224 112 96 / 0.2);
+    --color-on-danger: #1a1410;
+    --color-bar: rgb(26 20 16 / 0.86);
     --shadow-widget: none;
   }
 
@@ -281,7 +303,7 @@
   @apply btn bg-fill text-robin active:bg-fill-strong;
 }
 @utility btn-danger {
-  @apply btn bg-brick text-white;
+  @apply btn bg-brick text-on-danger;
 }
 /* Highlight a tapped row like UITableView. */
 @utility row-tap {

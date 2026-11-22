@@ -135,7 +135,7 @@ export function LaborPage() {
             {hospital.address && <p className="text-footnote text-night-soft">{hospital.address}</p>}
             <div className="mt-3 grid grid-cols-2 gap-2">
               {hospital.phone ? (
-                <a href={telHref(hospital.phone)} className="btn col-span-2 bg-leaf text-white">
+                <a href={telHref(hospital.phone)} className="btn col-span-2 bg-leaf text-on-leaf">
                   <Phone className="size-5" fill="currentColor" strokeWidth={0} aria-hidden /> חיוג לחדר הלידה
                 </a>
               ) : (
