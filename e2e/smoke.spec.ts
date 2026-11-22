@@ -16,7 +16,7 @@ function isoInDays(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-test('demo: onboarding → tasks → gear → labor timer → links → settings', async ({ page }) => {
+test('demo: onboarding → week → tasks → gear → labor → warnings → more/links → settings', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'קינון' })).toBeVisible();
   await snap(page, '01-sign-in');
@@ -32,6 +32,14 @@ test('demo: onboarding → tasks → gear → labor timer → links → settings
   await expect(page.getByText('מה עכשיו')).toBeVisible();
   await expect(page.getByRole('img', { name: /התקדמות ההריון/ })).toBeVisible();
   await snap(page, '03-home');
+
+  // This week's card → full weekly page
+  await page.getByRole('link', { name: /השבוע שלכם, שבוע/ }).click();
+  await expect(page.getByRole('heading', { name: 'התינוק/ת' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'לעשות השבוע' })).toBeVisible();
+  await snap(page, '12-week');
+  await page.getByRole('button', { name: 'השבוע הבא' }).click();
+  await expect(page.getByRole('button', { name: 'חזרה לשבוע הנוכחי' })).toBeVisible();
 
   // Tasks: tick the first open task in the "lekrat haleida" phase
   await nav(page, 'משימות').click();
@@ -71,8 +79,17 @@ test('demo: onboarding → tasks → gear → labor timer → links → settings
   await expect(page.getByRole('heading', { name: 'צירים אחרונים' })).toBeVisible();
   await snap(page, '08-labor');
 
+  // Warning signs, reachable from labor mode
+  await page.getByRole('link', { name: /סימני אזהרה/ }).click();
+  await expect(page.getByRole('heading', { name: 'פונים למיון יולדות / חדר הלידה' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /מד״א 101/ })).toHaveAttribute('href', 'tel:101');
+  await snap(page, '13-warnings');
+
   // Links search
-  await nav(page, 'קישורים').click();
+  await nav(page, 'עוד').click();
+  await expect(page.getByRole('heading', { name: 'עוד', level: 1 })).toBeVisible();
+  await snap(page, '14-more');
+  await page.getByRole('link', { name: /קישורים וטלפונים/ }).click();
   await page.getByPlaceholder(/חיפוש/).fill('טיפת חלב');
   await expect(page.getByText('מוקד טיפת חלב')).toBeVisible();
   await snap(page, '09-links');

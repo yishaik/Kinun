@@ -171,6 +171,12 @@ export function LaborPage() {
         >
           <Siren className="size-4" aria-hidden /> חירום: מד״א 101
         </a>
+        <Link
+          to="/warnings"
+          className="flex min-h-11 items-center justify-center gap-1 text-subhead text-night-soft underline underline-offset-4"
+        >
+          סימני אזהרה: מתי לחדר הלידה ומתי ל-101
+        </Link>
       </section>
 
       {sorted.length > 0 && (

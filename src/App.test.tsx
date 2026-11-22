@@ -21,6 +21,18 @@ describe('App (demo backend)', () => {
 
     // All default tasks were created.
     await waitFor(() => expect(screen.getByText(`0 מתוך ${SEED_TASKS.length}`)).toBeInTheDocument());
+
+    // Before the birth, home shows this week's card and the warning-signs entry.
+    expect(screen.getByRole('link', { name: /השבוע שלכם, שבוע \d+/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: /סימני אזהרה/ }));
+    expect(await screen.findByRole('heading', { name: 'חירום — מתקשרים 101' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /מד״א 101/ })).toHaveAttribute('href', 'tel:101');
+
+    // The "עוד" hub lists the reference screens and stays highlighted on them.
+    fireEvent.click(within(nav).getByRole('link', { name: 'עוד' }));
+    expect(await screen.findByRole('heading', { name: 'עוד', level: 1 })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: /השבוע שלכם/ }));
+    expect(await screen.findByRole('heading', { name: 'התינוק/ת' })).toBeInTheDocument();
   });
 
   it('shows the private screen to a real (non-demo) sign-in that is not on the allowlist', async () => {

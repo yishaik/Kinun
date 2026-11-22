@@ -1,4 +1,4 @@
-import { Baby, ChevronLeft, Timer } from 'lucide-react';
+import { Baby, CalendarHeart, ChevronLeft, Timer, TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useItemSheet } from '../components/ItemSheet';
@@ -19,6 +19,8 @@ import {
   todayIso,
 } from '../lib/pregnancy';
 import { earlierStageTasks, progressOf, recentActivity, upcomingTasks } from '../lib/progress';
+import { weekInfo, weekTasks } from '../lib/week';
+import type { Item } from '../lib/types';
 
 const dayFmt = new Intl.DateTimeFormat('he-IL', { weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -125,6 +127,45 @@ function DueDatePrompt() {
   );
 }
 
+/** "השבוע שלכם" teaser: the baby excerpt for this week + how many tasks are due. Links to /week. */
+function WeekCard({ week, items }: { week: number; items: Item[] }) {
+  const info = weekInfo(week);
+  if (!info) return null;
+  const due = weekTasks(items, week, 99).length;
+  return (
+    <Link to="/week" className="widget press mb-3 block p-4" aria-label={`השבוע שלכם, שבוע ${week}`}>
+      <span className="flex items-center gap-2">
+        <span className="flex size-8 items-center justify-center rounded-[9px] bg-leaf text-on-leaf">
+          <CalendarHeart className="size-[18px]" strokeWidth={2.25} aria-hidden />
+        </span>
+        <span className="text-headline">השבוע שלכם</span>
+        <span className="ms-auto flex items-center gap-0.5 text-subhead text-robin">
+          שבוע {week} <ChevronLeft className="size-4" strokeWidth={2.5} aria-hidden />
+        </span>
+      </span>
+      <span className="mt-2 line-clamp-3 block text-subhead leading-relaxed text-twig">{info.baby}</span>
+      <span className="mt-2 block text-footnote text-twig-soft">
+        {due ? `${due === 1 ? 'משימה אחת' : `${due} משימות`} לשבוע הזה` : 'גם מה קורה אצל היולדת ומה לעשות השבוע'}
+      </span>
+    </Link>
+  );
+}
+
+function WarningsRow() {
+  return (
+    <Link to="/warnings" className="widget press mb-7 flex min-h-11 items-center gap-3 px-4 py-3">
+      <span className="flex size-8 items-center justify-center rounded-[9px] bg-brick text-on-danger">
+        <TriangleAlert className="size-[18px]" strokeWidth={2.25} aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-headline">סימני אזהרה</span>
+        <span className="block text-footnote text-twig-soft">מתי לחדר הלידה ומתי למד״א 101</span>
+      </span>
+      <ChevronLeft className="size-4 text-twig-faint" strokeWidth={2.5} aria-hidden />
+    </Link>
+  );
+}
+
 export function BabyBornSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const actions = useActions();
   const { toast } = useToast();
@@ -203,6 +244,12 @@ export function HomePage() {
         {user?.name ? `, ${firstName(user.name)}` : ''}
       </PageTitle>
       <Hero />
+      {!household.birthDate && household.dueDate && (
+        <>
+          <WeekCard week={week} items={items} />
+          <WarningsRow />
+        </>
+      )}
 
       {nearBirth && (
         <div className="mb-7 grid grid-cols-2 gap-3">

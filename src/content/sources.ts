@@ -19,6 +19,21 @@ export const SRC = {
   govMaternityClaim: 'https://www.gov.il/he/service/claim_for_birth_payment',
   btlSavingsNewborn: 'https://www.btl.gov.il/benefits/children/HisahoLayeled/Pages/nolad.aspx',
 
+  // ---------- משרד הבריאות — "הורות והורים" (me.health.gov.il) ----------
+  mohObstetricEr: 'https://me.health.gov.il/parenting/family-planning/pregnancy-monitoring/obstetric-er/',
+  mohLaborSigns: 'https://me.health.gov.il/parenting/family-planning/preparing-for-labor/labor-signs/',
+  mohSecondTrimester:
+    'https://me.health.gov.il/parenting/family-planning/healthy-pregnancy/body-changes/second-trimester/',
+  mohMentalHealth:
+    'https://me.health.gov.il/parenting/family-planning/healthy-pregnancy/mental-health/pregnancy-and-postpartum/',
+  mohBreastfeedingHelp:
+    'https://me.health.gov.il/parenting/raising-children/baby-nutrition/nursing/breastfeeding-consultation/',
+  mohBirthCertificate:
+    'https://me.health.gov.il/parenting/raising-children/after-childbirth/leaving-the-hospital/birth-certificate-parents/',
+
+  // ---------- מד"א ----------
+  mdaHowToCall: 'https://www.mdais.org/101/howto-ambulance',
+
   // ---------- כל זכות ----------
   kzGuideNewMother: 'https://www.kolzchut.org.il/he/מדריך_ליולדת',
   kzPartnerLeave: 'https://www.kolzchut.org.il/he/היעדרות_מעבודה_עקב_לידה_של_בת_הזוג_(חופשת_אבהות)',
@@ -35,6 +50,7 @@ export const SRC = {
   kzHearingScreening: 'https://www.kolzchut.org.il/he/בדיקות_סינון_שמיעה_ליילודים',
   kzNursingInsuranceKids: 'https://www.kolzchut.org.il/he/פטור_מתשלום_דמי_ביטוח_סיעודי_לתינוקות,_ילדים_ונוער',
   kzDaycare: 'https://www.kolzchut.org.il/he/רישום_למעון_יום_מוכר',
+  kzHealthFundRegistration: 'https://www.kolzchut.org.il/he/רישום_לקופת_חולים',
   kzEran: 'https://www.kolzchut.org.il/he/ער%22ן_-_עזרה_ראשונה_נפשית_בטלפון_ובאינטרנט',
 
   // ---------- gov.il ----------
@@ -49,6 +65,8 @@ export const SRC = {
   tlvDaycare: 'https://www.tel-aviv.gov.il/Residents/Education/Pages/Daycare.aspx',
 
   // ---------- קופות חולים / איגודים ----------
+  leumitPregnancy: 'https://leumit.co.il/pregnancy/',
+  meuhedetPregnancy: 'https://www.meuhedet.co.il/%D7%94%D7%99%D7%A8%D7%99%D7%95%D7%9F-%D7%95%D7%9C%D7%99%D7%93%D7%94/',
   maccabiNewBaby: 'https://www.maccabi4u.co.il/31276/digital-services/administration/new_babies/',
   maccabiGlucoseTest:
     'https://www.maccabi4u.co.il/maccabi_circles/pregnancy-and-birth/pregnancy_birth/tests/glucose-challenge-test/',
@@ -93,7 +111,12 @@ export const SRC = {
   shebaTour:
     'https://maternity.sheba.co.il/%D7%A1%D7%99%D7%95%D7%A8_%D7%9C%D7%99%D7%93%D7%94-%D7%9E%D7%A4%D7%92%D7%A9_%D7%94%D7%99%D7%9B%D7%A8%D7%95%D7%AA',
   shebaCourses: 'https://maternity.sheba.co.il/%D7%A7%D7%95%D7%A8%D7%A1%D7%99%D7%9D',
-  wolfsonBooklet: 'https://www.gov.il/BlobFolder/guide/medical-departments-units/he/maternity-v6-digital-1.pdf',
+  // The old gov.il booklet PDF (maternity-v6-digital-1.pdf) returns 404 since 2026-11 (YIS-231).
+  wolfsonBooklet: 'https://www.wolfson.org.il/?CategoryID=893',
+  wolfsonBirthPlan: 'https://www.wolfson.org.il/_Uploads/dbsAttachedFiles/nasim.pdf',
+  beilinsonTours: 'https://www.beilinson-baby.co.il/',
+  lisBirthPlan: 'https://www.tasmc.org.il/lis/mamy-lis/articles/birth-plan/',
+  lisNaturalBirth: 'https://www.tasmc.org.il/lis/lis-units/obstetrics-and-pregnanc/natural-birth-center/',
   beilinsonBooklet:
     'https://hospitals.clalit.co.il/rabin/he/departments-and-clinics/nashimbeilinson/pages/information_booklet_for_mother_and_her_partner.aspx',
   meirBirthPlan:
@@ -103,6 +126,7 @@ export const SRC = {
 
   // ---------- תמיכה ----------
   lllIsrael: 'https://www.lllisrael.org.il/',
+  ialpConsultants: 'https://ialp.org.il/',
 } as const;
 
 export type SourceKey = keyof typeof SRC;
