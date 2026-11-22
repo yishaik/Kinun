@@ -6,6 +6,8 @@ import { describe, expect, it } from 'vitest';
 import { CATEGORY_LABELS, PHASES } from '../lib/labels';
 import { buildSeedItems } from '../lib/seed';
 import { SEED_BAG, SEED_GEAR, SEED_LINKS, SEED_TASKS, SRC } from './index';
+import { WARNING_GROUPS } from './warnings';
+import { WEEKS } from './weeks';
 
 const all = [...SEED_TASKS, ...SEED_GEAR, ...SEED_BAG, ...SEED_LINKS];
 const phaseKeys = new Set(PHASES.map((p) => p.key));
@@ -96,5 +98,28 @@ describe('default content', () => {
     }
     expect(items.every((i) => i.done === false)).toBe(true);
     expect(items.filter((i) => i.kind === 'gear').every((i) => i.gearStatus === 'need')).toBe(true);
+  });
+});
+
+describe('reference content', () => {
+  const official = new Set<string>(Object.values(SRC));
+
+  it('has one weekly card per week, each with text and an official https source', () => {
+    const weeks = WEEKS.map((w) => w.week);
+    expect(weeks).toEqual([...weeks].sort((a, b) => a - b));
+    expect(new Set(weeks).size).toBe(weeks.length);
+    for (const w of WEEKS) {
+      expect(w.baby.length, `week ${w.week}`).toBeGreaterThan(20);
+      expect(w.mom.length, `week ${w.week}`).toBeGreaterThan(20);
+      expect(w.source).toMatch(new RegExp(`^https://www\\.maccabi4u\\.co\\.il/.+/week_${w.week}/$`));
+    }
+  });
+
+  it('backs every warning sign with a source from SRC', () => {
+    expect(WARNING_GROUPS.map((g) => g.id)).toEqual(['mda', 'er', 'soon']);
+    for (const g of WARNING_GROUPS) {
+      expect(g.items.length, g.id).toBeGreaterThan(0);
+      for (const it of g.items) expect(official.has(it.source), `${g.id}: ${it.text}`).toBe(true);
+    }
   });
 });

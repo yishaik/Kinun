@@ -49,7 +49,7 @@ export const SEED_TASKS: SeedTask[] = [
     links: [
       { label: 'ליס (איכילוב)', url: SRC.lisMain },
       { label: 'שיבא — מיון יולדות', url: SRC.shebaTriage },
-      { label: 'וולפסון — חוברת יולדות', url: SRC.wolfsonBooklet },
+      { label: 'וולפסון — אגף נשים ויולדות', url: SRC.wolfsonBooklet },
       { label: 'בילינסון — חוברת מידע', url: SRC.beilinsonBooklet },
     ],
   },

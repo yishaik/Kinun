@@ -3,11 +3,12 @@
  * title (`<PageTitle>` → `[data-large-title]`) scrolls under it, status banners, the page content,
  * and a frosted bottom tab bar.
  */
-import { BookOpen, ChevronRight, House, ListChecks, Package, Timer, WifiOff } from 'lucide-react';
+import { ChevronRight, House, LayoutGrid, ListChecks, Package, Timer, WifiOff } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router';
 import { useSession } from '../data/session';
 import { useOnline } from '../lib/hooks';
+import { HUB_PATHS } from '../pages/MorePage';
 import { AppMark, Wordmark } from './AppMark';
 import { Avatar } from './ui';
 
@@ -16,7 +17,7 @@ const NAV = [
   { to: '/tasks', label: 'משימות', icon: ListChecks },
   { to: '/gear', label: 'ציוד', icon: Package },
   { to: '/labor', label: 'לידה', icon: Timer },
-  { to: '/links', label: 'קישורים', icon: BookOpen },
+  { to: '/more', label: 'עוד', icon: LayoutGrid },
 ] as const;
 
 const NAV_BAR_HEIGHT = 44;
@@ -60,6 +61,9 @@ export function Layout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const night = location.pathname === '/labor';
   const inSettings = location.pathname === '/settings';
+  // Screens opened from the "עוד" hub get a back button and keep the "עוד" tab highlighted.
+  const inHub = location.pathname !== '/more' && HUB_PATHS.includes(location.pathname);
+  const showBack = inSettings || inHub;
   const { scrolled, compact, title } = useCollapsingTitle(location.pathname);
   const prevPath = useRef(location.pathname);
 
@@ -91,10 +95,10 @@ export function Layout({ children }: { children: ReactNode }) {
         }`}
       >
         <div className="relative mx-auto flex h-11 max-w-xl items-center px-4">
-          {inSettings ? (
+          {showBack ? (
             <button
               type="button"
-              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate(inHub ? '/more' : '/'))}
               className="press -ms-2 flex min-h-11 items-center gap-0.5 pe-2 text-body text-robin"
             >
               <ChevronRight className="size-6" strokeWidth={2.25} aria-hidden />
@@ -150,18 +154,22 @@ export function Layout({ children }: { children: ReactNode }) {
               <NavLink
                 to={to}
                 end={to === '/'}
-                className={({ isActive }) =>
-                  `flex min-h-[50px] flex-col items-center justify-center gap-0.5 pt-1 text-caption2 font-medium transition-colors ${
+                className={({ isActive: exact }) => {
+                  const isActive = exact || (to === '/more' && HUB_PATHS.includes(location.pathname));
+                  return `flex min-h-[50px] flex-col items-center justify-center gap-0.5 pt-1 text-caption2 font-medium transition-colors ${
                     isActive ? (night ? 'text-straw' : 'text-robin') : night ? 'text-night-soft' : 'text-twig-soft'
-                  }`
-                }
+                  }`;
+                }}
               >
-                {({ isActive }) => (
-                  <>
-                    <Icon className="size-[26px]" aria-hidden strokeWidth={isActive ? 2.1 : 1.6} />
-                    {label}
-                  </>
-                )}
+                {({ isActive: exact }) => {
+                  const isActive = exact || (to === '/more' && HUB_PATHS.includes(location.pathname));
+                  return (
+                    <>
+                      <Icon className="size-[26px]" aria-hidden strokeWidth={isActive ? 2.1 : 1.6} />
+                      {label}
+                    </>
+                  );
+                }}
               </NavLink>
             </li>
           ))}

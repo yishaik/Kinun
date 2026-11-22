@@ -9,6 +9,9 @@ import { GearPage } from './pages/GearPage';
 import { HomePage } from './pages/HomePage';
 import { LaborPage } from './pages/LaborPage';
 import { LinksPage } from './pages/LinksPage';
+import { MorePage } from './pages/MorePage';
+import { WarningsPage } from './pages/WarningsPage';
+import { WeekPage } from './pages/WeekPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { PrivatePage } from './pages/PrivatePage';
@@ -40,6 +43,9 @@ function Gate() {
           <Route path="/gear" element={<GearPage />} />
           <Route path="/labor" element={<LaborPage />} />
           <Route path="/links" element={<LinksPage />} />
+          <Route path="/more" element={<MorePage />} />
+          <Route path="/week" element={<WeekPage />} />
+          <Route path="/warnings" element={<WarningsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
