@@ -8,6 +8,7 @@ import { buildSeedItems } from '../lib/seed';
 import { SEED_BAG, SEED_GEAR, SEED_LINKS, SEED_TASKS, SRC } from './index';
 import { GLOSSARY } from './glossary';
 import { LABOR_STAGES, PAIN_RELIEF } from './laborStages';
+import { SUGGESTED_QUESTIONS } from './questions';
 import { WARNING_GROUPS } from './warnings';
 import { WEEKS } from './weeks';
 
@@ -143,5 +144,10 @@ describe('reference content', () => {
       expect(g.options.length, g.id).toBeGreaterThan(2);
     }
     expect(PAIN_RELIEF[0].options.map((o) => o.name)).toContain('אפידורל');
+  });
+
+  it('ties each suggested doctor question to an official source', () => {
+    for (const q of SUGGESTED_QUESTIONS) expect(official.has(q.source), q.text).toBe(true);
+    expect(new Set(SUGGESTED_QUESTIONS.map((q) => q.text)).size).toBe(SUGGESTED_QUESTIONS.length);
   });
 });

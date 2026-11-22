@@ -196,13 +196,23 @@ export function useHousehold(): Household {
 export function useRecords(kind: RecordKind): { records: HouseholdRecord[]; loaded: boolean } {
   const { store, household } = useSession();
   const hid = household?.id ?? null;
+  const { toast } = useToast();
   const [state, setState] = useState<{ key: string; records: HouseholdRecord[] } | null>(null);
   const key = `${hid}:${kind}`;
   useEffect(() => {
     if (!hid) return;
     const k = `${hid}:${kind}`;
-    return store.watchRecords(hid, kind, (records) => setState({ key: k, records }));
-  }, [store, hid, kind]);
+    return store.watchRecords(
+      hid,
+      kind,
+      (records) => setState({ key: k, records }),
+      (err) => {
+        // Show the screen (empty) and say why, instead of an endless blank page.
+        setState({ key: k, records: [] });
+        toast(`הטעינה נכשלה: ${describeError(err)}`, 'error');
+      },
+    );
+  }, [store, hid, kind, toast]);
   const loaded = state?.key === key;
   return { records: loaded ? state.records : EMPTY_RECORDS, loaded };
 }

@@ -1,5 +1,15 @@
 /** "עוד" — hub for the reference screens and tools that don't need a bottom-tab of their own. */
-import { BookOpen, BookA, CalendarHeart, ClipboardPen, Footprints, Hand, TriangleAlert } from 'lucide-react';
+import {
+  BookA,
+  BookOpen,
+  CalendarHeart,
+  ClipboardPen,
+  Footprints,
+  Hand,
+  MessageCircleQuestion,
+  Sparkles,
+  TriangleAlert,
+} from 'lucide-react';
 import { NavRow, type IconTone } from '../components/info';
 import { PageTitle, Section } from '../components/ui';
 import type { LucideIcon } from 'lucide-react';
@@ -48,6 +58,20 @@ export const HUB_SECTIONS: { title: string; entries: HubEntry[] }[] = [
         tone: 'lagoon',
         title: 'תוכנית לידה',
         subtitle: 'ממלאים יחד ומדפיסים',
+      },
+      {
+        to: '/questions',
+        icon: MessageCircleQuestion,
+        tone: 'straw',
+        title: 'שאלות לרופא',
+        subtitle: 'רשימה משותפת, עם התשובות',
+      },
+      {
+        to: '/names',
+        icon: Sparkles,
+        tone: 'brick',
+        title: 'רשימת שמות',
+        subtitle: 'מציעים, מצביעים, ורואים מה שניכם אוהבים',
       },
     ],
   },
