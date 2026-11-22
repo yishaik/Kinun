@@ -1,4 +1,6 @@
 import { Copy } from 'lucide-react';
+import { AppMark } from '../components/AppMark';
+import { JungleDecor } from '../components/JungleDecor';
 import { useState, type FormEvent } from 'react';
 import { useActions, useSession } from '../data/session';
 import { isValidEmail } from '../data/store';
@@ -45,9 +47,11 @@ export function OnboardingPage() {
   };
 
   return (
-    <main className="pt-safe mx-auto min-h-dvh max-w-md px-4 pt-12 pb-10">
-      <div className="px-2">
-        <h1 className="text-large-title">בואו נכין את הקן</h1>
+    <main className="pt-safe relative mx-auto min-h-dvh max-w-md overflow-hidden px-4 pt-12 pb-10">
+      <JungleDecor />
+      <div className="relative px-2">
+        <AppMark size={64} />
+        <h1 className="mt-5 font-display text-large-title font-normal">בואו נכין את הקן</h1>
         <p className="mt-2 text-body text-twig-soft">
           שלוש שאלות, ואז תקבלו רשימות מוכנות: משימות, ציוד, תיק לידה וקישורים — ואפשר לשנות בהן הכול.
         </p>
@@ -55,7 +59,7 @@ export function OnboardingPage() {
 
       {loadError && <p className="mt-4 rounded-xl bg-brick-soft px-4 py-3 text-subhead text-brick-ink">{loadError}</p>}
 
-      <form className="mt-8 flex flex-col gap-6" onSubmit={submit}>
+      <form className="relative mt-8 flex flex-col gap-6" onSubmit={submit}>
         <div>
           <label className="label px-4" htmlFor="o-name">
             איך לקרוא לבית?

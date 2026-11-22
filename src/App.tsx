@@ -12,7 +12,8 @@ import { LinksPage } from './pages/LinksPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { PrivatePage } from './pages/PrivatePage';
-import { AppMark, SignInPage } from './pages/SignInPage';
+import { AppMark } from './components/AppMark';
+import { SignInPage } from './pages/SignInPage';
 import { TasksPage } from './pages/TasksPage';
 
 function Splash() {

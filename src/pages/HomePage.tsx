@@ -57,7 +57,7 @@ function Hero() {
             {ageText(age)}, מאז {formatIsoDate(household.birthDate)}
           </p>
         </div>
-        <Ring ratio={Math.min(1, age / 42)} size={112} stroke={12} tone="leaf" label="ששת השבועות הראשונים">
+        <Ring ratio={Math.min(1, age / 42)} size={112} stroke={12} tone="leaf" sunCap label="ששת השבועות הראשונים">
           <span className="text-title3 tabular">
             <bdi>{Math.min(6, Math.floor(age / 7))}/6</bdi>
           </span>
@@ -86,7 +86,7 @@ function Hero() {
         <p className="mt-2 text-headline">{dueLine}</p>
         <p className="mt-0.5 text-footnote text-twig-soft">תאריך משוער: {formatIsoDate(household.dueDate)}</p>
       </div>
-      <Ring ratio={st.progress} size={112} stroke={12} label="התקדמות ההריון">
+      <Ring ratio={st.progress} size={112} stroke={12} sunCap label="התקדמות ההריון">
         <span className="text-title3 tabular">
           <bdi>{Math.round(st.progress * 100)}%</bdi>
         </span>
@@ -207,7 +207,7 @@ export function HomePage() {
       {nearBirth && (
         <div className="mb-7 grid grid-cols-2 gap-3">
           <Link to="/labor" className="widget press flex flex-col gap-3 p-4">
-            <span className="flex size-9 items-center justify-center rounded-[10px] bg-brick text-white">
+            <span className="flex size-9 items-center justify-center rounded-[10px] bg-brick text-on-danger">
               <Timer className="size-5" strokeWidth={2.25} aria-hidden />
             </span>
             <span className="text-headline">מצב לידה</span>
@@ -217,7 +217,7 @@ export function HomePage() {
             onClick={() => setBornOpen(true)}
             className="widget press flex flex-col gap-3 p-4 text-start"
           >
-            <span className="flex size-9 items-center justify-center rounded-[10px] bg-leaf text-white">
+            <span className="flex size-9 items-center justify-center rounded-[10px] bg-leaf text-on-leaf">
               <Baby className="size-5" strokeWidth={2.25} aria-hidden />
             </span>
             <span className="text-headline">נולד/ה!</span>

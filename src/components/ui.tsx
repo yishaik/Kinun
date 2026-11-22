@@ -30,7 +30,7 @@ export function CheckCircle({
       <span
         className={`flex size-6 items-center justify-center rounded-full transition-colors duration-200 ${
           checked
-            ? 'check-pop bg-leaf text-white'
+            ? 'check-pop bg-leaf text-on-leaf'
             : tone === 'night'
               ? 'border-[1.5px] border-night-soft'
               : 'border-[1.5px] border-twig-faint'
@@ -141,6 +141,7 @@ export function Ring({
   size = 64,
   stroke = 8,
   tone = 'robin',
+  sunCap = false,
   children,
   label,
 }: {
@@ -148,6 +149,8 @@ export function Ring({
   size?: number;
   stroke?: number;
   tone?: 'robin' | 'leaf' | 'straw';
+  /** A small sun at the leading end of the arc — used on the home week ring. */
+  sunCap?: boolean;
   children?: ReactNode;
   /** When set, the ring is announced as an image with this label and the percentage. */
   label?: string;
@@ -156,6 +159,10 @@ export function Ring({
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const color = tone === 'leaf' ? 'var(--color-leaf)' : tone === 'straw' ? 'var(--color-straw)' : 'var(--color-robin)';
+  const cap = {
+    x: size / 2 + r * Math.cos(2 * Math.PI * pct),
+    y: size / 2 + r * Math.sin(2 * Math.PI * pct),
+  };
   return (
     <div
       className="relative shrink-0"
@@ -163,7 +170,7 @@ export function Ring({
       {...(label ? { role: 'img', 'aria-label': `${label}: ${Math.round(pct * 100)}%` } : { 'aria-hidden': true })}
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90" aria-hidden>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-fill)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-paper-2)" strokeWidth={stroke} />
         {pct > 0 && (
           <circle
             cx={size / 2}
@@ -177,6 +184,7 @@ export function Ring({
             className="transition-[stroke-dasharray] duration-700 ease-[var(--ease-ios)]"
           />
         )}
+        {sunCap && pct > 0 && <circle cx={cap.x} cy={cap.y} r={Math.max(3, stroke * 0.55)} fill="var(--color-sun)" />}
       </svg>
       {children && <div className="absolute inset-0 flex flex-col items-center justify-center">{children}</div>}
     </div>
@@ -435,7 +443,7 @@ export function PageTitle({
     <div className="mb-3 px-1">
       {eyebrow && <p className="text-footnote font-semibold text-twig-soft uppercase">{eyebrow}</p>}
       <div className="flex items-end gap-3">
-        <h1 data-large-title className="min-w-0 text-large-title">
+        <h1 data-large-title className="min-w-0 font-display text-large-title font-normal">
           {children}
         </h1>
         {aside && <div className="ms-auto shrink-0 pb-1">{aside}</div>}

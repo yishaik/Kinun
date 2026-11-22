@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// iOS systemGroupedBackground (light). index.html sets per-scheme theme-color metas.
-const THEME = '#F2F2F7';
-const BACKGROUND = '#F2F2F7';
+// Cream wall (light). index.html sets per-scheme theme-color metas.
+const THEME = '#F6F1E6';
+const BACKGROUND = '#F6F1E6';
 
 export default defineConfig({
   plugins: [
@@ -14,7 +14,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false, // registered in src/main.tsx (skipped in demo builds)
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon-32.png', 'favicon-48.png', 'apple-touch-icon.png'],
       manifest: {
         id: '/',
         name: 'קינון — מתכוננים ללידה ביחד',

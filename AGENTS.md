@@ -80,12 +80,13 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
    `allowlist()` in `firestore.rules` — a unit test keeps them equal) may sign in or be added. Never widen it unasked.
 7. **RTL first.** Use logical Tailwind utilities (`ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`, `text-start`) —
    not `left`/`right`. Phone numbers, emails and URLs get `dir="ltr"`.
-8. **Design tokens only (iOS look).** Colors come from `@theme` in `src/index.css` — semantic names mapped to Apple's
-   system colors, with light **and** dark values (`shell` = grouped background, `paper` = cell/card, `twig`/`twig-soft` =
-   label/secondary label, `line` = separator, `fill`, `robin` = tint, `leaf` = done, `straw` = due soon, `brick` =
-   overdue/destructive, `night` = labor mode). Type uses the iOS scale utilities (`text-large-title`, `text-title3`,
-   `text-headline`, `text-body`, `text-subhead`, `text-footnote`, `text-caption`…). Lists are inset-grouped
-   (`<Section>` / `shelf ios-list`), big titles use `<PageTitle>`. No raw hex in components; check both color schemes.
+8. **Design tokens only (jungle-nursery look, iOS layout).** Colors come from `@theme` in `src/index.css` — keep the
+   semantic names, with light **and** dark values (`shell` = cream/warm night background, `paper` = card, `twig`/`twig-soft`
+   = body/secondary text, `line` = separator, `fill`, `robin` = jungle-green tint, `lagoon` = teal, `sun`/`straw` = sun
+   accent (do not use `sun` for text), `leaf` = done, `brick` = overdue/destructive, `night` = labor mode). Type: Assistant
+   Variable for UI, Varela Round (`font-display`) for the wordmark and `<PageTitle>`. Scale utilities stay (`text-large-title`,
+   `text-title3`, `text-headline`, `text-body`…). Lists are inset-grouped (`<Section>` / `shelf ios-list`). No raw hex in
+   components; check both color schemes. The giraffe mark is `<AppMark>`.
 9. **Accessibility.** Touch targets ≥ 44px, every input has a label, icons are `aria-hidden` with text or `aria-label`,
    respect `prefers-reduced-motion`.
 10. **Hebrew copy.** Plain verbs, sentence case, short. Gender-inclusive with slashes where needed (`נולד/ה`, `בן/בת הזוג`).

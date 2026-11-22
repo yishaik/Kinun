@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useSession } from '../data/session';
 import { useToast } from '../data/toast';
+import { AppMark, Wordmark } from '../components/AppMark';
+import { JungleDecor } from '../components/JungleDecor';
 import { demoEntryAllowed } from '../lib/access';
 
 function GoogleMark() {
@@ -26,24 +28,6 @@ function GoogleMark() {
   );
 }
 
-/** The app icon (rounded-square "egg in a nest" mark), drawn in tokens so it adapts to dark mode. */
-export function AppMark({ size = 88 }: { size?: number }) {
-  return (
-    <span
-      className="flex items-center justify-center rounded-[22%] bg-gradient-to-b from-robin to-robin-deep shadow-[0_10px_30px_-10px_var(--color-robin)]"
-      style={{ width: size, height: size }}
-      aria-hidden
-    >
-      <svg viewBox="0 0 120 150" style={{ width: size * 0.42 }}>
-        <path
-          d="M60 6 C 30 6, 10 52, 10 88 C 10 122, 33 144, 60 144 C 87 144, 110 122, 110 88 C 110 52, 90 6, 60 6 Z"
-          fill="white"
-        />
-      </svg>
-    </span>
-  );
-}
-
 export function SignInPage() {
   const { store } = useSession();
   const { toast } = useToast();
@@ -63,10 +47,13 @@ export function SignInPage() {
   };
 
   return (
-    <main className="pt-safe pb-safe mx-auto flex min-h-dvh max-w-md flex-col px-6">
-      <div className="flex flex-1 flex-col items-center justify-center text-center">
+    <main className="pt-safe pb-safe relative mx-auto flex min-h-dvh max-w-md flex-col overflow-hidden px-6">
+      <JungleDecor />
+      <div className="relative flex flex-1 flex-col items-center justify-center text-center">
         <AppMark />
-        <h1 className="mt-6 text-[2.75rem] leading-none font-bold tracking-tight">קינון</h1>
+        <h1 className="mt-6 text-[2.75rem] leading-none tracking-tight">
+          <Wordmark />
+        </h1>
         <p className="mt-4 text-title3 font-normal text-balance">
           כל מה שצריך לעשות, לקנות ולארוז לקראת הלידה ואחריה — ברשימה אחת משותפת לשניכם.
         </p>
