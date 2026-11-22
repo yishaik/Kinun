@@ -13,12 +13,18 @@ import type {
   AppUser,
   Contraction,
   Household,
+  HouseholdRecord,
   HouseholdPatch,
   Item,
   ItemPatch,
   MemberProfile,
   NewItem,
+  NameVote,
+  NewRecord,
+  RecordKind,
+  RecordPatch,
 } from '../lib/types';
+import { recordDefaults } from '../lib/types';
 import { normalizeEmail, type CreateHouseholdInput, type DataStore, type Unsubscribe } from './store';
 
 export const DEMO_USER: AppUser = {
@@ -34,9 +40,18 @@ interface LocalState {
   households: Record<string, Household>;
   items: Record<string, Record<string, Item>>;
   contractions: Record<string, Record<string, Contraction>>;
+  /** Added after v1 shipped; older saved states don't have it (see load()). */
+  records?: Record<string, Record<string, HouseholdRecord>>;
 }
 
-const emptyState = (): LocalState => ({ version: 1, user: null, households: {}, items: {}, contractions: {} });
+const emptyState = (): LocalState => ({
+  version: 1,
+  user: null,
+  households: {},
+  items: {},
+  contractions: {},
+  records: {},
+});
 
 export function newId(): string {
   const c = globalThis.crypto as Crypto | undefined;
@@ -177,6 +192,7 @@ export class LocalStore implements DataStore {
       };
       s.items[id] = {};
       s.contractions[id] = {};
+      this.recordsOf(s, id);
     });
     return id;
   }
@@ -301,6 +317,66 @@ export class LocalStore implements DataStore {
   async clearContractions(householdId: string): Promise<void> {
     this.commit((s) => {
       s.contractions[householdId] = {};
+    });
+  }
+
+  // ───────── records ─────────
+
+  private recordsOf(s: LocalState, householdId: string): Record<string, HouseholdRecord> {
+    s.records ??= {};
+    return (s.records[householdId] ??= {});
+  }
+
+  watchRecords(householdId: string, kind: RecordKind, cb: (list: HouseholdRecord[]) => void): Unsubscribe {
+    return this.subscribe(() =>
+      cb(
+        Object.values(this.state.records?.[householdId] ?? {})
+          .filter((r) => r.kind === kind)
+          .map(clone),
+      ),
+    );
+  }
+
+  async addRecord(householdId: string, record: NewRecord, user: AppUser, id = newId()): Promise<string> {
+    this.requireHousehold(householdId);
+    const now = this.now();
+    this.commit((s) => {
+      this.recordsOf(s, householdId)[id] = {
+        ...clone(recordDefaults(record)),
+        id,
+        createdAt: now,
+        createdBy: user.uid,
+        updatedAt: now,
+        updatedBy: user.uid,
+      };
+    });
+    return id;
+  }
+
+  async updateRecord(householdId: string, recordId: string, patch: RecordPatch, user: AppUser): Promise<void> {
+    if (!this.state.records?.[householdId]?.[recordId]) throw new Error(`Record ${recordId} not found`);
+    this.commit((s) => {
+      Object.assign(this.recordsOf(s, householdId)[recordId], clone(patch), {
+        updatedAt: this.now(),
+        updatedBy: user.uid,
+      });
+    });
+  }
+
+  async setVote(householdId: string, recordId: string, uid: string, vote: NameVote | null): Promise<void> {
+    if (!this.state.records?.[householdId]?.[recordId]) throw new Error(`Record ${recordId} not found`);
+    this.commit((s) => {
+      const r = this.recordsOf(s, householdId)[recordId];
+      if (vote) r.votes[uid] = vote;
+      else delete r.votes[uid];
+      r.updatedAt = this.now();
+      r.updatedBy = uid;
+    });
+  }
+
+  async deleteRecord(householdId: string, recordId: string): Promise<void> {
+    this.commit((s) => {
+      delete this.recordsOf(s, householdId)[recordId];
     });
   }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { Household, Item } from '../lib/types';
+import type { Household, HouseholdRecord, Item } from '../lib/types';
 import { DEMO_USER, LocalStore } from './localStore';
 
 const flush = () => new Promise((r) => setTimeout(r, 0));
@@ -117,5 +117,63 @@ describe('LocalStore (demo backend)', () => {
     b.watchHousehold(id, (x) => (h = x));
     await flush();
     expect(h!.name).toBe('נשמר');
+  });
+
+  it('keeps records per kind, upserts by id and tracks each partner vote separately', async () => {
+    const store = new LocalStore('test-records', () => 5000);
+    const id = await store.createHousehold(DEMO_USER, {
+      name: 'h',
+      dueDate: null,
+      inviteEmails: [],
+      contentVersion: 1,
+    });
+    let names: HouseholdRecord[] = [];
+    let questions: HouseholdRecord[] = [];
+    store.watchRecords(id, 'name', (l) => (names = l));
+    store.watchRecords(id, 'question', (l) => (questions = l));
+
+    const n = await store.addRecord(id, { kind: 'name', text: 'נועם', tag: 'any' }, DEMO_USER);
+    await store.addRecord(id, { kind: 'question', text: 'מתי מגיעים?' }, DEMO_USER);
+    await flush();
+    expect(names).toHaveLength(1);
+    expect(names[0]).toMatchObject({
+      text: 'נועם',
+      note: '',
+      done: false,
+      votes: {},
+      answers: {},
+      createdBy: DEMO_USER.uid,
+    });
+    expect(questions.map((q) => q.text)).toEqual(['מתי מגיעים?']);
+
+    await store.setVote(id, n, 'me', 'love');
+    await store.setVote(id, n, 'partner', 'no');
+    await store.setVote(id, n, 'partner', null);
+    await flush();
+    expect(names[0].votes).toEqual({ me: 'love' });
+
+    await store.addRecord(id, { kind: 'birthPlan', answers: { music: 'כן' } }, DEMO_USER, 'birth-plan');
+    await store.addRecord(id, { kind: 'birthPlan', answers: { music: 'לא' } }, DEMO_USER, 'birth-plan');
+    let plans: HouseholdRecord[] = [];
+    store.watchRecords(id, 'birthPlan', (l) => (plans = l));
+    await flush();
+    expect(plans).toHaveLength(1);
+    expect(plans[0].answers).toEqual({ music: 'לא' });
+
+    await store.deleteRecord(id, n);
+    await flush();
+    expect(names).toEqual([]);
+  });
+
+  it('loads a saved state from before records existed', async () => {
+    localStorage.setItem(
+      'test-old',
+      JSON.stringify({ version: 1, user: null, households: {}, items: {}, contractions: {} }),
+    );
+    const store = new LocalStore('test-old');
+    let list: HouseholdRecord[] | null = null;
+    store.watchRecords('nope', 'kick', (l) => (list = l));
+    await flush();
+    expect(list).toEqual([]);
   });
 });

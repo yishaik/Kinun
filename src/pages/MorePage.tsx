@@ -1,5 +1,5 @@
 /** "עוד" — hub for the reference screens and tools that don't need a bottom-tab of their own. */
-import { BookOpen, BookA, CalendarHeart, Footprints, TriangleAlert } from 'lucide-react';
+import { BookOpen, BookA, CalendarHeart, ClipboardPen, Footprints, Hand, TriangleAlert } from 'lucide-react';
 import { NavRow, type IconTone } from '../components/info';
 import { PageTitle, Section } from '../components/ui';
 import type { LucideIcon } from 'lucide-react';
@@ -33,6 +33,25 @@ export const HUB_SECTIONS: { title: string; entries: HubEntry[] }[] = [
     ],
   },
   {
+    title: 'כלים',
+    entries: [
+      {
+        to: '/kicks',
+        icon: Hand,
+        tone: 'robin',
+        title: 'מונה תנועות',
+        subtitle: 'סופרים יחד עד 10, עם היסטוריה',
+      },
+      {
+        to: '/birth-plan',
+        icon: ClipboardPen,
+        tone: 'lagoon',
+        title: 'תוכנית לידה',
+        subtitle: 'ממלאים יחד ומדפיסים',
+      },
+    ],
+  },
+  {
     title: 'מידע',
     entries: [
       {
@@ -61,7 +80,7 @@ export const HUB_SECTIONS: { title: string; entries: HubEntry[] }[] = [
 ];
 
 /** Routes that belong to the "עוד" tab (for the bottom-nav highlight). */
-export const HUB_PATHS = ['/more', ...HUB_SECTIONS.flatMap((s) => s.entries.map((e) => e.to))];
+export const HUB_PATHS = ['/more', ...HUB_SECTIONS.flatMap((s) => s.entries.map((e) => e.to)), '/birth-plan/print'];
 
 export function MorePage() {
   return (

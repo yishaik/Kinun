@@ -146,3 +146,65 @@ export interface Contraction {
   end: number | null;
   createdBy: string | null;
 }
+
+/**
+ * Shared notes and tools that aren't checklist items: kick-count sessions, the birth plan,
+ * questions for the doctor, the names list and the journal. One sub-collection
+ * (households/{id}/records), told apart by `kind`; unused fields keep their defaults.
+ */
+export type RecordKind = 'kick' | 'birthPlan' | 'question' | 'name' | 'journal';
+export type NameVote = 'love' | 'no';
+
+export interface HouseholdRecord {
+  id: string;
+  kind: RecordKind;
+  /** Main text: the question, the proposed name, the journal entry… */
+  text: string;
+  /** Secondary text: the doctor's answer, the entry title… */
+  note: string;
+  /** Question: already asked. */
+  done: boolean;
+  /** Sub-type: name 'boy' | 'girl' | 'any'; journal 'moment' | 'letter' | 'babymoon'. */
+  tag: string | null;
+  /** ISO date (yyyy-mm-dd) — journal entries. */
+  date: string | null;
+  /** Kick session: epoch ms. `end` is null while counting. */
+  start: number | null;
+  end: number | null;
+  /** Kick session: movements counted. */
+  count: number | null;
+  /** Names: each member's vote, by uid. */
+  votes: Record<string, NameVote>;
+  /** Birth plan: field id → answer. */
+  answers: Record<string, string>;
+  createdAt: number | null;
+  createdBy: string | null;
+  updatedAt: number | null;
+  updatedBy: string | null;
+}
+
+export type NewRecord = Partial<Omit<HouseholdRecord, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>> & {
+  kind: RecordKind;
+};
+export type RecordPatch = Partial<
+  Omit<HouseholdRecord, 'id' | 'kind' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>
+>;
+
+/** Every field of a record with its default — the shape that is stored. */
+export function recordDefaults(
+  r: NewRecord,
+): Omit<HouseholdRecord, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'> {
+  return {
+    kind: r.kind,
+    text: r.text ?? '',
+    note: r.note ?? '',
+    done: r.done ?? false,
+    tag: r.tag ?? null,
+    date: r.date ?? null,
+    start: r.start ?? null,
+    end: r.end ?? null,
+    count: r.count ?? null,
+    votes: r.votes ?? {},
+    answers: r.answers ?? {},
+  };
+}
