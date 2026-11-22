@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { useItemSheet } from '../components/ItemSheet';
 import { CheckRow } from '../components/rows';
 import { Sheet } from '../components/Sheet';
+import { ReactiveGiraffe } from '../components/ReactiveGiraffe';
 import { Chevron, PageTitle, Ring, Section } from '../components/ui';
 import { useActions, useHousehold, useSession } from '../data/session';
 import { useToast } from '../data/toast';
@@ -18,6 +19,7 @@ import {
   pregnancyStatus,
   todayIso,
 } from '../lib/pregnancy';
+import { combinedChecklistProgress } from '../lib/giraffe';
 import { earlierStageTasks, progressOf, recentActivity, upcomingTasks } from '../lib/progress';
 import { weekInfo, weekTasks } from '../lib/week';
 import type { Item } from '../lib/types';
@@ -42,13 +44,15 @@ const TRIMESTER_LABEL = { 1: 'שליש ראשון', 2: 'שליש שני', 3: 'ש
 
 function Hero() {
   const household = useHousehold();
+  const { items } = useSession();
   const now = useNow();
   const date = new Date(now);
+  const checklist = combinedChecklistProgress(items);
 
   if (household.birthDate) {
     const age = Math.max(0, babyAgeDays(household.birthDate, date));
     return (
-      <section className="widget mb-6 flex items-center gap-5 p-5" aria-label="התינוק/ת">
+      <section className="widget mb-6 flex items-center gap-3 p-5" aria-label="התינוק/ת">
         <div className="min-w-0 flex-1">
           <p className="text-footnote font-semibold text-robin">{household.babyName || 'התינוק/ת שלנו'}</p>
           <p className="mt-1 text-[3.25rem] leading-none font-bold tracking-tight tabular">
@@ -59,7 +63,8 @@ function Hero() {
             {ageText(age)}, מאז {formatIsoDate(household.birthDate)}
           </p>
         </div>
-        <Ring ratio={Math.min(1, age / 42)} size={112} stroke={12} tone="leaf" sunCap label="ששת השבועות הראשונים">
+        <ReactiveGiraffe ratio={checklist.ratio} />
+        <Ring ratio={Math.min(1, age / 42)} size={96} stroke={10} tone="leaf" sunCap label="ששת השבועות הראשונים">
           <span className="text-title3 tabular">
             <bdi>{Math.min(6, Math.floor(age / 7))}/6</bdi>
           </span>
@@ -79,7 +84,7 @@ function Hero() {
         ? 'היום התאריך המשוער'
         : `${daysText(-st.daysToDue)} אחרי התאריך`;
   return (
-    <section className="widget mb-6 flex items-center gap-5 p-5" aria-label="ההריון">
+    <section className="widget mb-6 flex items-center gap-3 p-5" aria-label="ההריון">
       <div className="min-w-0 flex-1">
         <p className="text-footnote font-semibold text-robin">שבוע · {TRIMESTER_LABEL[st.trimester]}</p>
         <p className="mt-1 text-[3.25rem] leading-none font-bold tracking-tight tabular">
@@ -88,7 +93,8 @@ function Hero() {
         <p className="mt-2 text-headline">{dueLine}</p>
         <p className="mt-0.5 text-footnote text-twig-soft">תאריך משוער: {formatIsoDate(household.dueDate)}</p>
       </div>
-      <Ring ratio={st.progress} size={112} stroke={12} sunCap label="התקדמות ההריון">
+      <ReactiveGiraffe ratio={checklist.ratio} />
+      <Ring ratio={st.progress} size={96} stroke={10} sunCap label="התקדמות ההריון">
         <span className="text-title3 tabular">
           <bdi>{Math.round(st.progress * 100)}%</bdi>
         </span>

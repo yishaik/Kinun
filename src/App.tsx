@@ -23,13 +23,15 @@ import { OnboardingPage } from './pages/OnboardingPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { PrivatePage } from './pages/PrivatePage';
 import { AppMark } from './components/AppMark';
+import { GiraffeNod } from './components/GiraffeNod';
 import { SignInPage } from './pages/SignInPage';
 import { TasksPage } from './pages/TasksPage';
 
 function Splash() {
   return (
-    <div className="flex min-h-dvh items-center justify-center" aria-busy="true" aria-label="טוען">
-      <AppMark size={72} />
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-3" aria-busy="true" aria-label="טוען">
+      <GiraffeNod size={72} label="" />
+      <AppMark size={40} />
     </div>
   );
 }

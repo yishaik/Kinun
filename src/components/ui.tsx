@@ -28,7 +28,7 @@ export function CheckCircle({
       className="-m-2.5 flex size-11 shrink-0 items-center justify-center rounded-full"
     >
       <span
-        className={`flex size-6 items-center justify-center rounded-full transition-colors duration-200 ${
+        className={`relative flex size-6 items-center justify-center rounded-full transition-colors duration-200 ${
           checked
             ? 'check-pop bg-leaf text-on-leaf'
             : tone === 'night'
@@ -37,17 +37,24 @@ export function CheckCircle({
         }`}
       >
         {checked && (
-          <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
-            <polyline
-              points="5.5 12.5 10 17 18.5 7.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="check-draw"
-            />
-          </svg>
+          <>
+            <span className="leaf-burst" aria-hidden>
+              <span className="leaf-burst-petal" />
+              <span className="leaf-burst-petal" />
+              <span className="leaf-burst-petal" />
+            </span>
+            <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
+              <polyline
+                points="5.5 12.5 10 17 18.5 7.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="check-draw"
+              />
+            </svg>
+          </>
         )}
       </span>
     </button>
@@ -229,6 +236,8 @@ export function Section({
   collapsible = true,
   inset = '3.25rem',
   aside,
+  mark,
+  peek,
   children,
 }: {
   title: string;
@@ -241,6 +250,10 @@ export function Section({
   inset?: string;
   /** Extra element at the end of the header (e.g. a "see all" link). */
   aside?: ReactNode;
+  /** Decorative mark (category animal) before the title. */
+  mark?: ReactNode;
+  /** Decorative peeking animal, rendered in the gap around the list card. */
+  peek?: ReactNode;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -248,21 +261,23 @@ export function Section({
   const complete = count && count.total > 0 && count.done === count.total;
   const heading = (
     <>
-      <h2 className="text-title3">{title}</h2>
+      {mark}
+      <h2 className="min-w-0 text-title3">{title}</h2>
       {hint && (
         <span className="rounded-full bg-robin-soft px-2 py-px text-footnote font-semibold text-robin">{hint}</span>
       )}
     </>
   );
+  const headerPad = peek ? 'pb-7' : 'pb-2';
   return (
-    <section className="mb-7">
+    <section className="relative mb-7">
       {collapsible ? (
         <button
           type="button"
           aria-expanded={open}
           aria-controls={id}
           onClick={() => setOpen((o) => !o)}
-          className="flex min-h-9 w-full items-center gap-2 px-4 pb-2 text-start"
+          className={`relative flex min-h-9 w-full items-center gap-2 px-4 text-start ${headerPad}`}
         >
           {heading}
           <span className="ms-auto flex items-center gap-1 text-subhead text-twig-soft">
@@ -279,18 +294,16 @@ export function Section({
           </span>
         </button>
       ) : (
-        <div className="flex min-h-9 items-center gap-2 px-4 pb-2">
+        <div className={`relative flex min-h-9 items-center gap-2 px-4 ${headerPad}`}>
           {heading}
           {aside && <span className="ms-auto">{aside}</span>}
         </div>
       )}
-      <div
-        id={id}
-        hidden={collapsible && !open}
-        className="shelf ios-list overflow-hidden"
-        style={{ ['--sep-inset' as string]: inset }}
-      >
-        {children}
+      <div id={id} hidden={collapsible && !open} className="relative">
+        {peek}
+        <div className="shelf ios-list relative z-10 overflow-hidden" style={{ ['--sep-inset' as string]: inset }}>
+          {children}
+        </div>
       </div>
       {footer && (!collapsible || open) && <div className="list-footer">{footer}</div>}
     </section>
