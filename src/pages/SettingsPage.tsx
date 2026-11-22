@@ -1,11 +1,12 @@
 import { Bot, Copy, Download, ExternalLink, LogOut, MinusCircle, Share2, UserPlus } from 'lucide-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { Avatar, PageTitle } from '../components/ui';
+import { Avatar, PageTitle, Segmented } from '../components/ui';
 import { ALLOWED_EMAILS } from '../lib/access';
 import { buildAgentPrompt, normalizeMcpBase } from '../lib/agentPrompt';
 import { CONTENT_RESEARCHED_AT, CONTENT_VERSION } from '../content';
 import { useActions, useHousehold, useSession } from '../data/session';
 import { useToast } from '../data/toast';
+import { applyAppearance, readAppearance, writeAppearance, type Appearance } from '../lib/appearance';
 import { formatIsoDate } from '../lib/format';
 import { isIOS, isStandalone } from '../lib/platform';
 import { isValidIsoDate } from '../lib/pregnancy';
@@ -189,7 +190,14 @@ export function SettingsPage() {
     babyName: household.babyName ?? '',
   });
   const [hospital, setHospital] = useState<HospitalInfo>(household.hospital ?? emptyHospital);
+  const [appearance, setAppearanceState] = useState<Appearance>(() => readAppearance());
   const pending = actions.pendingContent();
+
+  const setAppearance = (value: Appearance) => {
+    writeAppearance(value);
+    applyAppearance(value);
+    setAppearanceState(value);
+  };
 
   const saveDetails = (e: FormEvent) => {
     e.preventDefault();
@@ -248,6 +256,24 @@ export function SettingsPage() {
   return (
     <>
       <PageTitle>הגדרות</PageTitle>
+
+      <Group
+        title="מראה"
+        footer="מצב הלידה נשאר חדר חשוך, גם כשבוחרים לילה רך בשאר האפליקציה. ברירת המחדל היא לפי המכשיר."
+      >
+        <div className="px-4 py-3">
+          <Segmented
+            label="מצב תצוגה"
+            value={appearance}
+            onChange={setAppearance}
+            options={[
+              { value: 'system', label: 'לפי המכשיר' },
+              { value: 'light', label: 'בהיר' },
+              { value: 'dark', label: 'לילה' },
+            ]}
+          />
+        </div>
+      </Group>
 
       <form onSubmit={saveDetails}>
         <Group title="הבית שלנו">
