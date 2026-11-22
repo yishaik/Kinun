@@ -55,7 +55,7 @@ export function SignInPage() {
         <h1 className="mt-6 text-[2.75rem] leading-none tracking-tight">
           <Wordmark />
         </h1>
-        <p className="mt-5 text-title2 font-normal text-balance">שלום ישי ולישה</p>
+        <p className="mt-5 text-title2 font-normal text-balance">שלום ישי וליסיה</p>
         <p className="mt-2 text-subhead text-twig-soft text-balance">
           כל מה שצריך לעשות, לקנות ולארוז לקראת הלידה ואחריה — ברשימה אחת משותפת לשניכם.
         </p>

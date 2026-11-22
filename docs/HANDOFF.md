@@ -182,7 +182,7 @@ Project: https://linear.app/yishaik/project/kinun-df7da462d385
 - [YIS-243](https://linear.app/yishaik/issue/YIS-243) … [YIS-248](https://linear.app/yishaik/issue/YIS-248) — content bundles (PRs #5–#9, #12), including the week timeline on the home card and `/journal`.
 - [YIS-249](https://linear.app/yishaik/issue/YIS-249) — ג'ירפה מגיבה, חגיגת קטגוריה, חיות ואנימציות ([PR #10](https://github.com/yishaik/Kinun/pull/10), squash `a7daea6`).
 - [YIS-250](https://linear.app/yishaik/issue/YIS-250) — מצב לילה רך עם מתג בהגדרות ([PR #11](https://github.com/yishaik/Kinun/pull/11), squash `24d6584`).
-- [YIS-251](https://linear.app/yishaik/issue/YIS-251) — מסך כניסה אישי לישי ולישה (this PR; photo stored on-device only).
+- [YIS-251](https://linear.app/yishaik/issue/YIS-251) — מסך כניסה אישי לישי וליסיה (this PR; photo stored on-device only).
 
 **Todo**
 

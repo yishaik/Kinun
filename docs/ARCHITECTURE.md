@@ -109,7 +109,7 @@ refresh. Details: [DATA-MODEL.md](DATA-MODEL.md).
 | `/settings`   | `pages/SettingsPage.tsx`     | Appearance, household, hospital, members, content updates, backup, sign-out                      |
 
 Before a household exists: `SignInPage` → `OnboardingPage` (creates the household and copies the default content).
-The sign-in screen greets «שלום ישי ולישה» and offers an optional nursery or ultrasound photo, or a placeholder
+The sign-in screen greets «שלום ישי וליסיה» and offers an optional nursery or ultrasound photo, or a placeholder
 illustration. That photo is stored **only in IndexedDB on the device** (`src/lib/localPhoto.ts`) — the Spark plan
 has no Firebase Storage, and the image is never uploaded. A Firebase sign-in that is not on the allowlist
 (`lib/access.ts`) gets `PrivatePage` (session status `not-allowed`) instead — no Firestore listener is even started
