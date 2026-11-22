@@ -71,6 +71,13 @@ export const SEED_GEAR: SeedGear[] = [
     source: SRC.beteremCarSeat,
   },
   {
+    seedId: 'gear.car-window-sunshade',
+    title: 'כיסוי שמש לחלון הרכב',
+    category: 'travel',
+    priority: 'nice',
+    quantity: '1–2',
+  },
+  {
     seedId: 'gear.stroller',
     title: 'עגלה עם שכיבה מלאה',
     notes: 'בחודשים הראשונים צריך שכיבה מלאה (180°). כדאי לבדוק שהיא נכנסת לתא המטען ולמעלית.',
@@ -130,6 +137,13 @@ export const SEED_GEAR: SeedGear[] = [
     title: 'מברשת בקבוקים ומתקן ייבוש',
     category: 'feeding',
     priority: 'nice',
+  },
+  {
+    seedId: 'gear.bottle-nipples',
+    title: 'פטמות לבקבוקים (מידה לנולדים, ועוד כמה להחלפה)',
+    category: 'feeding',
+    priority: 'nice',
+    quantity: '2–4',
   },
   {
     seedId: 'gear.breast-pump',
@@ -220,6 +234,18 @@ export const SEED_GEAR: SeedGear[] = [
     priority: 'nice',
   },
   {
+    seedId: 'gear.baby-hairbrush',
+    title: 'מברשת שיער רכה לתינוק',
+    category: 'bath',
+    priority: 'nice',
+  },
+  {
+    seedId: 'gear.baby-sponge',
+    title: 'ספוג עדין לרחצה',
+    category: 'bath',
+    priority: 'nice',
+  },
+  {
     seedId: 'gear.baby-laundry',
     title: 'אבקת או נוזל כביסה שמתאימים לתינוקות',
     category: 'bath',
@@ -283,6 +309,12 @@ export const SEED_GEAR: SeedGear[] = [
     title: 'מדחום דיגיטלי',
     category: 'health',
     priority: 'must',
+  },
+  {
+    seedId: 'gear.novimol',
+    title: 'נובימול',
+    category: 'health',
+    priority: 'nice',
   },
   {
     seedId: 'gear.vitamin-d',

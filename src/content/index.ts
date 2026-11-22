@@ -11,7 +11,7 @@ export { SEED_LINKS } from './links';
 export { SRC } from './sources';
 
 /** Version of the default content. Increment when seed entries are added or changed. */
-export const CONTENT_VERSION = 1;
+export const CONTENT_VERSION = 2;
 
 /** Date the default content was last researched / verified. */
 export const CONTENT_RESEARCHED_AT = '2026-11-21';
