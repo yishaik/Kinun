@@ -50,7 +50,7 @@ src/
 mcp-worker/                  remote MCP server (Cloudflare Worker): lets AI agents read/add/edit/tick items — docs/MCP.md
 e2e/                         Playwright smoke test (demo mode)
 firestore.rules              security rules  ← firestore-tests/rules.test.ts
-docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-FIREBASE, ROADMAP
+docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-FIREBASE, ROADMAP, MCP, HANDOFF
 ```
 
 ## Where to look
@@ -63,6 +63,7 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 | Deploy / Firebase / Google sign-in problems      | docs/SETUP-FIREBASE.md                     |
 | AI-agent access (MCP server, token, prompt)      | docs/MCP.md, mcp-worker/src/tools.ts       |
 | Ideas for what to build next                     | docs/ROADMAP.md                            |
+| Current status, deploy, known issues, handoff    | docs/HANDOFF.md                            |
 
 ## Rules of the road
 
@@ -96,6 +97,8 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 13. **The MCP worker bypasses security rules** (it uses a service account), so `mcp-worker/src/tools.ts` must validate every write
     the way `itemIsValid` does. Changing item fields ⇒ update the worker's tools and tests too. It never deletes. Its token and
     the service-account key are secrets (Cloudflare secrets only — never in git, never in chat).
+14. **Keep `docs/HANDOFF.md` current.** When deployments, URLs, secret or variable *names*, known issues, or next steps change,
+    update that file in the same change. Never put secret *values* in the repo, in chat, or in HANDOFF.md.
 
 ## Definition of done
 
@@ -103,7 +106,7 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 - UI change ⇒ `npm run test:e2e` passes; update `e2e/smoke.spec.ts` if a flow changed. Take a look at the screen at phone width
   (`SCREENSHOTS=1 npm run test:e2e` writes PNGs to `test-results/screens/`) — in light and dark mode.
 - Data/rules change ⇒ rules tests updated (they run in CI).
-- Docs updated when behavior, structure or setup changes. Keep this file accurate.
+- Docs updated when behavior, structure or setup changes. Keep this file and `docs/HANDOFF.md` accurate.
 - Don't deploy or change Firebase/GitHub settings unless the user asked.
 
 ## Production
