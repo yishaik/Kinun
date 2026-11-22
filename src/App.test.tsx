@@ -33,6 +33,16 @@ describe('App (demo backend)', () => {
     expect(await screen.findByRole('heading', { name: 'עוד', level: 1 })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('link', { name: /השבוע שלכם/ }));
     expect(await screen.findByRole('heading', { name: 'התינוק/ת' })).toBeInTheDocument();
+
+    // Labor stages and the glossary, from the hub.
+    fireEvent.click(within(nav).getByRole('link', { name: 'עוד' }));
+    fireEvent.click(await screen.findByRole('link', { name: /שלבי הלידה/ }));
+    expect(await screen.findByRole('heading', { name: 'שלב שני: הלחיצות' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'אמצעים תרופתיים' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'מילון מונחים' }));
+    fireEvent.change(await screen.findByPlaceholderText(/חיפוש/), { target: { value: 'פקק' } });
+    expect(screen.getByText('פקק רירי')).toBeInTheDocument();
+    expect(screen.queryByText('אפידורל בהליכה')).toBeNull();
   });
 
   it('shows the private screen to a real (non-demo) sign-in that is not on the allowlist', async () => {

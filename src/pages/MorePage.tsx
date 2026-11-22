@@ -1,5 +1,5 @@
 /** "עוד" — hub for the reference screens and tools that don't need a bottom-tab of their own. */
-import { BookOpen, CalendarHeart, TriangleAlert } from 'lucide-react';
+import { BookOpen, BookA, CalendarHeart, Footprints, TriangleAlert } from 'lucide-react';
 import { NavRow, type IconTone } from '../components/info';
 import { PageTitle, Section } from '../components/ui';
 import type { LucideIcon } from 'lucide-react';
@@ -35,6 +35,20 @@ export const HUB_SECTIONS: { title: string; entries: HubEntry[] }[] = [
   {
     title: 'מידע',
     entries: [
+      {
+        to: '/stages',
+        icon: Footprints,
+        tone: 'leaf',
+        title: 'שלבי הלידה',
+        subtitle: 'מה קורה בכל שלב, ואיך מקלים על הכאב',
+      },
+      {
+        to: '/glossary',
+        icon: BookA,
+        tone: 'straw',
+        title: 'מילון מונחים',
+        subtitle: 'פתיחה, מחיקה, אפידורל ועוד',
+      },
       {
         to: '/links',
         icon: BookOpen,

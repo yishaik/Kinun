@@ -177,6 +177,12 @@ export function LaborPage() {
         >
           סימני אזהרה: מתי לחדר הלידה ומתי ל-101
         </Link>
+        <Link
+          to="/stages"
+          className="flex min-h-11 items-center justify-center gap-1 text-subhead text-night-soft underline underline-offset-4"
+        >
+          שלבי הלידה והקלה על כאב
+        </Link>
       </section>
 
       {sorted.length > 0 && (
