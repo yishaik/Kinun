@@ -121,6 +121,28 @@ test('demo: onboarding → week → tasks → gear → labor → warnings → mo
   await expect(page.getByRole('heading', { name: 'תוכנית לידה — נועה כהן' })).toBeVisible();
   await expect(page.getByText('מקלחת · אפידורל')).toBeVisible();
   await snap(page, '19-birth-plan-print');
+
+  // Questions for the doctor
+  await nav(page, 'עוד').click();
+  await page.getByRole('link', { name: /שאלות לרופא/ }).click();
+  await page.getByLabel('שאלה חדשה').fill('עד מתי מותר לטוס?');
+  await page.getByRole('button', { name: 'הוספה', exact: true }).click();
+  await page.getByRole('button', { name: /הוספה לרשימה: כמה מלווים/ }).click();
+  await page.getByRole('checkbox', { name: 'סימון כנשאלה: כמה מלווים מותר להכניס לחדר הלידה?' }).click();
+  await page.getByLabel('התשובה').fill('שניים');
+  await page.getByLabel('שאלה חדשה').click();
+  await snap(page, '20-questions');
+
+  // Names
+  await nav(page, 'עוד').click();
+  await page.getByRole('link', { name: /רשימת שמות/ }).click();
+  for (const n of ['נועם', 'אלה', 'יובל']) {
+    await page.getByLabel('שם חדש').fill(n);
+    await page.getByRole('button', { name: 'הוספה', exact: true }).click();
+  }
+  await page.getByRole('button', { name: 'לא אוהב/ת את יובל' }).click();
+  await expect(page.getByRole('heading', { name: /שנינו אוהבים/ })).toBeVisible();
+  await snap(page, '21-names');
   await page.emulateMedia({ media: 'print' });
   await expect(page.getByRole('navigation', { name: 'ניווט ראשי' })).toBeHidden();
   await page.emulateMedia({ media: 'screen' });

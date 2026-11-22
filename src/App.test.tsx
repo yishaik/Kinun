@@ -69,6 +69,30 @@ describe('App (demo backend)', () => {
     expect(await screen.findByRole('heading', { name: 'תוכנית לידה — נועה כהן' })).toBeInTheDocument();
     expect(screen.getByText('מוזיקה')).toBeInTheDocument();
     expect(screen.queryByText('חוקן')).toBeNull();
+
+    // Questions for the doctor: add, mark as asked, note the answer.
+    fireEvent.click(within(nav).getByRole('link', { name: 'עוד' }));
+    fireEvent.click(await screen.findByRole('link', { name: /שאלות לרופא/ }));
+    fireEvent.change(await screen.findByLabelText('שאלה חדשה'), { target: { value: 'מתי מפסיקים לעבוד?' } });
+    fireEvent.click(screen.getByRole('button', { name: 'הוספה' }));
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'סימון כנשאלה: מתי מפסיקים לעבוד?' }));
+    const answer = await screen.findByLabelText('התשובה');
+    fireEvent.change(answer, { target: { value: 'לפי ההרגשה' } });
+    fireEvent.blur(answer);
+    expect(await screen.findByRole('heading', { name: 'נשאלו' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText('התשובה')).toHaveValue('לפי ההרגשה'));
+
+    // Names: proposing loves it; a "no" moves it out of the shared list.
+    fireEvent.click(within(nav).getByRole('link', { name: 'עוד' }));
+    fireEvent.click(await screen.findByRole('link', { name: /רשימת שמות/ }));
+    fireEvent.change(await screen.findByLabelText('שם חדש'), { target: { value: 'נועם' } });
+    fireEvent.click(screen.getByRole('button', { name: 'הוספה' }));
+    expect(await screen.findByRole('heading', { name: /שנינו אוהבים/ })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('שם חדש'), { target: { value: ' נועם ' } });
+    expect(screen.getByText('השם כבר ברשימה.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'לא אוהב/ת את נועם' }));
+    await waitFor(() => expect(screen.queryByRole('heading', { name: /שנינו אוהבים/ })).toBeNull());
+    expect(screen.getByRole('button', { name: /פחות/ })).toBeInTheDocument();
   });
 
   it('shows the private screen to a real (non-demo) sign-in that is not on the allowlist', async () => {
