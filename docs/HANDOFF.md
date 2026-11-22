@@ -1,8 +1,8 @@
 # Kinun handoff
 
-Last verified: 22 November 2026, evening, Asia/Jerusalem (UTC+2).
+Last verified: 22 November 2026, 22:50, Asia/Jerusalem (UTC+2).
 
-This file is the current-status snapshot for coding agents and anyone continuing the work. Facts below were checked against the repo at `7e6fe31` on `main`, the live PWA, Wrangler on two Cloudflare accounts, Linear team Yishaik (YIS), and the 22 November 2026 link-check workflow log. Inferred items are marked. **Never put secret values in this file, in git, or in chat** — names only.
+This file is the current-status snapshot for coding agents and anyone continuing the work. Facts below were checked against the repo at `ff9681b` on `main`, the live PWA, Wrangler on two Cloudflare accounts (earlier the same day), Linear team Yishaik (YIS), and a live fetch of the Hosting manifest and icons on 22 November 2026, 22:50 Asia/Jerusalem. Inferred items are marked. **Never put secret values in this file, in git, or in chat** — names only.
 
 When something here changes (deploy, URL, known issue, next step), update this file in the same change. See AGENTS.md rule 14.
 
@@ -14,14 +14,15 @@ Stack: React 19 + Vite + TypeScript + Tailwind v4, Firebase Auth (Google) + Fire
 
 A remote MCP server (`mcp-worker/`) lets an AI agent read, add, edit, and mark items done (no delete; no access to labor contractions, household settings, or members). Settings in the PWA has a **סוכני AI** card for the worker URL and token (stored in that device's `localStorage` only). See [MCP.md](MCP.md).
 
-## Current status (verified 22 November 2026)
+## Current status (verified 22 November 2026, 22:50)
 
-- Latest `main` commit: [`7e6fe31`](https://github.com/yishaik/Kinun/commit/7e6fe31d840bdd280d55a6f8b6d6c693a146e0d3) (22 November 2026, 11:06) — MCP worker code + Settings card.
-- CI on that commit: success — https://github.com/yishaik/Kinun/actions/runs/45005899815
-- Live PWA is up and includes the Settings card (see Deployments). `CONTENT_VERSION` is 2.
+- Latest `main` commit: [`ff9681b`](https://github.com/yishaik/Kinun/commit/ff9681bb4ba177f0ae3b555975292f320abe6b4b) (22 November 2026, 22:49 Asia/Jerusalem) — jungle-nursery redesign with the baby-giraffe mark ([PR #4](https://github.com/yishaik/Kinun/pull/4)).
+- Immediately before that: [`b33a648`](https://github.com/yishaik/Kinun/commit/b33a64887ed828f5608aad06853179a2fb044f96) — docs handoff ([PR #3](https://github.com/yishaik/Kinun/pull/3)).
+- CI on the redesigned branch after it was updated onto `main`: success — https://github.com/yishaik/Kinun/actions/runs/45068562512
+- The redesign is **on `main` but not on the live site yet**. A manual Firebase Hosting deploy was attempted from the agent box and could not authenticate (see Deployments). Until a deploy happens, https://kinun-ae894.web.app still serves the previous iOS-gray theme (`#F2F2F7`) and the old egg-in-a-nest icons.
 - MCP Worker `kinun-mcp` is **not deployed** on the two Cloudflare accounts Wrangler can see (`Yishai.k@gmail.com` and `Yishai.kaminsky@mail.tab.bot`). Other known workers on the gmail account *are* visible, so this is a real absence there, not a permissions miss on those accounts. A third Cloudflare account, if any, was not visible.
-- GitHub Actions auto-deploy to Firebase Hosting is **not active**: every `deploy.yml` run so far was skipped.
-- Linear project: [Kinun](https://linear.app/yishaik/project/kinun-df7da462d385) (created 22 November 2026).
+- GitHub Actions auto-deploy to Firebase Hosting is **not active**: `FIREBASE_PROJECT_ID` is still empty, so `deploy.yml` is skipped on `main` pushes.
+- Linear project: [Kinun](https://linear.app/yishaik/project/kinun-df7da462d385). The giraffe redesign is [YIS-238](https://linear.app/yishaik/issue/YIS-238).
 
 ## Deployments and URLs
 
@@ -35,11 +36,21 @@ A remote MCP server (`mcp-worker/`) lets an AI agent read, add, edit, and mark i
 | Auth / init | https://kinun-ae894.web.app/__/firebase/init.json is live; `authDomain` is `kinun-ae894.firebaseapp.com` |
 | Custom domain | None verified. Probes of `kinun.app`, `www.kinun.app`, and `kinun.yishaik.com` failed TLS; `kinun.web.app` returned 404. |
 
-The Hosting `Last-Modified` header was 22 November 2026, 14:14. The shipped JS (`/assets/index-BcGyJoPE.js`) contains the **סוכני AI** card, with placeholder `https://kinun-mcp.….workers.dev` and **no** baked-in `VITE_MCP_URL`.
+The Hosting `Last-Modified` header was still 22 November 2026, 14:14 (Asia/Jerusalem) when checked at 22:50 the same evening. A live fetch of the manifest and icons did **not** match `main` @ `ff9681b`:
 
-GitHub Actions `Deploy to Firebase Hosting` ran on the MCP commit and was **skipped** (and on all five earlier `main` pushes) because the repository variable `FIREBASE_PROJECT_ID` is empty: https://github.com/yishaik/Kinun/actions/runs/45005899838
+- Live `theme_color` / `background_color`: `#F2F2F7` (index.html light theme-color is also `#F2F2F7`; favicon is still `/favicon.svg`).
+- `main` expects `#F6F1E6` and `/favicon-32.png` (plus the painted giraffe `pwa-192.png` / `pwa-512.png` / `maskable-512.png` / `apple-touch-icon.png`).
+- Live icon byte sizes still match the pre-redesign assets (e.g. `pwa-192.png` 4407 bytes); `main` has much larger giraffe PNGs (e.g. `pwa-192.png` 54597 bytes). SHA-256 prefixes differ.
 
-**Inferred (strong):** the Hosting update after `7e6fe31` was a **manual** deploy (docs recommend Google Cloud Shell), not Actions.
+GitHub Actions `Deploy to Firebase Hosting` is still skipped on `main` because the repository variable `FIREBASE_PROJECT_ID` is empty (and the `FIREBASE_SERVICE_ACCOUNT` secret is not set).
+
+A manual deploy from the agent box on 22 November 2026, 22:50 (`npx firebase-tools@15`) failed: `firebase login:list` reported no authorized accounts, and `projects:list --non-interactive` failed with "Failed to authenticate, have you run firebase login?". There was no `FIREBASE_TOKEN`, `FIREBASE_SERVICE_ACCOUNT`, or `GOOGLE_APPLICATION_CREDENTIALS` in the environment, and no existing Firebase or gcloud CLI login on the box. **Do not invent a login.** To finish the deploy, someone with access to project `kinun-ae894` needs to authenticate, for example:
+
+- On this box: `npx firebase-tools@15 login --no-localhost` (prints a device/auth URL) or `npx firebase-tools@15 login:ci`, then `npm run build && npx firebase-tools@15 deploy --project kinun-ae894 --only hosting` (add Firestore only if rules changed — they did not in #3/#4).
+- Or Google Cloud Shell, already documented below.
+- Or set repo variable `FIREBASE_PROJECT_ID=kinun-ae894` and repo secret `FIREBASE_SERVICE_ACCOUNT`, after which `deploy.yml` can run on `main`.
+
+**Inferred (strong):** the Hosting update at 14:14 was a **manual** deploy of the earlier MCP/`7e6fe31` build, not Actions, and no later deploy has landed.
 
 ### MCP Worker — not live
 
@@ -142,15 +153,20 @@ Wrangler prints a `https://kinun-mcp.<subdomain>.workers.dev` URL. After a real 
    - Warnings **403** from gov.il, Kol Zchut, maternity.sheba.co.il, hospitals.clalit.co.il, and israelhayom (likely bot blocking)
    - Warning **503**: https://www.sheba.co.il/pregnancy/clinics/maternity-triage-er  
    Tracked as [YIS-231](https://linear.app/yishaik/issue/YIS-231/תיקון-בדיקת-הקישורים-שנכשלה)
-4. **[PR #2](https://github.com/yishaik/Kinun/pull/2) is a draft** (CI concurrency for `deploy.yml` only). Its base is `2034e47`, behind current `main` (`7e6fe31`, which includes MCP). Do not merge or close it unasked; update the branch onto `main`. [YIS-232](https://linear.app/yishaik/issue/YIS-232/עדכון-pr-2-מול-main)
+4. **[PR #2](https://github.com/yishaik/Kinun/pull/2) is a draft** (CI concurrency for `deploy.yml` only). Its base is `2034e47`, behind current `main` (`ff9681b`, which includes MCP and the giraffe redesign). Do not merge or close it unasked; update the branch onto `main`. [YIS-232](https://linear.app/yishaik/issue/YIS-232/עדכון-pr-2-מול-main)
 5. **Leftover branch** `private-ios-redesign` remains after [PR #1](https://github.com/yishaik/Kinun/pull/1) was merged (21 November 2026). Do not delete branches unless asked. [YIS-233](https://linear.app/yishaik/issue/YIS-233/ניקוי-ענף-private-ios-redesign)
 6. Repo had no GitHub description or `homepage` at verification time (the live URL exists). No license.
+7. **Live PWA has not been redeployed** after merging [PR #3](https://github.com/yishaik/Kinun/pull/3) and [PR #4](https://github.com/yishaik/Kinun/pull/4). The giraffe look is on `main` only. See Deployments for the exact auth needed. Related: [YIS-230](https://linear.app/yishaik/issue/YIS-230/הפעלת-פריסה-אוטומטית-ל-firebase-hosting).
 
 There were no open GitHub issues that were not pull requests.
 
 ## Next steps (Linear)
 
 Project: https://linear.app/yishaik/project/kinun-df7da462d385
+
+**Done (code on `main`, not yet live)**
+
+- [YIS-238](https://linear.app/yishaik/issue/YIS-238) — עיצוב מחדש ולוגו חדש בסגנון תינוקות ([PR #4](https://github.com/yishaik/Kinun/pull/4), squash `ff9681b`). Awaiting a Firebase Hosting deploy.
 
 **Todo**
 
@@ -176,5 +192,6 @@ Later roadmap ideas (hospital-specific lists, documents vault, budget view, role
 - Agent entry: [AGENTS.md](../AGENTS.md)
 - MCP: [MCP.md](MCP.md)
 - Firebase setup: [SETUP-FIREBASE.md](SETUP-FIREBASE.md)
+- Design screenshots (before/after): [design/](design/)
 - Roadmap: [ROADMAP.md](ROADMAP.md)
 - Linear project: https://linear.app/yishaik/project/kinun-df7da462d385
