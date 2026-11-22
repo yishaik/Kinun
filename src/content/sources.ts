@@ -22,6 +22,10 @@ export const SRC = {
   // ---------- משרד הבריאות — "הורות והורים" (me.health.gov.il) ----------
   mohObstetricEr: 'https://me.health.gov.il/parenting/family-planning/pregnancy-monitoring/obstetric-er/',
   mohLaborSigns: 'https://me.health.gov.il/parenting/family-planning/preparing-for-labor/labor-signs/',
+  mohLaborStages: 'https://me.health.gov.il/parenting/family-planning/labor/stages/',
+  mohPainRelief: 'https://me.health.gov.il/parenting/family-planning/labor/pain-reduction/',
+  mohInduction: 'https://me.health.gov.il/parenting/family-planning/labor/labor-induction/',
+  mohLaborSupport: 'https://me.health.gov.il/parenting/family-planning/preparing-for-labor/labor-support/',
   mohSecondTrimester:
     'https://me.health.gov.il/parenting/family-planning/healthy-pregnancy/body-changes/second-trimester/',
   mohMentalHealth:

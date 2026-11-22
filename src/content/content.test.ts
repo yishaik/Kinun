@@ -6,6 +6,8 @@ import { describe, expect, it } from 'vitest';
 import { CATEGORY_LABELS, PHASES } from '../lib/labels';
 import { buildSeedItems } from '../lib/seed';
 import { SEED_BAG, SEED_GEAR, SEED_LINKS, SEED_TASKS, SRC } from './index';
+import { GLOSSARY } from './glossary';
+import { LABOR_STAGES, PAIN_RELIEF } from './laborStages';
 import { WARNING_GROUPS } from './warnings';
 import { WEEKS } from './weeks';
 
@@ -121,5 +123,25 @@ describe('reference content', () => {
       expect(g.items.length, g.id).toBeGreaterThan(0);
       for (const it of g.items) expect(official.has(it.source), `${g.id}: ${it.text}`).toBe(true);
     }
+  });
+
+  it('backs every glossary term with a source from SRC, without duplicates', () => {
+    expect(GLOSSARY.length).toBeGreaterThan(15);
+    expect(new Set(GLOSSARY.map((t) => t.term)).size).toBe(GLOSSARY.length);
+    for (const t of GLOSSARY) {
+      expect(official.has(t.source), t.term).toBe(true);
+      expect(t.definition.length, t.term).toBeGreaterThan(20);
+    }
+  });
+
+  it('covers the labor stages in order and the pain-relief options, all sourced', () => {
+    expect(LABOR_STAGES.map((s) => s.id)).toEqual(['latent', 'active', 'pushing', 'placenta', 'recovery']);
+    for (const s of LABOR_STAGES) expect(official.has(s.source), s.id).toBe(true);
+    expect(PAIN_RELIEF.map((g) => g.id)).toEqual(['medical', 'natural']);
+    for (const g of PAIN_RELIEF) {
+      expect(official.has(g.source), g.id).toBe(true);
+      expect(g.options.length, g.id).toBeGreaterThan(2);
+    }
+    expect(PAIN_RELIEF[0].options.map((o) => o.name)).toContain('אפידורל');
   });
 });

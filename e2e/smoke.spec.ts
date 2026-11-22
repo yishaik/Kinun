@@ -89,6 +89,14 @@ test('demo: onboarding → week → tasks → gear → labor → warnings → mo
   await nav(page, 'עוד').click();
   await expect(page.getByRole('heading', { name: 'עוד', level: 1 })).toBeVisible();
   await snap(page, '14-more');
+  await page.getByRole('link', { name: /שלבי הלידה/ }).click();
+  await expect(page.getByRole('heading', { name: 'שלב ראשון: הלידה הפעילה' })).toBeVisible();
+  await snap(page, '15-stages');
+  await page.getByRole('link', { name: 'מילון מונחים' }).click();
+  await page.getByPlaceholder(/חיפוש/).fill('אפידורל');
+  await expect(page.getByText('אפידורל בהליכה')).toBeVisible();
+  await snap(page, '16-glossary');
+  await nav(page, 'עוד').click();
   await page.getByRole('link', { name: /קישורים וטלפונים/ }).click();
   await page.getByPlaceholder(/חיפוש/).fill('טיפת חלב');
   await expect(page.getByText('מוקד טיפת חלב')).toBeVisible();
