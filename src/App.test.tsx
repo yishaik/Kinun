@@ -93,6 +93,16 @@ describe('App (demo backend)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'לא אוהב/ת את נועם' }));
     await waitFor(() => expect(screen.queryByRole('heading', { name: /שנינו אוהבים/ })).toBeNull());
     expect(screen.getByRole('button', { name: /פחות/ })).toBeInTheDocument();
+
+    // Partner guide → breathing pacer.
+    fireEvent.click(within(nav).getByRole('link', { name: 'עוד' }));
+    fireEvent.click(await screen.findByRole('link', { name: /מדריך לבן\/בת הזוג/ }));
+    expect(await screen.findByRole('heading', { name: 'בחדר הלידה' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'לתרגיל הנשימה' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'התחלה' }));
+    expect(await screen.findByText('שאיפה')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'עצירה' }));
+    expect(screen.getByText('מוכנים?')).toBeInTheDocument();
   });
 
   it('shows the private screen to a real (non-demo) sign-in that is not on the allowlist', async () => {

@@ -18,6 +18,8 @@ import { BirthPlanPage } from './pages/BirthPlanPage';
 import { BirthPlanPrintPage } from './pages/BirthPlanPrintPage';
 import { QuestionsPage } from './pages/QuestionsPage';
 import { NamesPage } from './pages/NamesPage';
+import { PartnerGuidePage } from './pages/PartnerGuidePage';
+import { BreathingPage } from './pages/BreathingPage';
 import { WeekPage } from './pages/WeekPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -60,6 +62,8 @@ function Gate() {
           <Route path="/birth-plan/print" element={<BirthPlanPrintPage />} />
           <Route path="/questions" element={<QuestionsPage />} />
           <Route path="/names" element={<NamesPage />} />
+          <Route path="/partner" element={<PartnerGuidePage />} />
+          <Route path="/breathing" element={<BreathingPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

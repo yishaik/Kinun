@@ -143,6 +143,18 @@ test('demo: onboarding → week → tasks → gear → labor → warnings → mo
   await page.getByRole('button', { name: 'לא אוהב/ת את יובל' }).click();
   await expect(page.getByRole('heading', { name: /שנינו אוהבים/ })).toBeVisible();
   await snap(page, '21-names');
+
+  // Partner guide and breathing
+  await nav(page, 'עוד').click();
+  await page.getByRole('link', { name: /מדריך לבן\/בת הזוג/ }).click();
+  await expect(page.getByRole('heading', { name: 'בחדר הלידה' })).toBeVisible();
+  await snap(page, '22-partner');
+  await page.getByRole('link', { name: 'לתרגיל הנשימה' }).click();
+  await page.getByRole('button', { name: 'התחלה' }).click();
+  await expect(page.getByText('שאיפה', { exact: true })).toBeVisible();
+  await expect(page.getByText('החזקה', { exact: true })).toBeVisible({ timeout: 10_000 });
+  await snap(page, '23-breathing');
+  await page.getByRole('button', { name: 'עצירה' }).click();
   await page.emulateMedia({ media: 'print' });
   await expect(page.getByRole('navigation', { name: 'ניווט ראשי' })).toBeHidden();
   await page.emulateMedia({ media: 'screen' });
