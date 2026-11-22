@@ -85,12 +85,15 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 7. **RTL first.** Use logical Tailwind utilities (`ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`, `text-start`) —
    not `left`/`right`. Phone numbers, emails and URLs get `dir="ltr"`.
 8. **Design tokens only (jungle-nursery look, iOS layout).** Colors come from `@theme` in `src/index.css` — keep the
-   semantic names, with light **and** dark values (`shell` = cream/warm night background, `paper` = card, `twig`/`twig-soft`
-   = body/secondary text, `line` = separator, `fill`, `robin` = jungle-green tint, `lagoon` = teal, `sun`/`straw` = sun
-   accent (do not use `sun` for text), `leaf` = done, `brick` = overdue/destructive, `night` = labor mode). Type: Assistant
-   Variable for UI, Varela Round (`font-display`) for the wordmark and `<PageTitle>`. Scale utilities stay (`text-large-title`,
-   `text-title3`, `text-headline`, `text-body`…). Lists are inset-grouped (`<Section>` / `shelf ios-list`). No raw hex in
-   components; check both color schemes. The giraffe mark is `<AppMark>`.
+   semantic names, with light **and** soft-night values (`shell` = cream / jungle night `#10281C`, `paper` = card /
+   `#1B3A2A`, `twig`/`twig-soft` = body/secondary text, `line` = separator, `fill`, `robin` = jungle-green tint /
+   `#8FDB6A` in night, `lagoon` = teal, `sun`/`straw` = sun accent (do not use `sun` for text), `leaf` = done, `brick` =
+   overdue/destructive, `night` = labor-room black). Night follows the system scheme plus a Settings toggle
+   (`src/lib/appearance.ts`). Labor mode (`.theme-dark`) stays a dark room and must not pick up the jungle-green night
+   tokens. Type: Assistant Variable for UI, Varela Round (`font-display`) for the wordmark and `<PageTitle>`. Scale
+   utilities stay (`text-large-title`, `text-title3`, `text-headline`, `text-body`…). Lists are inset-grouped
+   (`<Section>` / `shelf ios-list`). No raw hex in components; check both color schemes and labor mode. The giraffe mark
+   is `<AppMark>`; the home companion is `<ReactiveGiraffe>`. Peeking animals stay `aria-hidden` and must not cover text.
 9. **Accessibility.** Touch targets ≥ 44px, every input has a label, icons are `aria-hidden` with text or `aria-label`,
    respect `prefers-reduced-motion`.
 10. **Hebrew copy.** Plain verbs, sentence case, short. Gender-inclusive with slashes where needed (`נולד/ה`, `בן/בת הזוג`).
@@ -100,8 +103,8 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 13. **The MCP worker bypasses security rules** (it uses a service account), so `mcp-worker/src/tools.ts` must validate every write
     the way `itemIsValid` does. Changing item fields ⇒ update the worker's tools and tests too. It never deletes. Its token and
     the service-account key are secrets (Cloudflare secrets only — never in git, never in chat).
-14. **Keep `docs/HANDOFF.md` current.** When deployments, URLs, secret or variable *names*, known issues, or next steps change,
-    update that file in the same change. Never put secret *values* in the repo, in chat, or in HANDOFF.md.
+14. **Keep `docs/HANDOFF.md` current.** When deployments, URLs, secret or variable _names_, known issues, or next steps change,
+    update that file in the same change. Never put secret _values_ in the repo, in chat, or in HANDOFF.md.
 
 ## Definition of done
 
@@ -144,4 +147,5 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 - iOS: home-screen web apps keep their own storage — users sign in once inside the installed app.
 - Google sign-in uses popup on desktop, redirect on mobile/standalone. On Firebase Hosting the app sets `authDomain`
   to its own host so redirects work in Safari (see `src/data/firebaseConfig.ts`).
-- Free Spark plan is enough (two users, a few hundred documents).
+- Free Spark plan is enough (two users, a few hundred documents). There is no paid Firebase Storage — do not upload
+  photos. The optional sign-in nursery/ultrasound portrait lives in IndexedDB on that device only (`src/lib/localPhoto.ts`).
