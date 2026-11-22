@@ -6,9 +6,11 @@ import {
   ClipboardPen,
   Footprints,
   Hand,
+  HeartHandshake,
   MessageCircleQuestion,
   Sparkles,
   TriangleAlert,
+  Wind,
 } from 'lucide-react';
 import { NavRow, type IconTone } from '../components/info';
 import { PageTitle, Section } from '../components/ui';
@@ -40,6 +42,13 @@ export const HUB_SECTIONS: { title: string; entries: HubEntry[] }[] = [
         title: 'סימני אזהרה',
         subtitle: 'מתי לחדר הלידה ומתי למד״א 101',
       },
+      {
+        to: '/partner',
+        icon: HeartHandshake,
+        tone: 'leaf',
+        title: 'מדריך לבן/בת הזוג',
+        subtitle: 'איך לעזור — לפני, בזמן ואחרי',
+      },
     ],
   },
   {
@@ -58,6 +67,13 @@ export const HUB_SECTIONS: { title: string; entries: HubEntry[] }[] = [
         tone: 'lagoon',
         title: 'תוכנית לידה',
         subtitle: 'ממלאים יחד ומדפיסים',
+      },
+      {
+        to: '/breathing',
+        icon: Wind,
+        tone: 'lagoon',
+        title: 'תרגילי נשימה',
+        subtitle: 'טיימר נשימה: שאיפה, החזקה, נשיפה ארוכה',
       },
       {
         to: '/questions',

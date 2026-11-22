@@ -8,6 +8,7 @@ import { buildSeedItems } from '../lib/seed';
 import { SEED_BAG, SEED_GEAR, SEED_LINKS, SEED_TASKS, SRC } from './index';
 import { GLOSSARY } from './glossary';
 import { LABOR_STAGES, PAIN_RELIEF } from './laborStages';
+import { PARTNER_GUIDE } from './partnerGuide';
 import { SUGGESTED_QUESTIONS } from './questions';
 import { WARNING_GROUPS } from './warnings';
 import { WEEKS } from './weeks';
@@ -144,6 +145,15 @@ describe('reference content', () => {
       expect(g.options.length, g.id).toBeGreaterThan(2);
     }
     expect(PAIN_RELIEF[0].options.map((o) => o.name)).toContain('אפידורל');
+  });
+
+  it('sources every partner-guide tip and links only to real screens', () => {
+    const routes = ['/birth-plan', '/breathing', '/labor', '/warnings', '/stages'];
+    for (const s of PARTNER_GUIDE)
+      for (const t of s.tips) {
+        expect(official.has(t.source), t.text).toBe(true);
+        if (t.to) expect(routes, t.text).toContain(t.to.path);
+      }
   });
 
   it('ties each suggested doctor question to an official source', () => {

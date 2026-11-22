@@ -183,6 +183,12 @@ export function LaborPage() {
         >
           שלבי הלידה והקלה על כאב
         </Link>
+        <Link
+          to="/breathing"
+          className="flex min-h-11 items-center justify-center gap-1 text-subhead text-night-soft underline underline-offset-4"
+        >
+          תרגיל נשימה
+        </Link>
       </section>
 
       {sorted.length > 0 && (
