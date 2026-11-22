@@ -10,6 +10,8 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_APP_ID?: string;
   readonly VITE_FIREBASE_MESSAGING_SENDER_ID?: string;
   readonly VITE_FIREBASE_STORAGE_BUCKET?: string;
+  /** Address of the deployed mcp-worker, prefilled in Settings → AI agents. */
+  readonly VITE_MCP_URL?: string;
 }
 
 interface ImportMeta {

@@ -68,6 +68,7 @@ npm run dev:demo
 - [AGENTS.md](AGENTS.md) — נקודת הכניסה: מבנה, כללים, Definition of Done
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — ארכיטקטורה, החלטות, עיצוב
 - [docs/DATA-MODEL.md](docs/DATA-MODEL.md) — מבנה הנתונים וחוקי האבטחה
+- [docs/MCP.md](docs/MCP.md) — חיבור סוכני AI (שרת MCP)
 - [docs/CONTENT.md](docs/CONTENT.md) — איך לערוך את תוכן ברירת המחדל
 - [docs/RESEARCH.md](docs/RESEARCH.md) — המחקר והמקורות
 - [docs/ROADMAP.md](docs/ROADMAP.md) — רעיונות להמשך

@@ -47,6 +47,7 @@ src/
   data/                      DataStore interface (store.ts), FirebaseStore, LocalStore, session.tsx (context + useActions), toast.tsx
   components/                UI building blocks (ui.tsx, ItemSheet, rows, Layout, EggProgress, Sheet)
   pages/                     one file per screen
+mcp-worker/                  remote MCP server (Cloudflare Worker): lets AI agents read/add/edit/tick items — docs/MCP.md
 e2e/                         Playwright smoke test (demo mode)
 firestore.rules              security rules  ← firestore-tests/rules.test.ts
 docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-FIREBASE, ROADMAP
@@ -60,6 +61,7 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
 | New field / collection / sharing behavior        | docs/DATA-MODEL.md (+ rules + rules tests) |
 | New screen, navigation, state, offline, auth     | docs/ARCHITECTURE.md                       |
 | Deploy / Firebase / Google sign-in problems      | docs/SETUP-FIREBASE.md                     |
+| AI-agent access (MCP server, token, prompt)      | docs/MCP.md, mcp-worker/src/tools.ts       |
 | Ideas for what to build next                     | docs/ROADMAP.md                            |
 
 ## Rules of the road
@@ -90,6 +92,9 @@ docs/                        ARCHITECTURE, DATA-MODEL, CONTENT, RESEARCH, SETUP-
     Don't put medical advice in UI strings — put it in content with a source, phrased as "according to …, ask your team".
 11. **No secrets in git.** The Firebase web config is not secret, but service-account keys are — they live in GitHub secrets only.
 12. **The service worker must never handle `/__/*`** (Firebase Hosting's auth handler and init.json). See `vite.config.ts`.
+13. **The MCP worker bypasses security rules** (it uses a service account), so `mcp-worker/src/tools.ts` must validate every write
+    the way `itemIsValid` does. Changing item fields ⇒ update the worker's tools and tests too. It never deletes. Its token and
+    the service-account key are secrets (Cloudflare secrets only — never in git, never in chat).
 
 ## Definition of done
 

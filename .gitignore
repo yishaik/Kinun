@@ -18,3 +18,10 @@ test-results/
 firebase-debug.log*
 firestore-debug.log*
 ui-debug.log*
+
+# MCP worker (Cloudflare) — secrets and local state
+.dev.vars
+.wrangler/
+mcp-worker/node_modules/
+service-account*.json
+*-firebase-adminsdk-*.json

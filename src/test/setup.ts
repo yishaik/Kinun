@@ -2,11 +2,14 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeEach } from 'vitest';
 
+// Some suites (mcp-worker/) run in the node environment, where there is no `window`.
+const hasDom = typeof window !== 'undefined';
+
 beforeEach(() => {
-  window.localStorage.clear();
+  if (hasDom) window.localStorage.clear();
 });
 
 afterEach(() => {
-  cleanup();
+  if (hasDom) cleanup();
 });
-window.scrollTo = () => {};
+if (hasDom) window.scrollTo = () => {};

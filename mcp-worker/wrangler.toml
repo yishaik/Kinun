@@ -1,0 +1,11 @@
+name = "kinun-mcp"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+
+# Secrets (set with `npx wrangler secret put <NAME>`, never commit them):
+#   MCP_TOKEN                 long random string agents must present
+#   GOOGLE_SERVICE_ACCOUNT    the service-account JSON key (whole file, as one string)
+# Optional plain variable:
+#   HOUSEHOLD_ID              only needed if the project has more than one household
+[vars]
+FIREBASE_PROJECT_ID = "kinun-ae894"

@@ -1,0 +1,14 @@
+{
+  "name": "kinun-mcp",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Remote MCP server (Cloudflare Worker) that lets AI agents read and write the Kinun lists.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

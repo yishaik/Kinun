@@ -82,6 +82,14 @@ test('demo: onboarding → tasks → gear → labor timer → links → settings
   await page.getByRole('button', { name: 'ליס (איכילוב)' }).click();
   await page.getByRole('button', { name: 'שמירה' }).nth(1).click();
   await snap(page, '10-settings');
+
+  // Settings → AI agents: the URL-only copy button needs both a URL and a token
+  await expect(page.getByRole('button', { name: 'העתקת פרומפט לסוכן' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /העתקת כתובת בלבד/ })).toHaveCount(0);
+  await page.getByLabel('כתובת השרת').fill('https://kinun-mcp.example.workers.dev');
+  await page.getByLabel('טוקן').fill('x'.repeat(32));
+  await expect(page.getByRole('button', { name: /העתקת כתובת בלבד/ })).toBeVisible();
+  await snap(page, '11-settings-agents');
   await nav(page, 'לידה').click();
   await expect(page.getByRole('link', { name: 'חיוג לחדר הלידה' })).toHaveAttribute('href', 'tel:036925633');
 });

@@ -1,7 +1,8 @@
-import { Download, ExternalLink, LogOut, MinusCircle, Share2, UserPlus } from 'lucide-react';
+import { Bot, Copy, Download, ExternalLink, LogOut, MinusCircle, Share2, UserPlus } from 'lucide-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Avatar, PageTitle } from '../components/ui';
 import { ALLOWED_EMAILS } from '../lib/access';
+import { buildAgentPrompt, normalizeMcpBase } from '../lib/agentPrompt';
 import { CONTENT_RESEARCHED_AT, CONTENT_VERSION } from '../content';
 import { useActions, useHousehold, useSession } from '../data/session';
 import { useToast } from '../data/toast';
@@ -80,6 +81,98 @@ function ActionRow({
       {icon}
       <span className="min-w-0 flex-1 truncate">{children}</span>
     </button>
+  );
+}
+
+const MCP_URL_KEY = 'kinun.mcpUrl';
+const MCP_TOKEN_KEY = 'kinun.mcpToken';
+
+function readLocal(key: string, fallback = ''): string {
+  try {
+    return window.localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeLocal(key: string, value: string) {
+  try {
+    if (value) window.localStorage.setItem(key, value);
+    else window.localStorage.removeItem(key);
+  } catch {
+    /* private mode: the fields still work for this visit */
+  }
+}
+
+/** Connect AI agents (MCP). The token is a secret: it stays on this device and is never synced. */
+function AgentsGroup() {
+  const { toast } = useToast();
+  const [url, setUrl] = useState(() => readLocal(MCP_URL_KEY, import.meta.env.VITE_MCP_URL ?? ''));
+  const [token, setToken] = useState(() => readLocal(MCP_TOKEN_KEY));
+  const base = normalizeMcpBase(url);
+
+  const copy = async (text: string, done: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast(done, 'success');
+    } catch {
+      toast('אי אפשר להעתיק מהדפדפן הזה', 'error');
+    }
+  };
+
+  return (
+    <Group
+      title="סוכני AI"
+      footer="הכתובת והטוקן נשמרים רק במכשיר הזה ולא מסונכרנים. הסוכן יכול לקרוא, להוסיף, לערוך ולסמן כבוצע, אבל לא למחוק. את הטוקן מגדירים פעם אחת בשרת, ההוראות בקובץ MCP.md בתיקיית docs."
+    >
+      <FieldRow label="כתובת השרת" htmlFor="a-url">
+        <input
+          id="a-url"
+          className={`${cellInput} text-end`}
+          type="url"
+          dir="ltr"
+          placeholder="https://kinun-mcp.….workers.dev"
+          value={url}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            writeLocal(MCP_URL_KEY, e.target.value.trim());
+          }}
+        />
+      </FieldRow>
+      <FieldRow label="טוקן" htmlFor="a-token">
+        <input
+          id="a-token"
+          className={`${cellInput} text-end`}
+          type="password"
+          dir="ltr"
+          autoComplete="off"
+          value={token}
+          onChange={(e) => {
+            setToken(e.target.value);
+            writeLocal(MCP_TOKEN_KEY, e.target.value.trim());
+          }}
+        />
+      </FieldRow>
+      <ActionRow
+        onClick={() =>
+          void copy(
+            buildAgentPrompt({ baseUrl: url, token }),
+            token.trim() ? 'הפרומפט הועתק, כולל הטוקן' : 'הפרומפט הועתק. צריך להשלים את הטוקן',
+          )
+        }
+        icon={<Bot className="size-5 shrink-0" aria-hidden />}
+      >
+        העתקת פרומפט לסוכן
+      </ActionRow>
+      {base && token.trim() && (
+        <ActionRow
+          onClick={() => void copy(`${base}/mcp/${token.trim()}`, 'הכתובת הועתקה, כולל הטוקן')}
+          icon={<Copy className="size-5 shrink-0" aria-hidden />}
+        >
+          העתקת כתובת בלבד (למחברים בלי כותרות)
+        </ActionRow>
+      )}
+    </Group>
   );
 }
 
@@ -332,6 +425,8 @@ export function SettingsPage() {
           </FieldRow>
         )}
       </Group>
+
+      <AgentsGroup />
 
       {!isStandalone() && (
         <Group title="התקנה בטלפון">
